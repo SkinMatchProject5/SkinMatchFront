@@ -24,6 +24,12 @@ All colors MUST be HSL.
     --primary-soft: 340 65% 85%;
     --primary-glow: 340 90% 75%;
 
+    /* 크림 럭셔리 톤 추가 */
+    --cream: 35 25% 92%;
+    --cream-dark: 30 20% 85%;
+    --cream-light: 40 30% 96%;
+    --luxury-gold: 45 95% 78%;
+
     /* 글래스 스킨 톤 */
     --secondary: 20 20% 95%;
     --secondary-foreground: 330 15% 15%;
@@ -44,10 +50,13 @@ All colors MUST be HSL.
     --input: 345 25% 94%;
     --ring: 340 82% 52%;
 
-    /* K-Beauty 그라데이션 */
+    /* 럭셔리 그라데이션 */
     --gradient-primary: linear-gradient(135deg, hsl(340, 82%, 52%), hsl(340, 90%, 75%));
     --gradient-glass: linear-gradient(180deg, hsl(350, 30%, 98%), hsl(345, 25%, 96%));
     --gradient-glow: linear-gradient(135deg, hsl(340, 90%, 85%), hsl(350, 70%, 90%));
+    --gradient-luxury: linear-gradient(135deg, hsl(35, 25%, 92%), hsl(40, 30%, 96%));
+    --gradient-cream-flow: linear-gradient(45deg, hsl(35, 25%, 92%), hsl(30, 20%, 85%), hsl(40, 30%, 96%));
+    --gradient-hero: linear-gradient(135deg, hsl(355, 25%, 97%), hsl(35, 25%, 92%), hsl(340, 65%, 85%));
     
     /* 글래스모피즘 효과 */
     --glass-bg: hsla(350, 30%, 98%, 0.7);
@@ -132,9 +141,18 @@ All colors MUST be HSL.
     @apply bg-white/70 backdrop-blur-sm border border-white/30 shadow-lg;
   }
   
+  /* 럭셔리 크림 카드 */
+  .luxury-card {
+    @apply bg-gradient-to-br from-cream-light to-cream backdrop-blur-md border border-luxury-gold/20 shadow-2xl;
+  }
+  
   /* K-Beauty 버튼 스타일 */
   .btn-k-beauty {
     @apply bg-gradient-to-r from-primary to-primary-glow text-white px-6 py-3 rounded-2xl font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300;
+  }
+  
+  .btn-luxury {
+    @apply bg-gradient-to-r from-luxury-gold to-cream-dark text-foreground px-8 py-4 rounded-full font-semibold shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-500;
   }
   
   .btn-glass {
@@ -153,6 +171,35 @@ All colors MUST be HSL.
   .gradient-glow {
     background: var(--gradient-glow);
   }
+  
+  .gradient-luxury {
+    background: var(--gradient-luxury);
+  }
+  
+  .gradient-cream-flow {
+    background: var(--gradient-cream-flow);
+  }
+  
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  /* 플로우 셰이프 */
+  .flow-shape {
+    position: absolute;
+    border-radius: 50% 80% 60% 40%;
+    background: var(--gradient-cream-flow);
+    opacity: 0.6;
+    animation: float-rotate 20s infinite linear;
+  }
+  
+  .flow-shape-2 {
+    position: absolute;
+    border-radius: 40% 60% 80% 50%;
+    background: var(--gradient-luxury);
+    opacity: 0.4;
+    animation: float-rotate-reverse 25s infinite linear;
+  }
 
   /* 애니메이션 */
   .animate-float {
@@ -161,6 +208,10 @@ All colors MUST be HSL.
   
   .animate-glow {
     animation: glow 2s ease-in-out infinite alternate;
+  }
+  
+  .animate-flow {
+    animation: flow 8s ease-in-out infinite;
   }
 }
 
@@ -181,4 +232,25 @@ All colors MUST be HSL.
 @keyframes glow {
   from { box-shadow: 0 0 20px hsl(340, 82%, 52%, 0.5); }
   to { box-shadow: 0 0 30px hsl(340, 82%, 52%, 0.8); }
+}
+
+@keyframes float-rotate {
+  0% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-20px) rotate(120deg); }
+  66% { transform: translateY(10px) rotate(240deg); }
+  100% { transform: translateY(0px) rotate(360deg); }
+}
+
+@keyframes float-rotate-reverse {
+  0% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(15px) rotate(-120deg); }
+  66% { transform: translateY(-10px) rotate(-240deg); }
+  100% { transform: translateY(0px) rotate(-360deg); }
+}
+
+@keyframes flow {
+  0%, 100% { transform: translateX(0px) scale(1); }
+  25% { transform: translateX(20px) scale(1.05); }
+  50% { transform: translateX(-10px) scale(0.95); }
+  75% { transform: translateX(15px) scale(1.02); }
 }

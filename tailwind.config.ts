@@ -30,6 +30,12 @@ export default {
 					soft: 'hsl(var(--primary-soft))',
 					glow: 'hsl(var(--primary-glow))'
 				},
+				cream: {
+					DEFAULT: 'hsl(var(--cream))',
+					dark: 'hsl(var(--cream-dark))',
+					light: 'hsl(var(--cream-light))'
+				},
+				'luxury-gold': 'hsl(var(--luxury-gold))',
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
 					foreground: 'hsl(var(--secondary-foreground))'

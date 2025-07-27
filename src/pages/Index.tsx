@@ -34,32 +34,43 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-glass">
+    <div className="min-h-screen gradient-hero">
       {/* 히어로 섹션 */}
       <section className="relative overflow-hidden py-20 px-4">
-        <div className="max-w-6xl mx-auto text-center">
+        {/* 플로우 백그라운드 셰이프들 */}
+        <div className="flow-shape w-96 h-96 top-10 -left-20 animate-flow"></div>
+        <div className="flow-shape-2 w-80 h-80 top-40 -right-16 animate-flow" style={{animationDelay: '2s'}}></div>
+        <div className="flow-shape w-64 h-64 bottom-20 left-1/4 animate-flow" style={{animationDelay: '4s'}}></div>
+        <div className="flow-shape-2 w-72 h-72 bottom-0 right-1/3 animate-flow" style={{animationDelay: '6s'}}></div>
+        
+        <div className="max-w-6xl mx-auto text-center relative z-10">
           <div className="mb-8">
-            <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              <span className="text-gradient-primary">Skin Match</span>
-            </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground mb-2">
+            <div className="mb-6 relative">
+              <h1 className="text-6xl md:text-8xl font-bold mb-4">
+                <span className="text-gradient-primary font-serif italic">SkinMatch</span>
+              </h1>
+              <p className="text-sm tracking-[0.2em] text-luxury-gold font-medium uppercase">
+                AI CLARA
+              </p>
+            </div>
+            <p className="text-xl md:text-2xl text-muted-foreground mb-4 max-w-3xl mx-auto leading-relaxed">
               AI가 분석하는 당신만의 글래스 스킨
             </p>
-            <p className="text-lg text-muted-foreground">
-              K-뷰티의 혁신으로 완벽한 피부를 찾아보세요
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              K-뷰티의 혁신과 럭셔리 스킨케어의 만남으로 완벽한 피부를 찾아보세요
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-20">
             <Link to="/camera">
-              <Button className="h-14 px-8 text-lg btn-k-beauty animate-glow">
-                <Camera className="w-6 h-6 mr-2" />
+              <Button className="h-16 px-10 text-lg btn-luxury animate-glow">
+                <Camera className="w-6 h-6 mr-3" />
                 피부 분석 시작하기
               </Button>
             </Link>
             <Link to="/hospital">
-              <Button variant="outline" className="h-14 px-8 text-lg border-primary text-primary hover:bg-primary hover:text-white">
-                <Search className="w-6 h-6 mr-2" />
+              <Button variant="outline" className="h-16 px-10 text-lg border-luxury-gold text-luxury-gold hover:bg-luxury-gold hover:text-foreground backdrop-blur-sm bg-white/10 border-2">
+                <Search className="w-6 h-6 mr-3" />
                 병원 찾기
               </Button>
             </Link>
@@ -95,13 +106,14 @@ const Index = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="glass-card hover:shadow-xl transition-all duration-500 hover:scale-105 group">
-                <CardContent className="p-8 text-center">
-                  <div className={`w-16 h-16 bg-gradient-to-r ${feature.color} rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform`}>
-                    <feature.icon className="w-8 h-8 text-white" />
+              <Card key={index} className="luxury-card hover:shadow-2xl transition-all duration-500 hover:scale-105 group relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-luxury-gold/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <CardContent className="p-10 text-center relative z-10">
+                  <div className={`w-20 h-20 bg-gradient-to-r ${feature.color} rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform shadow-lg`}>
+                    <feature.icon className="w-10 h-10 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4">{feature.title}</h3>
-                  <p className="text-muted-foreground">{feature.description}</p>
+                  <h3 className="text-2xl font-bold mb-6 text-foreground">{feature.title}</h3>
+                  <p className="text-muted-foreground text-lg leading-relaxed">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -110,8 +122,11 @@ const Index = () => {
       </section>
 
       {/* 사용 방법 */}
-      <section className="py-20 px-4 bg-white/30">
-        <div className="max-w-6xl mx-auto">
+      <section className="py-20 px-4 relative overflow-hidden">
+        <div className="absolute inset-0 gradient-luxury opacity-60"></div>
+        <div className="flow-shape w-72 h-72 top-0 left-0 animate-flow" style={{animationDelay: '1s'}}></div>
+        <div className="flow-shape-2 w-96 h-96 bottom-0 right-0 animate-flow" style={{animationDelay: '3s'}}></div>
+        <div className="max-w-6xl mx-auto relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">간단한 4단계</h2>
             <p className="text-xl text-muted-foreground">
@@ -121,23 +136,24 @@ const Index = () => {
 
           <div className="space-y-16">
             {steps.map((step, index) => (
-              <div key={index} className={`flex flex-col ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-center gap-12`}>
+              <div key={index} className={`flex flex-col ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-center gap-16`}>
                 <div className="flex-1">
-                  <Card className="glass-card">
-                    <CardContent className="p-8">
-                      <div className="flex items-center gap-4 mb-6">
-                        <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold text-lg">
+                  <Card className="luxury-card shadow-2xl">
+                    <CardContent className="p-10">
+                      <div className="flex items-center gap-6 mb-8">
+                        <div className="w-16 h-16 bg-gradient-to-br from-primary to-luxury-gold rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
                           {step.step}
                         </div>
-                        <h3 className="text-2xl font-bold">{step.title}</h3>
+                        <h3 className="text-3xl font-bold">{step.title}</h3>
                       </div>
-                      <p className="text-lg text-muted-foreground">{step.desc}</p>
+                      <p className="text-xl text-muted-foreground leading-relaxed">{step.desc}</p>
                     </CardContent>
                   </Card>
                 </div>
                 <div className="flex-1">
-                  <div className="w-full h-64 bg-gradient-glow rounded-3xl flex items-center justify-center">
-                    <span className="text-6xl opacity-50">📱</span>
+                  <div className="w-full h-80 gradient-cream-flow rounded-[3rem] flex items-center justify-center shadow-2xl relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
+                    <span className="text-8xl opacity-60 relative z-10">📱</span>
                   </div>
                 </div>
               </div>
@@ -147,22 +163,28 @@ const Index = () => {
       </section>
 
       {/* CTA 섹션 */}
-      <section className="py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <Card className="glass-card">
-            <CardContent className="p-12">
-              <h2 className="text-4xl font-bold mb-6">
-                지금 바로 시작하세요
-              </h2>
-              <p className="text-xl text-muted-foreground mb-8">
-                AI가 분석하는 당신만의 글래스 스킨 여정을 시작해보세요
-              </p>
-              <Link to="/camera">
-                <Button className="h-16 px-12 text-xl btn-k-beauty animate-glow">
-                  <Sparkles className="w-6 h-6 mr-2" />
-                  무료로 시작하기
-                </Button>
-              </Link>
+      <section className="py-24 px-4 relative overflow-hidden">
+        <div className="flow-shape w-80 h-80 top-0 right-0 animate-flow" style={{animationDelay: '2s'}}></div>
+        <div className="flow-shape-2 w-96 h-96 bottom-0 left-0 animate-flow" style={{animationDelay: '4s'}}></div>
+        
+        <div className="max-w-5xl mx-auto text-center relative z-10">
+          <Card className="luxury-card shadow-2xl border-luxury-gold/30">
+            <CardContent className="p-16 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-luxury-gold/10 via-transparent to-primary/5"></div>
+              <div className="relative z-10">
+                <h2 className="text-5xl font-bold mb-8 bg-gradient-to-r from-primary to-luxury-gold bg-clip-text text-transparent">
+                  지금 바로 시작하세요
+                </h2>
+                <p className="text-2xl text-muted-foreground mb-12 leading-relaxed max-w-3xl mx-auto">
+                  AI가 분석하는 당신만의 글래스 스킨 여정을 시작해보세요
+                </p>
+                <Link to="/camera">
+                  <Button className="h-20 px-16 text-2xl btn-luxury animate-glow shadow-2xl">
+                    <Sparkles className="w-8 h-8 mr-4" />
+                    무료로 시작하기
+                  </Button>
+                </Link>
+              </div>
             </CardContent>
           </Card>
         </div>
