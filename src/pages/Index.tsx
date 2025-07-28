@@ -4,6 +4,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Camera, Search, Sparkles, TrendingUp, Star, Users } from 'lucide-react';
 import heroModel from '@/assets/hero-model.jpg';
+import step1Camera from '@/assets/step-1-camera.jpg';
+import step2Analysis from '@/assets/step-2-analysis.jpg';
+import step3Results from '@/assets/step-3-results.jpg';
+import step4Hospital from '@/assets/step-4-hospital.jpg';
 
 const Index = () => {
   const features = [
@@ -28,10 +32,10 @@ const Index = () => {
   ];
 
   const steps = [
-    { step: '01', title: '사진 촬영', desc: '정면, 좌측, 우측 3방향으로 촬영' },
-    { step: '02', title: 'AI 분석', desc: '고도화된 AI가 피부 상태를 정밀 분석' },
-    { step: '03', title: '결과 확인', desc: '상세한 분석 결과와 개선 방법 제시' },
-    { step: '04', title: '병원 추천', desc: '필요시 전문 의료진 상담 연결' }
+    { step: '01', title: '사진 촬영', desc: '정면, 좌측, 우측 3방향으로 촬영', image: step1Camera },
+    { step: '02', title: 'AI 분석', desc: '고도화된 AI가 피부 상태를 정밀 분석', image: step2Analysis },
+    { step: '03', title: '결과 확인', desc: '상세한 분석 결과와 개선 방법 제시', image: step3Results },
+    { step: '04', title: '병원 추천', desc: '필요시 전문 의료진 상담 연결', image: step4Hospital }
   ];
 
   return (
@@ -163,9 +167,20 @@ const Index = () => {
                   </Card>
                 </div>
                 <div className="flex-1">
-                  <div className="w-full h-80 gradient-cream-flow rounded-[3rem] flex items-center justify-center shadow-2xl relative overflow-hidden">
+                  {/* 단계별 데모 이미지 - 실제 서비스에서는 각 기능의 실제 스크린샷으로 교체 */}
+                  {/* TODO: 실제 구현 시 각 단계별 실제 앱 화면 캡처 이미지로 교체 */}
+                  <div className="w-full h-80 gradient-cream-flow rounded-[3rem] shadow-2xl relative overflow-hidden">
+                    <img 
+                      src={step.image} 
+                      alt={`${step.title} 데모 이미지`}
+                      className="w-full h-full object-cover"
+                    />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
-                    <span className="text-8xl opacity-60 relative z-10">📱</span>
+                    <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2">
+                      <span className="text-sm font-medium text-primary">
+                        {step.title} 미리보기
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
