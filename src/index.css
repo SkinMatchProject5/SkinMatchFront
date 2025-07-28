@@ -8,62 +8,62 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* K-Beauty 컬러 팔레트 */
-    --background: 355 25% 97%;
-    --foreground: 330 15% 15%;
+    /* Dermatology-inspired color palette */
+    --background: 346 59 94; /* Soft rose base (#F2BCD inspired) */
+    --foreground: 289 21 30; /* Deep plum text (#563C5C) */
 
-    --card: 0 0% 100%;
-    --card-foreground: 330 15% 15%;
+    --card: 346 45 96;
+    --card-foreground: 289 21 30;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 330 15% 15%;
+    --popover: 346 45 96;
+    --popover-foreground: 289 21 30;
 
-    /* 메인 핑크 계열 */
-    --primary: 340 82% 52%;
-    --primary-foreground: 0 0% 100%;
-    --primary-soft: 340 65% 85%;
-    --primary-glow: 340 90% 75%;
+    /* Primary Colors - Professional dermatology palette */
+    --primary: 346 59 84; /* Main rose (#F2BCD) */
+    --primary-foreground: 289 21 30;
+    --primary-soft: 346 35 90;
+    --primary-glow: 346 70 80;
 
-    /* 크림 럭셔리 톤 추가 */
-    --cream: 35 25% 92%;
-    --cream-dark: 30 20% 85%;
-    --cream-light: 40 30% 96%;
-    --luxury-gold: 45 95% 78%;
+    /* Professional medical tones */
+    --cream: 346 20 98;
+    --cream-dark: 346 15 95;
+    --cream-light: 346 25 99;
+    --luxury-gold: 346 40 75;
 
-    /* 글래스 스킨 톤 */
-    --secondary: 20 20% 95%;
-    --secondary-foreground: 330 15% 15%;
-    --glass: 350 30% 98%;
-    --glass-foreground: 330 20% 25%;
+    /* Secondary - Deep plum (#563C5C) */
+    --secondary: 289 21 30;
+    --secondary-foreground: 346 59 94;
+    --glass: 346 30 95;
+    --glass-foreground: 289 21 30;
 
-    /* 부드러운 뉴트럴 */
-    --muted: 345 15% 92%;
-    --muted-foreground: 330 10% 45%;
+    /* Neutral tones */
+    --muted: 346 25 92;
+    --muted-foreground: 289 15 50;
 
-    --accent: 340 45% 88%;
-    --accent-foreground: 330 15% 15%;
+    --accent: 289 35 85;
+    --accent-foreground: 289 21 30;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 345 20% 90%;
-    --input: 345 25% 94%;
-    --ring: 340 82% 52%;
+    --border: 346 25 88;
+    --input: 346 25 90;
+    --ring: 346 59 84;
 
-    /* 럭셔리 그라데이션 */
-    --gradient-primary: linear-gradient(135deg, hsl(340, 82%, 52%), hsl(340, 90%, 75%));
-    --gradient-glass: linear-gradient(180deg, hsl(350, 30%, 98%), hsl(345, 25%, 96%));
-    --gradient-glow: linear-gradient(135deg, hsl(340, 90%, 85%), hsl(350, 70%, 90%));
-    --gradient-luxury: linear-gradient(135deg, hsl(35, 25%, 92%), hsl(40, 30%, 96%));
-    --gradient-cream-flow: linear-gradient(45deg, hsl(35, 25%, 92%), hsl(30, 20%, 85%), hsl(40, 30%, 96%));
-    --gradient-hero: linear-gradient(135deg, hsl(355, 25%, 97%), hsl(35, 25%, 92%), hsl(340, 65%, 85%));
+    /* Professional gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(346, 59%, 84%), hsl(346, 45%, 90%));
+    --gradient-secondary: linear-gradient(135deg, hsl(289, 21%, 30%), hsl(289, 25%, 40%));
+    --gradient-glass: linear-gradient(180deg, hsl(346, 30%, 95%), hsl(346, 25%, 92%));
+    --gradient-luxury: linear-gradient(135deg, hsl(346, 20%, 98%), hsl(346, 25%, 99%));
+    --gradient-cream-flow: linear-gradient(45deg, hsl(346, 20%, 98%), hsl(346, 35%, 90%), hsl(289, 25%, 85%));
+    --gradient-hero: linear-gradient(135deg, hsl(346, 59%, 84%), hsl(289, 21%, 40%), hsl(346, 20%, 98%));
     
-    /* 글래스모피즘 효과 */
-    --glass-bg: hsla(350, 30%, 98%, 0.7);
-    --glass-border: hsla(340, 40%, 85%, 0.3);
-    --glass-shadow: 0 8px 32px hsla(340, 50%, 50%, 0.1);
+    /* Medical glassmorphism effects */
+    --glass-bg: hsla(346, 30%, 95%, 0.7);
+    --glass-border: hsla(346, 40%, 85%, 0.3);
+    --glass-shadow: 0 8px 32px hsla(346, 50%, 80%, 0.1);
 
-    /* 애니메이션 */
+    /* Professional transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
@@ -87,33 +87,33 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 289 21 15; /* Dark plum base */
+    --foreground: 346 45 90;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 289 25 18;
+    --card-foreground: 346 45 90;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 289 25 18;
+    --popover-foreground: 346 45 90;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 346 59 84; /* Maintain rose accent */
+    --primary-foreground: 289 21 30;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 289 25 25;
+    --secondary-foreground: 346 45 90;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 289 20 22;
+    --muted-foreground: 346 25 70;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 289 30 30;
+    --accent-foreground: 346 45 90;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 289 20 25;
+    --input: 289 20 25;
+    --ring: 346 59 84;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
