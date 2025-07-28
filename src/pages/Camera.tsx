@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Camera as CameraIcon, Upload, RotateCcw, Check, ArrowRight } from 'lucide-react';
+import faceAnalysisDemo from '@/assets/face-analysis-demo.jpg';
 
 const Camera = () => {
   const [capturedImages, setCapturedImages] = useState<string[]>([]);
@@ -91,20 +92,33 @@ const Camera = () => {
           /* 촬영 화면 */
           <Card className="glass-card mb-6 overflow-hidden">
             <CardContent className="p-0">
-              <div className="aspect-[4/3] bg-gradient-to-br from-primary-soft/10 to-primary-glow/10 relative flex items-center justify-center">
+              <div className="aspect-[4/3] bg-gradient-to-br from-primary-soft/10 to-primary-glow/10 relative flex items-center justify-center overflow-hidden">
+                {/* 데모용 얼굴 이미지 - 실제 서비스에서는 실시간 카메라 피드로 교체 */}
+                {/* TODO: 실제 구현 시 getUserMedia API로 카메라 스트림 연결 */}
+                <div className="absolute inset-0">
+                  <img 
+                    src={faceAnalysisDemo} 
+                    alt="Face analysis demo" 
+                    className="w-full h-full object-cover opacity-40"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary-soft/20 to-primary-glow/20"></div>
+                </div>
+                
                 {/* 가이드라인 */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-64 h-80 border-2 border-dashed border-primary/50 rounded-full flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center z-10">
+                  <div className="w-64 h-80 border-2 border-dashed border-primary/80 rounded-full flex items-center justify-center">
                     <div className="text-center">
-                      <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <div className="w-16 h-16 bg-primary/30 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 border border-primary/50">
                         <span className="text-2xl">👤</span>
                       </div>
-                      <p className="text-primary font-medium">
-                        {steps[currentStep]} 각도로 촬영
-                      </p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        얼굴을 가이드에 맞춰주세요
-                      </p>
+                      <div className="bg-white/90 backdrop-blur-sm rounded-lg p-3 border border-primary/30">
+                        <p className="text-primary font-medium">
+                          {steps[currentStep]} 각도로 촬영
+                        </p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          얼굴을 가이드에 맞춰주세요
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import SearchFilters from '@/components/features/hospital/SearchFilters';
 import HospitalCard from '@/components/features/hospital/HospitalCard';
 import { MapPin, SlidersHorizontal, List, Grid3X3 } from 'lucide-react';
+import hospitalMapDemo from '@/assets/hospital-map-demo.jpg';
 
 const HospitalSearch = () => {
   const [searchLocation, setSearchLocation] = useState('');
@@ -188,14 +189,24 @@ const HospitalSearch = () => {
           <div className="lg:sticky lg:top-32 h-[600px]">
             <Card className="h-full glass-card overflow-hidden">
               <CardContent className="p-0 h-full relative">
-                <div className="h-full bg-gradient-to-br from-primary-soft/20 to-primary-glow/20 flex items-center justify-center">
-                  <div className="text-center">
-                    <MapPin className="w-16 h-16 text-primary mx-auto mb-4 animate-bounce" />
-                    <p className="text-lg font-medium text-primary mb-2">
-                      지도 영역
+                {/* 데모용 구글맵 스타일 이미지 - 실제 서비스에서는 Google Maps API로 교체 */}
+                {/* TODO: 실제 구현 시 Google Maps JavaScript API 또는 Naver Maps API 연동 */}
+                <div className="h-full relative">
+                  <img 
+                    src={hospitalMapDemo} 
+                    alt="Hospital map interface demo" 
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary-soft/10 to-primary-glow/10"></div>
+                  
+                  {/* 오버레이 정보 */}
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center bg-white/90 backdrop-blur-sm rounded-lg p-4 border border-primary/30">
+                    <MapPin className="w-8 h-8 text-primary mx-auto mb-2" />
+                    <p className="text-sm font-medium text-primary mb-1">
+                      실시간 병원 위치
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                      병원 위치가 여기에 표시됩니다
+                    <p className="text-xs text-muted-foreground">
+                      개발 시 실제 지도로 교체
                     </p>
                   </div>
                 </div>

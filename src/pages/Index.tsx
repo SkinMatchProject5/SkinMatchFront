@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Camera, Search, Sparkles, TrendingUp, Star, Users } from 'lucide-react';
+import heroModel from '@/assets/hero-model.jpg';
 
 const Index = () => {
   const features = [
@@ -37,6 +38,17 @@ const Index = () => {
     <div className="min-h-screen gradient-hero">
       {/* 히어로 섹션 */}
       <section className="relative overflow-hidden py-20 px-4">
+        {/* 백그라운드 이미지 - 개발용 데모 이미지 */}
+        {/* TODO: 실제 서비스에서는 고품질 K-뷰티 모델 사진으로 교체 */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={heroModel} 
+            alt="K-beauty model with glass skin" 
+            className="w-full h-full object-cover opacity-30"
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-background/80 via-background/60 to-background/80"></div>
+        </div>
+        
         {/* 플로우 백그라운드 셰이프들 */}
         <div className="flow-shape w-96 h-96 top-10 -left-20 animate-flow"></div>
         <div className="flow-shape-2 w-80 h-80 top-40 -right-16 animate-flow" style={{animationDelay: '2s'}}></div>
