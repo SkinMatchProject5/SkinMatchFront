@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Camera, Search, Sparkles, TrendingUp, Star, Users } from 'lucide-react';
+import { Typography } from '@/components/ui/theme-typography';
+import { Container, Section } from '@/components/ui/theme-container';
+import { Header, Navigation, Hero, Footer } from '@/components/ui/theme-layout';
+import { Camera, Search, Sparkles, ArrowRight, Check } from 'lucide-react';
 import heroModel from '@/assets/hero-model.jpg';
 import step1Camera from '@/assets/step-1-camera.jpg';
 import step2Analysis from '@/assets/step-2-analysis.jpg';
@@ -14,208 +16,231 @@ const Index = () => {
     {
       icon: Camera,
       title: 'AI 피부 분석',
-      description: '3방향 촬영으로 정밀한 피부 상태 분석',
-      color: 'from-pink-500 to-rose-500'
+      description: '정밀한 피부 상태 분석과 맞춤형 솔루션 제공'
     },
     {
       icon: Search,
-      title: '맞춤 병원 추천',
-      description: '분석 결과에 따른 전문 병원 찾기',
-      color: 'from-purple-500 to-indigo-500'
+      title: '전문 병원 매칭',
+      description: '분석 결과 기반 최적의 피부과 전문의 연결'
     },
     {
       icon: Sparkles,
       title: 'K-뷰티 케어',
-      description: '개인 맞춤형 스킨케어 루틴 제안',
-      color: 'from-cyan-500 to-blue-500'
+      description: '개인별 맞춤 스킨케어 루틴과 제품 추천'
     }
   ];
 
   const steps = [
-    { step: '01', title: '사진 촬영', desc: '정면, 좌측, 우측 3방향으로 촬영', image: step1Camera },
-    { step: '02', title: 'AI 분석', desc: '고도화된 AI가 피부 상태를 정밀 분석', image: step2Analysis },
-    { step: '03', title: '결과 확인', desc: '상세한 분석 결과와 개선 방법 제시', image: step3Results },
-    { step: '04', title: '병원 추천', desc: '필요시 전문 의료진 상담 연결', image: step4Hospital }
+    { 
+      number: '01', 
+      title: '3방향 촬영', 
+      description: '정면, 좌측, 우측으로 촬영하여 정확한 피부 상태 파악',
+      image: step1Camera 
+    },
+    { 
+      number: '02', 
+      title: 'AI 분석', 
+      description: '고도화된 딥러닝 알고리즘으로 피부 타입과 문제점 분석',
+      image: step2Analysis 
+    },
+    { 
+      number: '03', 
+      title: '결과 리포트', 
+      description: '상세한 분석 결과와 개선 방향 제시',
+      image: step3Results 
+    },
+    { 
+      number: '04', 
+      title: '전문의 매칭', 
+      description: '필요시 해당 분야 전문의와 직접 상담 연결',
+      image: step4Hospital 
+    }
   ];
 
   return (
-    <div className="min-h-screen gradient-hero">
-      {/* 히어로 섹션 */}
-      <section className="relative overflow-hidden py-20 px-4">
-        {/* 백그라운드 이미지 - 개발용 데모 이미지 */}
-        {/* TODO: 실제 서비스에서는 고품질 K-뷰티 모델 사진으로 교체 */}
-        <div className="absolute inset-0 z-0">
-          <img 
-            src={heroModel} 
-            alt="K-beauty model with glass skin" 
-            className="w-full h-full object-cover opacity-30"
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-background/80 via-background/60 to-background/80"></div>
-        </div>
-        
-        {/* 플로우 백그라운드 셰이프들 */}
-        <div className="flow-shape w-96 h-96 top-10 -left-20 animate-flow"></div>
-        <div className="flow-shape-2 w-80 h-80 top-40 -right-16 animate-flow" style={{animationDelay: '2s'}}></div>
-        <div className="flow-shape w-64 h-64 bottom-20 left-1/4 animate-flow" style={{animationDelay: '4s'}}></div>
-        <div className="flow-shape-2 w-72 h-72 bottom-0 right-1/3 animate-flow" style={{animationDelay: '6s'}}></div>
-        
-        <div className="max-w-6xl mx-auto text-center relative z-10">
-          <div className="mb-8">
-            <div className="mb-6 relative">
-              <h1 className="text-6xl md:text-8xl font-bold mb-4">
-                <span className="text-gradient-primary font-serif italic">SkinMatch</span>
-              </h1>
-              <p className="text-sm tracking-[0.2em] text-luxury-gold font-medium uppercase">
-                AI CLARA
-              </p>
-            </div>
-            <p className="text-xl md:text-2xl text-muted-foreground mb-4 max-w-3xl mx-auto leading-relaxed">
-              AI가 분석하는 당신만의 글래스 스킨
-            </p>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              K-뷰티의 혁신과 럭셔리 스킨케어의 만남으로 완벽한 피부를 찾아보세요
-            </p>
+    <div className="min-h-screen bg-background">
+      {/* Hero Section - Linear Style */}
+      <Section spacing="hero" className="relative">
+        <Container size="xl" className="text-center">
+          {/* TODO: 실제 서비스에서는 고품질 K-뷰티 모델 사진으로 교체 */}
+          <div className="absolute inset-0 z-0 opacity-10">
+            <img 
+              src={heroModel} 
+              alt="K-beauty model background" 
+              className="w-full h-full object-cover"
+            />
           </div>
-
-          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-20">
-            <Link to="/camera">
-              <Button className="h-16 px-10 text-lg btn-luxury animate-glow">
-                <Camera className="w-6 h-6 mr-3" />
-                피부 분석 시작하기
-              </Button>
-            </Link>
-            <Link to="/hospital">
-              <Button variant="outline" className="h-16 px-10 text-lg border-luxury-gold text-luxury-gold hover:bg-luxury-gold hover:text-foreground backdrop-blur-sm bg-white/10 border-2">
-                <Search className="w-6 h-6 mr-3" />
-                병원 찾기
-              </Button>
-            </Link>
-          </div>
-
-          {/* 통계 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-            <div className="text-center">
-              <div className="text-4xl font-bold text-primary mb-2">50,000+</div>
-              <div className="text-muted-foreground">분석 완료</div>
+          
+          <div className="relative z-10 space-y-8">
+            <div className="space-y-4">
+              <Typography variant="caption" className="uppercase tracking-wider text-primary">
+                피부과 전문 AI 분석
+              </Typography>
+              <Typography variant="h1" className="max-w-4xl mx-auto">
+                AI가 제안하는<br />당신만의 피부 솔루션
+              </Typography>
+              <Typography variant="h2" className="max-w-2xl mx-auto">
+                전문적인 피부 분석과 맞춤형 케어로 건강한 피부를 만나보세요
+              </Typography>
             </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-primary mb-2">98.7%</div>
-              <div className="text-muted-foreground">정확도</div>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+              <Link to="/camera" className="flex-1">
+                <Button size="lg" className="w-full">
+                  <Camera className="w-5 h-5" />
+                  피부 분석 시작
+                </Button>
+              </Link>
+              <Link to="/hospital" className="flex-1">
+                <Button variant="outline" size="lg" className="w-full">
+                  병원 찾기
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
             </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-primary mb-2">1,200+</div>
-              <div className="text-muted-foreground">협력 병원</div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-16">
+              <div className="text-center">
+                <Typography variant="h3" className="text-primary">50K+</Typography>
+                <Typography variant="bodySmall">분석 완료</Typography>
+              </div>
+              <div className="text-center">
+                <Typography variant="h3" className="text-primary">98.7%</Typography>
+                <Typography variant="bodySmall">정확도</Typography>
+              </div>
+              <div className="text-center">
+                <Typography variant="h3" className="text-primary">1.2K+</Typography>
+                <Typography variant="bodySmall">협력 병원</Typography>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
-      {/* 서비스 소개 */}
-      <section className="py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">완벽한 K-뷰티 솔루션</h2>
-            <p className="text-xl text-muted-foreground">
-              AI 기술과 전문의 네트워크로 제공하는 통합 피부 케어 서비스
-            </p>
+      {/* Features Section */}
+      <Section spacing="default" background="muted">
+        <Container size="xl">
+          <div className="text-center mb-16 space-y-4">
+            <Typography variant="h3">전문적인 피부 케어 솔루션</Typography>
+            <Typography variant="subtitle" className="max-w-2xl mx-auto">
+              AI 분석부터 전문의 상담까지 통합적인 피부 관리 서비스
+            </Typography>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="luxury-card hover:shadow-2xl transition-all duration-500 hover:scale-105 group relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-luxury-gold/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <CardContent className="p-10 text-center relative z-10">
-                  <div className={`w-20 h-20 bg-gradient-to-r ${feature.color} rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform shadow-lg`}>
-                    <feature.icon className="w-10 h-10 text-white" />
+              <div key={index} className="group">
+                <div className="bg-card rounded-xl p-8 h-full border border-border hover:border-primary/20 transition-all duration-300">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-6 group-hover:bg-primary/15 transition-colors">
+                    <feature.icon className="w-6 h-6 text-primary" />
                   </div>
-                  <h3 className="text-2xl font-bold mb-6 text-foreground">{feature.title}</h3>
-                  <p className="text-muted-foreground text-lg leading-relaxed">{feature.description}</p>
-                </CardContent>
-              </Card>
+                  <Typography variant="h4" className="mb-4 text-foreground">
+                    {feature.title}
+                  </Typography>
+                  <Typography variant="bodySmall" className="leading-relaxed">
+                    {feature.description}
+                  </Typography>
+                </div>
+              </div>
             ))}
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
-      {/* 사용 방법 */}
-      <section className="py-20 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 gradient-luxury opacity-60"></div>
-        <div className="flow-shape w-72 h-72 top-0 left-0 animate-flow" style={{animationDelay: '1s'}}></div>
-        <div className="flow-shape-2 w-96 h-96 bottom-0 right-0 animate-flow" style={{animationDelay: '3s'}}></div>
-        <div className="max-w-6xl mx-auto relative z-10">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">간단한 4단계</h2>
-            <p className="text-xl text-muted-foreground">
-              누구나 쉽게 사용할 수 있는 직관적인 프로세스
-            </p>
+      {/* How it works */}
+      <Section spacing="default">
+        <Container size="xl">
+          <div className="text-center mb-16 space-y-4">
+            <Typography variant="h3">간단한 4단계 프로세스</Typography>
+            <Typography variant="subtitle" className="max-w-2xl mx-auto">
+              직관적이고 효율적인 피부 분석 과정
+            </Typography>
           </div>
 
-          <div className="space-y-16">
+          <div className="space-y-24">
             {steps.map((step, index) => (
-              <div key={index} className={`flex flex-col ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-center gap-16`}>
-                <div className="flex-1">
-                  <Card className="luxury-card shadow-2xl">
-                    <CardContent className="p-10">
-                      <div className="flex items-center gap-6 mb-8">
-                        <div className="w-16 h-16 bg-gradient-to-br from-primary to-luxury-gold rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                          {step.step}
-                        </div>
-                        <h3 className="text-3xl font-bold">{step.title}</h3>
-                      </div>
-                      <p className="text-xl text-muted-foreground leading-relaxed">{step.desc}</p>
-                    </CardContent>
-                  </Card>
+              <div key={index} className={`grid grid-cols-1 lg:grid-cols-2 gap-16 items-center ${index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''}`}>
+                <div className={`space-y-6 ${index % 2 === 1 ? 'lg:col-start-2' : ''}`}>
+                  <div className="flex items-center gap-4">
+                    <div className="w-8 h-8 bg-primary text-primary-foreground rounded-lg flex items-center justify-center text-sm font-medium">
+                      {step.number}
+                    </div>
+                    <Typography variant="caption" className="text-primary uppercase tracking-wider">
+                      STEP {step.number}
+                    </Typography>
+                  </div>
+                  <Typography variant="h3" className="text-foreground">
+                    {step.title}
+                  </Typography>
+                  <Typography variant="body" className="leading-relaxed max-w-md">
+                    {step.description}
+                  </Typography>
                 </div>
-                <div className="flex-1">
-                  {/* 단계별 데모 이미지 - 실제 서비스에서는 각 기능의 실제 스크린샷으로 교체 */}
+                
+                <div className={`${index % 2 === 1 ? 'lg:col-start-1 lg:row-start-1' : ''}`}>
                   {/* TODO: 실제 구현 시 각 단계별 실제 앱 화면 캡처 이미지로 교체 */}
-                  <div className="w-full h-80 gradient-cream-flow rounded-[3rem] shadow-2xl relative overflow-hidden">
+                  <div className="relative bg-card rounded-2xl overflow-hidden border border-border">
                     <img 
                       src={step.image} 
-                      alt={`${step.title} 데모 이미지`}
-                      className="w-full h-full object-cover"
+                      alt={`${step.title} 미리보기`}
+                      className="w-full h-80 object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
-                    <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2">
-                      <span className="text-sm font-medium text-primary">
-                        {step.title} 미리보기
-                      </span>
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent"></div>
+                    <div className="absolute bottom-4 left-4">
+                      <div className="bg-background/90 backdrop-blur-sm rounded-lg px-3 py-2 border border-border">
+                        <Typography variant="caption" className="text-foreground">
+                          {step.title}
+                        </Typography>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
-      {/* CTA 섹션 */}
-      <section className="py-24 px-4 relative overflow-hidden">
-        <div className="flow-shape w-80 h-80 top-0 right-0 animate-flow" style={{animationDelay: '2s'}}></div>
-        <div className="flow-shape-2 w-96 h-96 bottom-0 left-0 animate-flow" style={{animationDelay: '4s'}}></div>
-        
-        <div className="max-w-5xl mx-auto text-center relative z-10">
-          <Card className="luxury-card shadow-2xl border-luxury-gold/30">
-            <CardContent className="p-16 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-luxury-gold/10 via-transparent to-primary/5"></div>
-              <div className="relative z-10">
-                <h2 className="text-5xl font-bold mb-8 bg-gradient-to-r from-primary to-luxury-gold bg-clip-text text-transparent">
-                  지금 바로 시작하세요
-                </h2>
-                <p className="text-2xl text-muted-foreground mb-12 leading-relaxed max-w-3xl mx-auto">
-                  AI가 분석하는 당신만의 글래스 스킨 여정을 시작해보세요
-                </p>
-                <Link to="/camera">
-                  <Button className="h-20 px-16 text-2xl btn-luxury animate-glow shadow-2xl">
-                    <Sparkles className="w-8 h-8 mr-4" />
-                    무료로 시작하기
-                  </Button>
-                </Link>
+      {/* CTA Section */}
+      <Section spacing="default" background="card">
+        <Container size="lg" className="text-center">
+          <div className="max-w-3xl mx-auto space-y-8">
+            <div className="space-y-4">
+              <Typography variant="h3">
+                지금 바로 시작해보세요
+              </Typography>
+              <Typography variant="h2">
+                전문적인 피부 분석과 맞춤형 솔루션을 경험해보세요
+              </Typography>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+              <Link to="/camera" className="flex-1">
+                <Button size="lg" className="w-full">
+                  <Camera className="w-5 h-5" />
+                  무료로 시작하기
+                </Button>
+              </Link>
+            </div>
+
+            <div className="flex items-center justify-center gap-6 pt-8 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-primary" />
+                무료 분석
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-primary" />
+                즉시 결과
+              </div>
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-primary" />
+                전문의 매칭
+              </div>
+            </div>
+          </div>
+        </Container>
+      </Section>
     </div>
   );
 };
