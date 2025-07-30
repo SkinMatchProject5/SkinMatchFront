@@ -98,6 +98,20 @@ const Index = () => {
                 </Button>
               </Link>
             </div>
+            
+            {/* Login/Signup Buttons */}
+            <div className="flex justify-center gap-4 pt-8">
+              <Link to="/login">
+                <Button variant="ghost" size="sm">
+                  로그인
+                </Button>
+              </Link>
+              <Link to="/signup">
+                <Button variant="outline" size="sm">
+                  회원가입
+                </Button>
+              </Link>
+            </div>
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-16">
