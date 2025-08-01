@@ -2,10 +2,12 @@ import React, { useState, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Camera as CameraIcon, Upload, RotateCcw, Check, ArrowRight } from 'lucide-react';
+import { Camera as CameraIcon, Upload, RotateCcw, Check, ArrowRight, MessageCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import faceAnalysisDemo from '@/assets/face-analysis-demo.jpg';
 
 const Camera = () => {
+  const navigate = useNavigate();
   const [capturedImages, setCapturedImages] = useState<string[]>([]);
   const [currentStep, setCurrentStep] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -194,10 +196,10 @@ const Camera = () => {
           ) : (
             <Button 
               className="w-full h-16 text-lg btn-k-beauty animate-glow"
-              onClick={() => {/* 분석 페이지로 이동 */}}
+              onClick={() => navigate('/questionnaire')}
             >
-              <span className="mr-2">✨</span>
-              AI 분석 시작하기
+              <MessageCircle className="w-5 h-5 mr-2" />
+              설문조사 시작하기
             </Button>
           )}
         </div>
