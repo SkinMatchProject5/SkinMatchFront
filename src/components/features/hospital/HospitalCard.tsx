@@ -62,7 +62,7 @@ const HospitalCard = ({ hospital, onBookmark, onCall, onNavigate }: HospitalCard
                   className="p-1 h-6 w-6"
                   onClick={() => onBookmark?.(hospital.id)}
                 >
-                  <Heart className={`w-4 h-4 ${hospital.isBookmarked ? 'text-red-500 fill-red-500' : 'text-gray-400'}`} />
+                  <Heart className={w-4 h-4 ${hospital.isBookmarked ? 'text-red-500 fill-red-500' : 'text-gray-400'}} />
                 </Button>
               </div>
             </div>
