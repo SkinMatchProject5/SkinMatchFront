@@ -5,14 +5,12 @@ import { Badge } from '@/components/ui/badge';
 import { Camera, Sparkles, TrendingUp, AlertCircle, Info } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { useNavigate } from 'react-router-dom';
-
 const Analysis = () => {
   const navigate = useNavigate();
-  
-  
+
   // 사용자가 업로드한 사진 (실제로는 props나 state에서 가져올 것)
   const userUploadedImage = '/placeholder.svg'; // 실제 업로드된 이미지 URL
-  
+
   // AI 분석 결과
   const analysisResult = {
     predictedDisease: '습진성 피부염',
@@ -22,22 +20,33 @@ const Analysis = () => {
   };
 
   // 비슷한 질환들 (슬라이드용)
-  const similarDiseases = [
-    { name: '접촉성 피부염', confidence: 78, description: '외부 자극물질로 인한 피부 염증' },
-    { name: '아토피 피부염', confidence: 72, description: '만성적인 알레르기성 피부 질환' },
-    { name: '지루성 피부염', confidence: 68, description: '피지 분비가 많은 부위의 염증' },
-    { name: '건선', confidence: 65, description: '면역계 이상으로 인한 만성 피부 질환' },
-    { name: '두드러기', confidence: 62, description: '알레르기 반응으로 인한 일시적 피부 증상' }
-  ];
-
+  const similarDiseases = [{
+    name: '접촉성 피부염',
+    confidence: 78,
+    description: '외부 자극물질로 인한 피부 염증'
+  }, {
+    name: '아토피 피부염',
+    confidence: 72,
+    description: '만성적인 알레르기성 피부 질환'
+  }, {
+    name: '지루성 피부염',
+    confidence: 68,
+    description: '피지 분비가 많은 부위의 염증'
+  }, {
+    name: '건선',
+    confidence: 65,
+    description: '면역계 이상으로 인한 만성 피부 질환'
+  }, {
+    name: '두드러기',
+    confidence: 62,
+    description: '알레르기 반응으로 인한 일시적 피부 증상'
+  }];
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 80) return 'text-green-600 bg-green-50 border-green-200';
     if (confidence >= 60) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
     return 'text-red-600 bg-red-50 border-red-200';
   };
-
-  return (
-    <div className="min-h-screen bg-gradient-glass p-4">
+  return <div className="min-h-screen bg-gradient-glass p-4">
       <div className="max-w-4xl mx-auto">
         {/* 헤더 */}
         <div className="text-center mb-8">
@@ -55,14 +64,10 @@ const Analysis = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* 업로드된 사진 */}
               <div className="space-y-4 flex flex-col justify-center">
-                <h2 className="text-xl font-semibold mb-3">분석 이미지</h2>
+                <h2 className="text-xl font-semibold mb-3 mx-[13px] my-0">분석 이미지</h2>
                 <div className="aspect-square bg-gradient-glow rounded-2xl p-3">
                   <div className="w-full h-full bg-white/50 rounded-xl flex items-center justify-center relative overflow-hidden">
-                    <img 
-                      src={userUploadedImage} 
-                      alt="사용자 업로드 이미지" 
-                      className="w-full h-full object-cover rounded-xl"
-                    />
+                    <img src={userUploadedImage} alt="사용자 업로드 이미지" className="w-full h-full object-cover rounded-xl" />
                     <div className="absolute top-3 left-3">
                       <Badge className="bg-primary text-white">
                         환부 촬영
@@ -94,19 +99,16 @@ const Analysis = () => {
                       <span className="font-semibold">{analysisResult.confidence}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-primary h-2 rounded-full transition-all duration-500"
-                        style={{ width: `${analysisResult.confidence}%` }}
-                      ></div>
+                      <div className="bg-primary h-2 rounded-full transition-all duration-500" style={{
+                      width: `${analysisResult.confidence}%`
+                    }}></div>
                     </div>
                   </div>
 
-                  {analysisResult.confidence < 70 && (
-                    <div className="flex items-center gap-2 text-amber-600 text-sm p-3 bg-amber-50 rounded-lg border border-amber-200">
+                  {analysisResult.confidence < 70 && <div className="flex items-center gap-2 text-amber-600 text-sm p-3 bg-amber-50 rounded-lg border border-amber-200">
                       <AlertCircle className="w-4 h-4" />
                       <span>정확한 진단을 위해 전문의 상담을 권장합니다</span>
-                    </div>
-                  )}
+                    </div>}
                 </div>
 
                 {/* 진단 소견 */}
@@ -135,10 +137,12 @@ const Analysis = () => {
             <div className="mb-4">
               <h2 className="text-xl font-semibold">유사질환</h2>
             </div>
-            <Carousel opts={{ align: 'start', loop: true }}>
+            <Carousel opts={{
+            align: 'start',
+            loop: true
+          }}>
               <CarouselContent className="-ml-2">
-                {similarDiseases.map((item, index) => (
-                  <CarouselItem key={index} className="pl-2 basis-full">
+                {similarDiseases.map((item, index) => <CarouselItem key={index} className="pl-2 basis-full">
                     <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-gray-200 hover:border-primary/40 transition-all duration-200">
                       <div className="flex items-center justify-between mb-2">
                         <h3 className="font-medium text-gray-800">{item.name}</h3>
@@ -150,8 +154,7 @@ const Analysis = () => {
                         {item.description}
                       </p>
                     </div>
-                  </CarouselItem>
-                ))}
+                  </CarouselItem>)}
               </CarouselContent>
               <CarouselPrevious />
               <CarouselNext />
@@ -202,8 +205,6 @@ const Analysis = () => {
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Analysis;
