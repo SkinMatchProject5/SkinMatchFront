@@ -8,120 +8,116 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Dermatology-inspired color palette */
-    --background: 346 59 94; /* Soft rose base (#F2BCD inspired) */
-    --foreground: 289 21 30; /* Deep plum text (#563C5C) */
+    /* Warm neutral beauty-care palette (from user's colors) */
+    --background: 60 31% 95%; /* #F6F6EE */
+    --foreground: 15 27% 32%; /* #67463B */
 
-    --card: 346 45 96;
-    --card-foreground: 289 21 30;
+    --card: 60 100% 99%; /* #FFFFFD */
+    --card-foreground: 15 27% 32%;
 
-    --popover: 346 45 96;
-    --popover-foreground: 289 21 30;
+    --popover: 60 100% 99%;
+    --popover-foreground: 15 27% 32%;
 
-    /* Primary Colors - Professional dermatology palette */
-    --primary: 346 59 84; /* Main rose (#F2BCD) */
-    --primary-foreground: 289 21 30;
-    --primary-soft: 346 35 90;
-    --primary-glow: 346 70 80;
+    /* Primary – Sienna */
+    --primary: 18 48% 46%; /* #AD5E3D */
+    --primary-foreground: 60 100% 99%; /* near-white for contrast */
+    --primary-soft: 18 40% 70%;
+    --primary-glow: 18 60% 55%;
 
-    /* Professional medical tones */
-    --cream: 346 20 98;
-    --cream-dark: 346 15 95;
-    --cream-light: 346 25 99;
-    --luxury-gold: 346 40 75;
+    /* Cream tones */
+    --cream: 60 31% 95%;        /* #F6F6EE */
+    --cream-dark: 32 22% 86%;   /* #E4DDD5 */
+    --cream-light: 60 100% 99%; /* #FFFFFD */
+    --luxury-gold: 35 65% 55%;  /* complementary soft gold */
 
-    /* Secondary - Deep plum (#563C5C) */
-    --secondary: 289 21 30;
-    --secondary-foreground: 346 59 94;
-    --glass: 346 30 95;
-    --glass-foreground: 289 21 30;
+    /* Secondary – Deep brown */
+    --secondary: 15 27% 32%;         /* #67463B */
+    --secondary-foreground: 60 31% 95%;
+
+    --glass: 60 31% 96%;
+    --glass-foreground: 15 27% 32%;
 
     /* Neutral tones */
-    --muted: 346 25 92;
-    --muted-foreground: 289 15 50;
+    --muted: 60 2% 82%;             /* #D1D1CF */
+    --muted-foreground: 30 8% 40%;
 
-    --accent: 289 35 85;
-    --accent-foreground: 289 21 30;
+    --accent: 30 8% 56%;            /* #999087 */
+    --accent-foreground: 15 27% 22%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 346 25 88;
-    --input: 346 25 90;
-    --ring: 346 59 84;
+    --border: 60 2% 82%;
+    --input: 60 2% 86%;
+    --ring: 18 48% 46%;
 
-    /* Professional gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(346, 59%, 84%), hsl(346, 45%, 90%));
-    --gradient-secondary: linear-gradient(135deg, hsl(289, 21%, 30%), hsl(289, 25%, 40%));
-    --gradient-glass: linear-gradient(180deg, hsl(346, 30%, 95%), hsl(346, 25%, 92%));
-    --gradient-luxury: linear-gradient(135deg, hsl(346, 20%, 98%), hsl(346, 25%, 99%));
-    --gradient-cream-flow: linear-gradient(45deg, hsl(346, 20%, 98%), hsl(346, 35%, 90%), hsl(289, 25%, 85%));
-    --gradient-hero: linear-gradient(135deg, hsl(346, 59%, 84%), hsl(289, 21%, 40%), hsl(346, 20%, 98%));
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(18 48% 46%), hsl(18 40% 70%));
+    --gradient-secondary: linear-gradient(135deg, hsl(15 27% 32%), hsl(30 8% 56%));
+    --gradient-glass: linear-gradient(180deg, hsl(60 31% 96%), hsl(60 31% 95%));
+    --gradient-luxury: linear-gradient(135deg, hsl(35 65% 55%), hsl(60 31% 95%));
+    --gradient-cream-flow: linear-gradient(45deg, hsl(60 31% 95%), hsl(32 22% 86%), hsl(60 100% 99%));
+    --gradient-hero: linear-gradient(135deg, hsl(18 48% 46%), hsl(15 27% 32%), hsl(60 31% 95%));
     
-    /* Medical glassmorphism effects */
-    --glass-bg: hsla(346, 30%, 95%, 0.7);
-    --glass-border: hsla(346, 40%, 85%, 0.3);
-    --glass-shadow: 0 8px 32px hsla(346, 50%, 80%, 0.1);
+    /* Glassmorphism */
+    --glass-bg: hsla(60, 31%, 96%, 0.7);
+    --glass-border: hsla(60, 2%, 82%, 0.4);
+    --glass-shadow: 0 8px 32px hsla(18, 48%, 46%, 0.12);
 
-    /* Professional transitions */
+    /* Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --radius: 1rem;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar */
+    --sidebar-background: 60 31% 97%;
+    --sidebar-foreground: 15 27% 32%;
+    --sidebar-primary: 18 48% 46%;
+    --sidebar-primary-foreground: 60 100% 99%;
+    --sidebar-accent: 60 2% 92%;
+    --sidebar-accent-foreground: 15 27% 32%;
+    --sidebar-border: 60 2% 86%;
+    --sidebar-ring: 18 48% 46%;
   }
 
   .dark {
-    --background: 289 21 15; /* Dark plum base */
-    --foreground: 346 45 90;
+    --background: 15 27% 18%;
+    --foreground: 60 31% 95%;
 
-    --card: 289 25 18;
-    --card-foreground: 346 45 90;
+    --card: 15 27% 22%;
+    --card-foreground: 60 31% 95%;
 
-    --popover: 289 25 18;
-    --popover-foreground: 346 45 90;
+    --popover: 15 27% 22%;
+    --popover-foreground: 60 31% 95%;
 
-    --primary: 346 59 84; /* Maintain rose accent */
-    --primary-foreground: 289 21 30;
+    --primary: 18 48% 46%;
+    --primary-foreground: 60 100% 99%;
 
-    --secondary: 289 25 25;
-    --secondary-foreground: 346 45 90;
+    --secondary: 15 27% 38%;
+    --secondary-foreground: 60 31% 95%;
 
-    --muted: 289 20 22;
-    --muted-foreground: 346 25 70;
+    --muted: 15 20% 26%;
+    --muted-foreground: 60 31% 85%;
 
-    --accent: 289 30 30;
-    --accent-foreground: 346 45 90;
+    --accent: 30 8% 56%;
+    --accent-foreground: 60 100% 99%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 289 20 25;
-    --input: 289 20 25;
-    --ring: 346 59 84;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 15 20% 28%;
+    --input: 15 20% 28%;
+    --ring: 18 48% 46%;
+
+    --sidebar-background: 15 27% 18%;
+    --sidebar-foreground: 60 31% 95%;
+    --sidebar-primary: 18 48% 46%;
+    --sidebar-primary-foreground: 60 100% 99%;
+    --sidebar-accent: 15 20% 26%;
+    --sidebar-accent-foreground: 60 31% 95%;
+    --sidebar-border: 15 20% 26%;
+    --sidebar-ring: 18 48% 46%;
   }
 }
 
@@ -230,8 +226,8 @@ All colors MUST be HSL.
 }
 
 @keyframes glow {
-  from { box-shadow: 0 0 20px hsl(340, 82%, 52%, 0.5); }
-  to { box-shadow: 0 0 30px hsl(340, 82%, 52%, 0.8); }
+  from { box-shadow: 0 0 20px hsla(18, 60%, 55%, 0.5); }
+  to { box-shadow: 0 0 30px hsla(18, 60%, 55%, 0.8); }
 }
 
 @keyframes float-rotate {
