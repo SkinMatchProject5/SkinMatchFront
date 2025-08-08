@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+
 import { Badge } from '@/components/ui/badge';
-import { Camera, Sparkles, TrendingUp, ChevronLeft, ChevronRight, AlertCircle, Info } from 'lucide-react';
+import { Camera, Sparkles, TrendingUp, AlertCircle, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from '@/components/ui/carousel';
 
 const Analysis = () => {
   const navigate = useNavigate();
-  const [currentSlide, setCurrentSlide] = useState(0);
+  
   
   // 사용자가 업로드한 사진 (실제로는 props나 state에서 가져올 것)
   const userUploadedImage = '/placeholder.svg'; // 실제 업로드된 이미지 URL
@@ -29,17 +30,6 @@ const Analysis = () => {
     { name: '두드러기', confidence: 62, description: '알레르기 반응으로 인한 일시적 피부 증상' }
   ];
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => 
-      prev + 1 >= similarDiseases.length ? 0 : prev + 1
-    );
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => 
-      prev - 1 < 0 ? similarDiseases.length - 1 : prev - 1
-    );
-  };
 
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 80) return 'text-green-600 bg-green-50 border-green-200';
@@ -145,55 +135,26 @@ const Analysis = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">유사질환</h2>
-              <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={prevSlide}
-                  className="h-8 w-8 p-0"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={nextSlide}
-                  className="h-8 w-8 p-0"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
+            </div>
+            <Carousel className="w-full" opts={{ align: 'start', loop: true }}>
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {similarDiseases.map((item, index) => (
+                  <CarouselItem key={index} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
+                    <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-gray-200 hover:border-primary/40 transition-all duration-200 h-full">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="font-medium text-gray-800">{item.name}</h3>
+                        <Badge variant="outline" className="text-xs">{item.confidence}%</Badge>
+                      </div>
+                      <p className="text-sm text-gray-600 leading-relaxed">{item.description}</p>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <div className="flex items-center justify-end gap-2 mt-4">
+                <CarouselPrevious className="h-8 w-8" />
+                <CarouselNext className="h-8 w-8" />
               </div>
-            </div>
-            
-            {/* 단일 슬라이드 표시 */}
-            <div className="w-full">
-              <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-gray-200 hover:border-primary/40 transition-all duration-200">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-medium text-gray-800">{similarDiseases[currentSlide].name}</h3>
-                  <Badge variant="outline" className="text-xs">
-                    {similarDiseases[currentSlide].confidence}%
-                  </Badge>
-                </div>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  {similarDiseases[currentSlide].description}
-                </p>
-              </div>
-            </div>
-            
-            {/* 슬라이드 인디케이터 */}
-            <div className="flex justify-center mt-4 gap-1">
-              {similarDiseases.map((_, index) => (
-                <div
-                  key={index}
-                  className={`w-2 h-2 rounded-full transition-all duration-200 cursor-pointer ${
-                    currentSlide === index 
-                      ? 'bg-primary' 
-                      : 'bg-gray-300'
-                  }`}
-                  onClick={() => setCurrentSlide(index)}
-                />
-              ))}
-            </div>
+            </Carousel>
           </CardContent>
         </Card>
 
