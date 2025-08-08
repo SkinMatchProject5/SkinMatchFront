@@ -88,12 +88,12 @@ const Index = () => {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-16">
               <div className="text-center">
-                <Typography variant="h3" className="text-primary">50K+</Typography>
-                <Typography variant="bodySmall">분석 완료</Typography>
+                
+                
               </div>
               <div className="text-center">
-                <Typography variant="h3" className="text-primary">98.7%</Typography>
-                <Typography variant="bodySmall">정확도</Typography>
+                
+                
               </div>
               <div className="text-center">
                 <Typography variant="h3" className="text-primary">1.2K+</Typography>
