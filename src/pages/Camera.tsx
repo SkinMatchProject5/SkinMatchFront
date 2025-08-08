@@ -1,199 +1,258 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Camera as CameraIcon, Upload, RotateCcw, Check, MessageCircle } from 'lucide-react';
+import { Camera, Sparkles, TrendingUp, ChevronLeft, ChevronRight, AlertCircle, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import faceAnalysisDemo from '@/assets/face-analysis-demo.jpg';
 
-const Camera = () => {
+const Analysis = () => {
   const navigate = useNavigate();
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
   
-  const handleCapture = () => {
-    // 실제로는 카메라 API를 사용하여 사진을 촬영
-    const dummyImage = '/placeholder.svg';
-    setCapturedImage(dummyImage);
+  // 사용자가 업로드한 사진 (실제로는 props나 state에서 가져올 것)
+  const userUploadedImage = '/placeholder.svg'; // 실제 업로드된 이미지 URL
+  
+  // AI 분석 결과
+  const analysisResult = {
+    predictedDisease: '습진성 피부염',
+    confidence: 85,
+    summary: '전신 · 이미지 활용 결과 붉은 병변이 분여어진 것으로 보이며, 해당 증상은 접촉 자극물의 의심되어 여러번 찾기난 가능성이 높습니다. 습진이나 나타납니다.',
+    recommendation: '해당 질환은 클리나라 칫칠으로 연걸 분석값과에 대한 응급창을 해소'
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const imageUrl = e.target?.result as string;
-        setCapturedImage(imageUrl);
-      };
-      reader.readAsDataURL(file);
-    }
+  // 비슷한 질환들 (슬라이드용)
+  const similarDiseases = [
+    { name: '접촉성 피부염', confidence: 78, description: '외부 자극물질로 인한 피부 염증' },
+    { name: '아토피 피부염', confidence: 72, description: '만성적인 알레르기성 피부 질환' },
+    { name: '지루성 피부염', confidence: 68, description: '피지 분비가 많은 부위의 염증' },
+    { name: '건선', confidence: 65, description: '면역계 이상으로 인한 만성 피부 질환' },
+    { name: '두드러기', confidence: 62, description: '알레르기 반응으로 인한 일시적 피부 증상' },
+    { name: '모낭염', confidence: 58, description: '모낭 주변의 세균 감염으로 인한 염증' },
+    { name: '여드름', confidence: 55, description: '피지선의 염증으로 인한 피부 트러블' }
+  ];
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => 
+      prev + 3 >= similarDiseases.length ? 0 : prev + 3
+    );
   };
 
-  const retakePhoto = () => {
-    setCapturedImage(null);
+  const prevSlide = () => {
+    setCurrentSlide((prev) => 
+      prev - 3 < 0 ? Math.max(0, similarDiseases.length - 3) : prev - 3
+    );
   };
 
-  const isComplete = capturedImage !== null;
+  const getConfidenceColor = (confidence: number) => {
+    if (confidence >= 80) return 'text-green-600 bg-green-50 border-green-200';
+    if (confidence >= 60) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+    return 'text-red-600 bg-red-50 border-red-200';
+  };
 
   return (
     <div className="min-h-screen bg-gradient-glass p-4">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         {/* 헤더 */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gradient-primary mb-2">
-            환부 촬영
+            피부 분석 결과
           </h1>
           <p className="text-muted-foreground">
-            정확한 분석을 위해 환부를 정면에서 촬영해주세요
+            AI가 분석한 환부의 상태입니다
           </p>
         </div>
 
-        {/* 진행 상황 */}
-        <div className="flex justify-center mb-8">
-          <div className="flex items-center">
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
-              isComplete 
-                ? 'bg-primary border-primary text-white' 
-                : 'border-primary text-primary bg-primary-soft/20'
-            }`}>
-              {isComplete ? (
-                <Check className="w-6 h-6" />
-              ) : (
-                <CameraIcon className="w-6 h-6" />
-              )}
-            </div>
-          </div>
-        </div>
+        {/* 사용자 업로드 이미지와 예상 질환 */}
+        <Card className="glass-card mb-6 overflow-hidden">
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* 업로드된 사진 */}
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold mb-3">분석 이미지</h2>
+                <div className="aspect-square bg-gradient-glow rounded-2xl p-3">
+                  <div className="w-full h-full bg-white/50 rounded-xl flex items-center justify-center relative overflow-hidden">
+                    <img 
+                      src={userUploadedImage} 
+                      alt="사용자 업로드 이미지" 
+                      className="w-full h-full object-cover rounded-xl"
+                    />
+                    <div className="absolute top-3 left-3">
+                      <Badge className="bg-primary text-white">
+                        환부 촬영
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-        {!isComplete ? (
-          /* 촬영 화면 */
-          <Card className="glass-card mb-6 overflow-hidden">
-            <CardContent className="p-0">
-              <div className="aspect-[4/3] bg-gradient-to-br from-primary-soft/10 to-primary-glow/10 relative flex items-center justify-center overflow-hidden">
-                {/* 데모용 이미지 - 실제 서비스에서는 실시간 카메라 피드로 교체 */}
-                {/* TODO: 실제 구현 시 getUserMedia API로 카메라 스트림 연결 */}
-                <div className="absolute inset-0">
-                  <img 
-                    src={faceAnalysisDemo} 
-                    alt="Camera demo" 
-                    className="w-full h-full object-cover opacity-40"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary-soft/20 to-primary-glow/20"></div>
-                </div>
+              {/* 예상 질환명과 점수 */}
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold mb-3">분석 결과</h2>
                 
-                {/* 가이드라인 */}
-                <div className="absolute inset-0 flex items-center justify-center z-10">
-                  <div className="w-72 h-72 border-2 border-dashed border-primary/80 rounded-2xl flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="w-16 h-16 bg-primary/30 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 border border-primary/50">
-                        <CameraIcon className="w-8 h-8 text-primary" />
-                      </div>
-                      <div className="bg-white/90 backdrop-blur-sm rounded-lg p-4 border border-primary/30">
-                        <p className="text-primary font-medium mb-1">
-                          환부를 정면으로 촬영
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          환부가 가이드 박스 안에 들어오도록 촬영해주세요
-                        </p>
-                      </div>
+                <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-primary/20">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-semibold text-lg">예상 질환</h3>
+                    <Badge className={getConfidenceColor(analysisResult.confidence)}>
+                      {analysisResult.confidence}% 일치
+                    </Badge>
+                  </div>
+                  <p className="text-2xl font-bold text-primary mb-2">
+                    {analysisResult.predictedDisease}
+                  </p>
+                  
+                  {/* 신뢰도 바 */}
+                  <div className="mb-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm text-muted-foreground">신뢰도</span>
+                      <span className="font-semibold">{analysisResult.confidence}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-primary h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${analysisResult.confidence}%` }}
+                      ></div>
                     </div>
                   </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ) : (
-          /* 촬영 완료 미리보기 */
-          <Card className="glass-card mb-6">
-            <CardContent className="p-6">
-              <h2 className="text-xl font-bold text-center mb-6">촬영 완료</h2>
-              <div className="flex justify-center mb-6">
-                <div className="relative group max-w-xs">
-                  <div className="aspect-square bg-gradient-glow rounded-2xl p-3">
-                    <div className="w-full h-full bg-white/50 rounded-xl flex items-center justify-center relative overflow-hidden">
-                      <span className="text-6xl">📸</span>
-                      <div className="absolute top-3 left-3">
-                        <Badge className="bg-primary text-sm">
-                          환부 촬영
-                        </Badge>
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={retakePhoto}
-                      >
-                        <RotateCcw className="w-4 h-4" />
-                      </Button>
+
+                  {analysisResult.confidence < 70 && (
+                    <div className="flex items-center gap-2 text-amber-600 text-sm p-3 bg-amber-50 rounded-lg border border-amber-200">
+                      <AlertCircle className="w-4 h-4" />
+                      <span>정확한 진단을 위해 전문의 상담을 권장합니다</span>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground">
-                  환부가 선명하게 촬영되었는지 확인해주세요
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 진단 소견 */}
+        <Card className="glass-card mb-6">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Info className="w-5 h-5 text-primary" />
+              <h2 className="text-xl font-semibold">진단 소견</h2>
+            </div>
+            <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-primary/20">
+              <p className="text-gray-700 leading-relaxed mb-4">
+                {analysisResult.summary}
+              </p>
+              <div className="bg-primary-soft/20 rounded-lg p-3">
+                <h4 className="font-medium text-primary mb-2">권장사항</h4>
+                <p className="text-sm text-gray-600">
+                  {analysisResult.recommendation}
                 </p>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 비슷한 질환 (슬라이드) */}
+        <Card className="glass-card mb-8">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">유사질환</h2>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={prevSlide}
+                  disabled={currentSlide === 0}
+                  className="h-8 w-8 p-0"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={nextSlide}
+                  disabled={currentSlide + 3 >= similarDiseases.length}
+                  className="h-8 w-8 p-0"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {similarDiseases.slice(currentSlide, currentSlide + 3).map((disease, index) => (
+                <div 
+                  key={`${disease.name}-${currentSlide + index}`}
+                  className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-gray-200 hover:border-primary/40 transition-all duration-200"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-medium text-gray-800">{disease.name}</h3>
+                    <Badge variant="outline" className="text-xs">
+                      {disease.confidence}%
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    {disease.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+            
+            {/* 슬라이드 인디케이터 */}
+            <div className="flex justify-center mt-4 gap-1">
+              {Array.from({ length: Math.ceil(similarDiseases.length / 3) }).map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                    Math.floor(currentSlide / 3) === index 
+                      ? 'bg-primary' 
+                      : 'bg-gray-300'
+                  }`}
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 액션 버튼들 */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="glass-card hover:shadow-lg transition-all duration-300 cursor-pointer group">
+            <CardContent className="p-6 text-center" onClick={() => navigate('/camera')}>
+              <div className="w-16 h-16 bg-primary-soft/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Camera className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="font-semibold mb-2">재분석하기</h3>
+              <p className="text-sm text-muted-foreground">새로운 사진으로 다시 분석</p>
             </CardContent>
           </Card>
-        )}
 
-        {/* 액션 버튼 */}
-        <div className="space-y-4">
-          {!isComplete ? (
-            <>
-              <Button 
-                className="w-full h-16 text-lg btn-k-beauty animate-glow"
-                onClick={handleCapture}
-              >
-                <CameraIcon className="w-6 h-6 mr-2" />
-                촬영하기
-              </Button>
-              
-              <div className="text-center">
-                <span className="text-muted-foreground text-sm">또는</span>
+          <Card className="glass-card hover:shadow-lg transition-all duration-300 cursor-pointer group">
+            <CardContent className="p-6 text-center" onClick={() => navigate('/questionnaire')}>
+              <div className="w-16 h-16 bg-primary-soft/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Sparkles className="w-8 h-8 text-primary" />
               </div>
-              
-              <Button
-                variant="outline"
-                className="w-full h-12 border-primary text-primary hover:bg-primary hover:text-white"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Upload className="w-5 h-5 mr-2" />
-                갤러리에서 선택
-              </Button>
-              
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileUpload}
-              />
-            </>
-          ) : (
-            <Button 
-              className="w-full h-16 text-lg btn-k-beauty animate-glow"
-              onClick={() => navigate('/questionnaire')}
-            >
-              <MessageCircle className="w-5 h-5 mr-2" />
-              설문조사 시작하기
-            </Button>
-          )}
+              <h3 className="font-semibold mb-2">추가 질문</h3>
+              <p className="text-sm text-muted-foreground">더 정확한 분석을 위한 설문</p>
+            </CardContent>
+          </Card>
+
+          <Card className="glass-card hover:shadow-lg transition-all duration-300 cursor-pointer group">
+            <CardContent className="p-6 text-center" onClick={() => navigate('/hospital-search')}>
+              <div className="w-16 h-16 bg-primary-soft/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <TrendingUp className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="font-semibold mb-2">병원 찾기</h3>
+              <p className="text-sm text-muted-foreground">전문의 상담 받기</p>
+            </CardContent>
+          </Card>
         </div>
-        
-        {/* 촬영 가이드 */}
-        <div className="mt-8 p-4 bg-white/30 backdrop-blur-sm rounded-xl border border-primary/20">
-          <h3 className="font-medium text-primary mb-2">촬영 가이드</h3>
-          <ul className="text-sm text-muted-foreground space-y-1">
-            <li>• 충분한 조명이 있는 곳에서 촬영해주세요</li>
-            <li>• 환부가 선명하게 보이도록 가까이서 촬영해주세요</li>
-            <li>• 손이나 그림자로 가리지 않도록 주의해주세요</li>
-          </ul>
+
+        {/* 면책조항 */}
+        <div className="mt-8 p-4 bg-gray-50/80 backdrop-blur-sm rounded-xl border border-gray-200">
+          <p className="text-xs text-gray-500 text-center leading-relaxed">
+            ※ 본 결과는 AI의 예측값으로 참고용입니다. 정확한 진단은 반드시 전문의의 상담을 받으시기 바랍니다.
+            <br />
+            본 서비스는 의료진단을 대체하지 않으며, 응급상황 시에는 즉시 병원에 내원하시기 바랍니다.
+          </p>
         </div>
       </div>
     </div>
   );
 };
 
-export default Camera;
+export default Analysis;
