@@ -23,9 +23,9 @@ const Index = () => {
   }];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="theme-home-bright min-h-screen bg-background">
       {/* Hero Section - Linear Style */}
-      <Section spacing="hero" className="relative">
+      <Section spacing="hero" className="relative gradient-hero">
         <Container size="xl" className="text-center">
           {/* Top-right Login */}
           <div className="absolute right-4 top-4 z-20">
@@ -77,7 +77,7 @@ const Index = () => {
       </Section>
 
       {/* Features Section */}
-      <Section spacing="default" background="muted">
+      <Section spacing="default" background="gradient">
         <Container size="xl">
           <div className="text-center mb-16 space-y-4">
             <Typography variant="h3">전문적인 피부 케어 솔루션</Typography>

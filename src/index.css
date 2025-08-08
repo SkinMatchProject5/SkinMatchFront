@@ -119,6 +119,35 @@ All colors MUST be HSL.
     --sidebar-border: 15 20% 26%;
     --sidebar-ring: 18 48% 46%;
   }
+
+  /* Home page bright scoped theme */
+  .theme-home-bright {
+    --background: 60 100% 99%; /* #FFFFFD */
+    --foreground: 15 27% 28%; /* slightly softer text for clarity */
+
+    --card: 60 100% 100%;
+    --card-foreground: 15 27% 28%;
+
+    --primary: 18 60% 52%; /* brighter within palette */
+    --primary-foreground: 60 100% 99%;
+    --primary-soft: 18 40% 72%;
+    --primary-glow: 18 70% 60%;
+
+    --muted: 60 12% 92%;
+    --muted-foreground: 30 10% 38%;
+
+    --accent: 35 40% 60%; /* soft gold highlight */
+    --accent-foreground: 15 27% 22%;
+
+    --border: 60 12% 90%;
+    --input: 60 12% 94%;
+    --ring: 18 60% 52%;
+
+    /* Bright, airy gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(60 100% 99%), hsl(60 31% 95%), hsl(32 22% 86%));
+    --gradient-cream-flow: linear-gradient(90deg, hsl(60 100% 99%), hsl(60 31% 95%), hsl(35 65% 85%));
+    --gradient-primary: linear-gradient(135deg, hsl(18 60% 52%), hsl(18 40% 72%));
+  }
 }
 
 @layer base {
