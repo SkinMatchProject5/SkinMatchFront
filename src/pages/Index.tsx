@@ -22,7 +22,8 @@ const Index = () => {
     description: '분석 결과 기반 최적의 피부과 전문의 연결'
   }];
 
-  return <div className="min-h-screen bg-background">
+  return (
+    <div className="min-h-screen bg-background">
       {/* Hero Section - Linear Style */}
       <Section spacing="hero" className="relative">
         <Container size="xl" className="text-center">
@@ -32,14 +33,16 @@ const Index = () => {
               <Button variant="ghost" size="sm" className="scale-[1.5]">로그인</Button>
             </Link>
           </div>
-          {/* TODO: 실제 서비스에서는 고품질 K-뷰티 모델 사진으로 교체 */}
+
+          {/* Background image */}
           <div className="absolute inset-0 z-0 opacity-10">
             <img src={heroModel} alt="K-beauty model background" className="w-full h-full object-cover" />
           </div>
           
-          <div className="relative z-10 space-y-8">
-            <div className="space-y-4">
-              <Typography variant="caption" className="uppercase tracking-wider text-primary">피부과 전문 AI 분석</Typography>
+          {/* Content */}
+          <div className="relative z-10 space-y-10 pt-24">
+            <div className="space-y-6">
+              {/* "피부과 전문 AI 분석" 제거됨 */}
               <Typography variant="h1" className="max-w-4xl mx-auto">
                 AI가 제안하는<br />당신만의 피부 솔루션
               </Typography>
@@ -62,22 +65,12 @@ const Index = () => {
                 </Button>
               </Link>
             </div>
-            
 
-            {/* Stats */}
+            {/* Stats placeholder */}
             <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-16">
-              <div className="text-center">
-                
-                
-              </div>
-              <div className="text-center">
-                
-                
-              </div>
-              <div className="text-center">
-                
-                
-              </div>
+              <div className="text-center"></div>
+              <div className="text-center"></div>
+              <div className="text-center"></div>
             </div>
           </div>
         </Container>
@@ -94,7 +87,8 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {features.map((feature, index) => <div key={index} className="group">
+            {features.map((feature, index) => (
+              <div key={index} className="group">
                 <div className="bg-card rounded-xl p-8 h-full border border-border hover:border-primary/20 transition-all duration-300">
                   <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-6 group-hover:bg-primary/15 transition-colors">
                     <feature.icon className="w-6 h-6 text-primary" />
@@ -106,16 +100,13 @@ const Index = () => {
                     {feature.description}
                   </Typography>
                 </div>
-              </div>)}
+              </div>
+            ))}
           </div>
         </Container>
       </Section>
-
-      {/* How it works */}
-      
-
-      {/* CTA Section */}
-      
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
