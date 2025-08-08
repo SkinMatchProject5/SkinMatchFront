@@ -29,7 +29,7 @@ interface HospitalCardProps {
 
 const HospitalCard = ({ hospital, onBookmark, onCall, onNavigate }: HospitalCardProps) => {
   return (
-    <Card className="glass-card hover:shadow-xl transition-all duration-300 hover:scale-[1.02] group">
+    <Card className="glass-card hover:shadow-xl transition-all duration-300 group">
       <CardContent className="p-6">
         <div className="flex gap-4">
           {/* 병원 이미지 */}
@@ -45,7 +45,7 @@ const HospitalCard = ({ hospital, onBookmark, onCall, onNavigate }: HospitalCard
           </div>
 
           {/* 병원 정보 */}
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between mb-2">
               <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
                 {hospital.name}

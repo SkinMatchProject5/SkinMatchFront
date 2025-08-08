@@ -247,6 +247,11 @@ All colors MUST be HSL.
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+
+  /* Safe-area bottom padding to prevent content under fixed bottom nav on mobile */
+  .pb-safe-bottom {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 5rem);
+  }
 }
 
 @keyframes float {

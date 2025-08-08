@@ -172,7 +172,7 @@ const HospitalSearch = () => {
     isBookmarked: bookmarkedHospitals.includes(hospital.id)
   }));
   const resultCount = hospitalsWithBookmarks.length;
-  return <div className="min-h-screen bg-gradient-glass pb-28">
+  return <div className="min-h-screen bg-gradient-glass pb-28 pb-safe-bottom">
       {/* 헤더 */}
       <div className="bg-white/90 backdrop-blur-sm shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-6">
