@@ -27,8 +27,6 @@ const Analysis = () => {
     { name: '지루성 피부염', confidence: 68, description: '피지 분비가 많은 부위의 염증' },
     { name: '건선', confidence: 65, description: '면역계 이상으로 인한 만성 피부 질환' },
     { name: '두드러기', confidence: 62, description: '알레르기 반응으로 인한 일시적 피부 증상' },
-    { name: '모낭염', confidence: 58, description: '모낭 주변의 세균 감염으로 인한 염증' },
-    { name: '여드름', confidence: 55, description: '피지선의 염증으로 인한 피부 트러블' }
   ];
 
   const nextSlide = () => {
@@ -138,7 +136,6 @@ const Analysis = () => {
                 {analysisResult.summary}
               </p>
               <div className="bg-primary-soft/20 rounded-lg p-3">
-                <h4 className="font-medium text-primary mb-2">권장사항</h4>
                 <p className="text-sm text-gray-600">
                   {analysisResult.recommendation}
                 </p>
