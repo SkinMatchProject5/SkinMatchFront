@@ -15,11 +15,11 @@ const Index = () => {
   const features = [{
     icon: Camera,
     title: 'AI 피부 분석',
-    description: '정밀한 피부 상태 분석과 맞춤형 솔루션 제공'
+    description: '정밀한 피부 상태 분석 후 진단결과 제공'
   }, {
     icon: Search,
     title: '전문 병원 매칭',
-    description: '분석 결과 기반 최적의 피부과 전문의 연결'
+    description: '분석 결과 기반 최적의 피부과 병원 추천'
   }];
 
   return (
@@ -47,7 +47,7 @@ const Index = () => {
                 AI가 제안하는<br />당신만의 피부 솔루션
               </Typography>
               <Typography variant="h2" className="max-w-2xl mx-auto">
-                전문적인 피부 분석과 맞춤형 케어로 건강한 피부를 만나보세요
+                전문적인 피부 분석과 맞춤 병원 추천으로 건강한 피부를 만나보세요
               </Typography>
             </div>
 
@@ -82,7 +82,7 @@ const Index = () => {
           <div className="text-center mb-16 space-y-4">
             <Typography variant="h3">전문적인 피부 케어 솔루션</Typography>
             <Typography variant="subtitle" className="max-w-2xl mx-auto">
-              AI 분석부터 전문의 상담까지 통합적인 피부 관리 서비스
+              AI 분석부터 병원 추천까지 통합적인 피부 관리 서비스
             </Typography>
           </div>
 
