@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/ui/theme-typography';
 import { Container, Section } from '@/components/ui/theme-container';
 import { Header, Navigation, Hero, Footer } from '@/components/ui/theme-layout';
-import { Camera, Search, Sparkles, ArrowRight, Check } from 'lucide-react';
+import { Camera, Search, ArrowRight } from 'lucide-react';
 import heroModel from '@/assets/hero-model.jpg';
 import step1Camera from '@/assets/step-1-camera.jpg';
 import step2Analysis from '@/assets/step-2-analysis.jpg';
@@ -19,10 +19,6 @@ const Index = () => {
     icon: Search,
     title: '전문 병원 매칭',
     description: '분석 결과 기반 최적의 피부과 전문의 연결'
-  }, {
-    icon: Sparkles,
-    title: 'K-뷰티 케어',
-    description: '개인별 맞춤 스킨케어 루틴과 제품 추천'
   }];
   const steps = [{
     number: '01',
@@ -49,6 +45,12 @@ const Index = () => {
       {/* Hero Section - Linear Style */}
       <Section spacing="hero" className="relative">
         <Container size="xl" className="text-center">
+          {/* Top-right Login */}
+          <div className="absolute right-4 top-4 z-20">
+            <Link to="/login">
+              <Button variant="ghost" size="sm">로그인</Button>
+            </Link>
+          </div>
           {/* TODO: 실제 서비스에서는 고품질 K-뷰티 모델 사진으로 교체 */}
           <div className="absolute inset-0 z-0 opacity-10">
             <img src={heroModel} alt="K-beauty model background" className="w-full h-full object-cover" />
@@ -82,19 +84,6 @@ const Index = () => {
               </Link>
             </div>
             
-            {/* Login/Signup Buttons */}
-            <div className="flex justify-center gap-4 pt-8">
-              <Link to="/login">
-                <Button variant="ghost" size="sm">
-                  로그인
-                </Button>
-              </Link>
-              <Link to="/signup">
-                <Button variant="outline" size="sm">
-                  회원가입
-                </Button>
-              </Link>
-            </div>
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-16">
@@ -125,7 +114,7 @@ const Index = () => {
             </Typography>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {features.map((feature, index) => <div key={index} className="group">
                 <div className="bg-card rounded-xl p-8 h-full border border-border hover:border-primary/20 transition-all duration-300">
                   <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-6 group-hover:bg-primary/15 transition-colors">
