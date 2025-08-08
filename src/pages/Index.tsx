@@ -12,6 +12,16 @@ import step3Results from '@/assets/step-3-results.jpg';
 import step4Hospital from '@/assets/step-4-hospital.jpg';
 
 const Index = () => {
+  const features = [{
+    icon: Camera,
+    title: 'AI 피부 분석',
+    description: '정밀한 피부 상태 분석과 맞춤형 솔루션 제공'
+  }, {
+    icon: Search,
+    title: '전문 병원 매칭',
+    description: '분석 결과 기반 최적의 피부과 전문의 연결'
+  }];
+
   return <div className="min-h-screen bg-background">
       {/* Hero Section - Linear Style */}
       <Section spacing="hero" className="relative">
@@ -84,7 +94,19 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            
+            {features.map((feature, index) => <div key={index} className="group">
+                <div className="bg-card rounded-xl p-8 h-full border border-border hover:border-primary/20 transition-all duration-300">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-6 group-hover:bg-primary/15 transition-colors">
+                    <feature.icon className="w-6 h-6 text-primary" />
+                  </div>
+                  <Typography variant="h4" className="mb-4 text-foreground">
+                    {feature.title}
+                  </Typography>
+                  <Typography variant="bodySmall" className="leading-relaxed">
+                    {feature.description}
+                  </Typography>
+                </div>
+              </div>)}
           </div>
         </Container>
       </Section>
