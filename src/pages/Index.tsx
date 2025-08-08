@@ -171,7 +171,7 @@ const Index = () => {
                   {/* TODO: 실제 구현 시 각 단계별 실제 앱 화면 캡처 이미지로 교체 */}
                   <div className="relative bg-card rounded-2xl overflow-hidden border border-border">
                     <img src={step.image} alt={`${step.title} 미리보기`} className="w-full h-80 object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent"></div>
+                    
                     <div className="absolute bottom-4 left-4">
                       <div className="bg-background/90 backdrop-blur-sm rounded-lg px-3 py-2 border border-border">
                         <Typography variant="caption" className="text-foreground">
