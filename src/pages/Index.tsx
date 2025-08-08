@@ -35,32 +35,34 @@ const Index = () => {
             <img src={heroModel} alt="K-beauty model background" className="w-full h-full object-cover" />
           </div>
 
-          <div className="relative z-10 space-y-8">
-            <div className="space-y-4">
-              {/* 제목 */}
-              <Typography variant="h1" className="max-w-4xl mx-auto">
-                AI가 제안하는<br />당신만의 피부 솔루션
-              </Typography>
-              <Typography variant="h2" className="max-w-2xl mx-auto">
-                전문적인 피부 분석과 맞춤형 케어로 건강한 피부를 만나보세요
-              </Typography>
-            </div>
+         <div className="relative z-10 space-y-8">
+  <div className="space-y-4">
+    {/* 제목 */}
+    <Typography variant="h1" className="max-w-4xl mx-auto">
+      AI가 제안하는<br />당신만의 피부 솔루션
+    </Typography>
+    <Typography variant="h2" className="max-w-2xl mx-auto">
+      전문적인 피부 분석과 맞춤형 케어로 건강한 피부를 만나보세요
+    </Typography>
+  </div>
 
-            {/* 버튼 */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-              <Link to="/camera" className="flex-1">
-                <Button size="lg" className="w-full">
-                  <Camera className="w-5 h-5" />
-                  피부 분석 시작
-                </Button>
-              </Link>
-              <Link to="/hospital" className="flex-1">
-                <Button variant="outline" size="lg" className="w-full">
-                  병원 찾기
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-              </Link>
-            </div>
+  {/* 버튼 */}
+  <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto mt-10">
+    <Link to="/camera" className="flex-1">
+      <Button size="lg" className="w-full">
+        <Camera className="w-5 h-5" />
+        피부 분석 시작
+      </Button>
+    </Link>
+    <Link to="/hospital" className="flex-1">
+      <Button variant="outline" size="lg" className="w-full">
+        병원 찾기
+        <ArrowRight className="w-4 h-4" />
+      </Button>
+    </Link>
+  </div>
+</div>
+
 
             {/* Stats 자리 */}
             <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-16">
