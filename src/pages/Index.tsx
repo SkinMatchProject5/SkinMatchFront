@@ -40,7 +40,7 @@ const Index = () => {
           </div>
           
           {/* Content */}
-          <div className="relative z-10 space-y-10 pt-32">
+          <div className="relative z-10 space-y-10 pt-36">
             <div className="space-y-6">
               {/* "피부과 전문 AI 분석" 제거됨 */}
               <Typography variant="h1" className="max-w-4xl mx-auto">
