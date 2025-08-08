@@ -65,7 +65,7 @@ const Analysis = () => {
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* 업로드된 사진 */}
-              <div className="space-y-4">
+              <div className="space-y-4 flex flex-col justify-center">
                 <h2 className="text-xl font-semibold mb-3">분석 이미지</h2>
                 <div className="aspect-square bg-gradient-glow rounded-2xl p-3">
                   <div className="w-full h-full bg-white/50 rounded-xl flex items-center justify-center relative overflow-hidden">
