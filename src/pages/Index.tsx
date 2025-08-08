@@ -40,8 +40,8 @@ const Index = () => {
           </div>
           
           {/* Content */}
-          <div className="relative z-10 space-y-10 pt-36">
-            <div className="space-y-6">
+          <div className="relative z-10 space-y-14 pt-36">
+            <div className="space-y-8">
               {/* "피부과 전문 AI 분석" 제거됨 */}
               <Typography variant="h1" className="max-w-4xl mx-auto">
                 AI가 제안하는<br />당신만의 피부 솔루션
