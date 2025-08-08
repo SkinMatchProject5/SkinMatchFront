@@ -172,7 +172,7 @@ const HospitalSearch = () => {
     isBookmarked: bookmarkedHospitals.includes(hospital.id)
   }));
   const resultCount = hospitalsWithBookmarks.length;
-  return <div className="min-h-screen bg-gradient-glass">
+  return <div className="min-h-screen bg-gradient-glass pb-28">
       {/* 헤더 */}
       <div className="bg-white/90 backdrop-blur-sm shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-6">
@@ -208,7 +208,7 @@ const HospitalSearch = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* 지도 영역 */}
-          <div className="lg:sticky lg:top-32 h-[600px]">
+          <div className="h-[45svh] sm:h-[50svh] md:h-[60svh] lg:sticky lg:top-28 lg:h-[calc(100svh-10rem)]">
             <Card className="h-full glass-card overflow-hidden">
               <CardContent className="p-0 h-full relative">
                 {/* 데모용 구글맵 스타일 이미지 - 실제 서비스에서는 Google Maps API로 교체 */}
