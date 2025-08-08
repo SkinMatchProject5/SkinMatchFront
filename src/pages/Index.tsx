@@ -10,37 +10,8 @@ import step1Camera from '@/assets/step-1-camera.jpg';
 import step2Analysis from '@/assets/step-2-analysis.jpg';
 import step3Results from '@/assets/step-3-results.jpg';
 import step4Hospital from '@/assets/step-4-hospital.jpg';
+
 const Index = () => {
-  const features = [{
-    icon: Camera,
-    title: 'AI 피부 분석',
-    description: '정밀한 피부 상태 분석과 맞춤형 솔루션 제공'
-  }, {
-    icon: Search,
-    title: '전문 병원 매칭',
-    description: '분석 결과 기반 최적의 피부과 전문의 연결'
-  }];
-  const steps = [{
-    number: '01',
-    title: '3방향 촬영',
-    description: '정면, 좌측, 우측으로 촬영하여 정확한 피부 상태 파악',
-    image: step1Camera
-  }, {
-    number: '02',
-    title: 'AI 분석',
-    description: '고도화된 딥러닝 알고리즘으로 피부 타입과 문제점 분석',
-    image: step2Analysis
-  }, {
-    number: '03',
-    title: '결과 리포트',
-    description: '상세한 분석 결과와 개선 방향 제시',
-    image: step3Results
-  }, {
-    number: '04',
-    title: '전문의 매칭',
-    description: '필요시 해당 분야 전문의와 직접 상담 연결',
-    image: step4Hospital
-  }];
   return <div className="min-h-screen bg-background">
       {/* Hero Section - Linear Style */}
       <Section spacing="hero" className="relative">
@@ -113,19 +84,7 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {features.map((feature, index) => <div key={index} className="group">
-                <div className="bg-card rounded-xl p-8 h-full border border-border hover:border-primary/20 transition-all duration-300">
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-6 group-hover:bg-primary/15 transition-colors">
-                    <feature.icon className="w-6 h-6 text-primary" />
-                  </div>
-                  <Typography variant="h4" className="mb-4 text-foreground">
-                    {feature.title}
-                  </Typography>
-                  <Typography variant="bodySmall" className="leading-relaxed">
-                    {feature.description}
-                  </Typography>
-                </div>
-              </div>)}
+            
           </div>
         </Container>
       </Section>
