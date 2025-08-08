@@ -41,53 +41,46 @@ const Index = () => {
     description: '필요시 해당 분야 전문의와 직접 상담 연결',
     image: step4Hospital
   }];
-  return (
-  <div className="min-h-screen bg-background">
-    {/* Hero Section - Linear Style */}
-    <Section spacing="hero" className="relative">
-      <Container size="xl" className="text-center">
-        {/* Top-right Login */}
-        <div className="absolute right-4 top-4 z-20">
-          <Link to="/login">
-            <Button variant="ghost" size="sm" className="scale-[1.2]">로그인</Button>
-          </Link>
-        </div>
-
-        {/* 배경 이미지 */}
-        <div className="absolute inset-0 z-0 opacity-10">
-          <img
-            src={heroModel}
-            alt="K-beauty model background"
-            className="w-full h-full object-cover"
-          />
-        </div>
-
-        {/* 중앙 콘텐츠 */}
-        <div className="relative z-10 flex flex-col justify-center items-center min-h-screen space-y-8">
-          <div className="space-y-4">
-            {/* <Typography variant="caption" ...> 이 부분은 삭제됨 */}
-            <Typography variant="h1" className="max-w-4xl mx-auto">
-              AI가 제안하는<br />당신만의 피부 솔루션
-            </Typography>
-            <Typography variant="h2" className="max-w-2xl mx-auto">
-              전문적인 피부 분석과 맞춤형 케어로 건강한 피부를 만나보세요
-            </Typography>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto w-full">
-            <Link to="/camera" className="flex-1">
-              <Button size="lg" className="w-full">
-                <Camera className="w-5 h-5" />
-                피부 분석 시작
-              </Button>
-            </Link>
-            <Link to="/hospital" className="flex-1">
-              <Button variant="outline" size="lg" className="w-full">
-                병원 찾기
-                <ArrowRight className="w-4 h-4" />
-              </Button>
+  return <div className="min-h-screen bg-background">
+      {/* Hero Section - Linear Style */}
+      <Section spacing="hero" className="relative">
+        <Container size="xl" className="text-center">
+          {/* Top-right Login */}
+          <div className="absolute right-4 top-4 z-20">
+            <Link to="/login">
+              <Button variant="ghost" size="sm" className="scale-[1.5]">로그인</Button>
             </Link>
           </div>
+          {/* TODO: 실제 서비스에서는 고품질 K-뷰티 모델 사진으로 교체 */}
+          <div className="absolute inset-0 z-0 opacity-10">
+            <img src={heroModel} alt="K-beauty model background" className="w-full h-full object-cover" />
+          </div>
+          
+          <div className="relative z-10 space-y-8">
+            <div className="space-y-4">
+              <Typography variant="caption" className="uppercase tracking-wider text-primary">피부과 전문 AI 분석</Typography>
+              <Typography variant="h1" className="max-w-4xl mx-auto">
+                AI가 제안하는<br />당신만의 피부 솔루션
+              </Typography>
+              <Typography variant="h2" className="max-w-2xl mx-auto">
+                전문적인 피부 분석과 맞춤형 케어로 건강한 피부를 만나보세요
+              </Typography>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+              <Link to="/camera" className="flex-1">
+                <Button size="lg" className="w-full">
+                  <Camera className="w-5 h-5" />
+                  피부 분석 시작
+                </Button>
+              </Link>
+              <Link to="/hospital" className="flex-1">
+                <Button variant="outline" size="lg" className="w-full">
+                  병원 찾기
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
             
 
             {/* Stats */}
