@@ -143,7 +143,7 @@ const Camera = () => {
           {!isComplete ? (
             <>
               <Button 
-                className="w-full h-16 text-lg btn-k-beauty animate-glow"
+                className="w-full h-12 text-lg btn-k-beauty animate-glow"
                 onClick={handleCapture}
               >
                 <CameraIcon className="w-6 h-6 mr-2" />
