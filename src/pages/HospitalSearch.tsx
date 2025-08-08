@@ -208,7 +208,7 @@ const HospitalSearch = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* 지도 영역 */}
-          <div className="h-[45svh] sm:h-[50svh] md:h-[60svh] lg:h-[70svh]">
+          <div className="h-[45svh] sm:h-[50svh] md:h-[60svh] lg:sticky lg:top-28 lg:h-[calc(100svh-10rem)]">
             <Card className="h-full glass-card overflow-hidden">
               <CardContent className="p-0 h-full relative">
                 {/* 데모용 구글맵 스타일 이미지 - 실제 서비스에서는 Google Maps API로 교체 */}
