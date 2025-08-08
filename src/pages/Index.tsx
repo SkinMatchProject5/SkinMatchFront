@@ -144,87 +144,10 @@ const Index = () => {
       </Section>
 
       {/* How it works */}
-      <Section spacing="default">
-        <Container size="xl">
-          
-
-          <div className="space-y-24">
-            {steps.map((step, index) => <div key={index} className={`grid grid-cols-1 lg:grid-cols-2 gap-16 items-center ${index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''}`}>
-                <div className={`space-y-6 ${index % 2 === 1 ? 'lg:col-start-2' : ''}`}>
-                  <div className="flex items-center gap-4">
-                    <div className="w-8 h-8 bg-primary text-primary-foreground rounded-lg flex items-center justify-center text-sm font-medium">
-                      {step.number}
-                    </div>
-                    <Typography variant="caption" className="text-primary uppercase tracking-wider">
-                      STEP {step.number}
-                    </Typography>
-                  </div>
-                  <Typography variant="h3" className="text-foreground">
-                    {step.title}
-                  </Typography>
-                  <Typography variant="body" className="leading-relaxed max-w-md">
-                    {step.description}
-                  </Typography>
-                </div>
-                
-                <div className={`${index % 2 === 1 ? 'lg:col-start-1 lg:row-start-1' : ''}`}>
-                  {/* TODO: 실제 구현 시 각 단계별 실제 앱 화면 캡처 이미지로 교체 */}
-                  <div className="relative bg-card rounded-2xl overflow-hidden border border-border">
-                    <img src={step.image} alt={`${step.title} 미리보기`} className="w-full h-80 object-cover" />
-                    
-                    <div className="absolute bottom-4 left-4">
-                      <div className="bg-background/90 backdrop-blur-sm rounded-lg px-3 py-2 border border-border">
-                        <Typography variant="caption" className="text-foreground">
-                          {step.title}
-                        </Typography>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>)}
-          </div>
-        </Container>
-      </Section>
+      
 
       {/* CTA Section */}
-      <Section spacing="default" background="card">
-        <Container size="lg" className="text-center">
-          <div className="max-w-3xl mx-auto space-y-8">
-            <div className="space-y-4">
-              <Typography variant="h3">
-                지금 바로 시작해보세요
-              </Typography>
-              <Typography variant="h2">
-                전문적인 피부 분석과 맞춤형 솔루션을 경험해보세요
-              </Typography>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-              <Link to="/camera" className="flex-1">
-                <Button size="lg" className="w-full">
-                  <Camera className="w-5 h-5" />
-                  무료로 시작하기
-                </Button>
-              </Link>
-            </div>
-
-            <div className="flex items-center justify-center gap-6 pt-8 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-primary" />
-                무료 분석
-              </div>
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-primary" />
-                즉시 결과
-              </div>
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-primary" />
-                전문의 매칭
-              </div>
-            </div>
-          </div>
-        </Container>
-      </Section>
+      
     </div>;
 };
 export default Index;
