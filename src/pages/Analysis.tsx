@@ -1,38 +1,52 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Camera, Upload, Sparkles, TrendingUp, AlertCircle } from 'lucide-react';
+import { Camera, Sparkles, TrendingUp, ChevronLeft, ChevronRight, AlertCircle, Info } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Analysis = () => {
-  const skinScore = 78;
+  const navigate = useNavigate();
+  const [currentSlide, setCurrentSlide] = useState(0);
   
-  const analysisResults = [
-    { category: '수분', score: 85, status: 'good', icon: '💧' },
-    { category: '유분', score: 65, status: 'normal', icon: '✨' },
-    { category: '탄력', score: 72, status: 'normal', icon: '🎯' },
-    { category: '주름', score: 45, status: 'poor', icon: '📏' },
-    { category: '모공', score: 68, status: 'normal', icon: '🔍' },
-    { category: '색소', score: 82, status: 'good', icon: '🌈' }
-  ];
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'good': return 'text-green-600 bg-green-50 border-green-200';
-      case 'normal': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-      case 'poor': return 'text-red-600 bg-red-50 border-red-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
-    }
+  // 사용자가 업로드한 사진 (실제로는 props나 state에서 가져올 것)
+  const userUploadedImage = '/placeholder.svg'; // 실제 업로드된 이미지 URL
+  
+  // AI 분석 결과
+  const analysisResult = {
+    predictedDisease: '습진성 피부염',
+    confidence: 85,
+    summary: '전신 · 이미지 활용 결과 붉은 병변이 분여어진 것으로 보이며, 해당 증상은 접촉 자극물의 의심되어 여러번 찾기난 가능성이 높습니다. 습진이나 나타납니다.',
+    recommendation: '해당 질환은 클리나라 칫칠으로 연걸 분석값과에 대한 응급창을 해소'
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'good': return '양호';
-      case 'normal': return '보통';
-      case 'poor': return '관리필요';
-      default: return '분석중';
-    }
+  // 비슷한 질환들 (슬라이드용)
+  const similarDiseases = [
+    { name: '접촉성 피부염', confidence: 78, description: '외부 자극물질로 인한 피부 염증' },
+    { name: '아토피 피부염', confidence: 72, description: '만성적인 알레르기성 피부 질환' },
+    { name: '지루성 피부염', confidence: 68, description: '피지 분비가 많은 부위의 염증' },
+    { name: '건선', confidence: 65, description: '면역계 이상으로 인한 만성 피부 질환' },
+    { name: '두드러기', confidence: 62, description: '알레르기 반응으로 인한 일시적 피부 증상' },
+    { name: '모낭염', confidence: 58, description: '모낭 주변의 세균 감염으로 인한 염증' },
+    { name: '여드름', confidence: 55, description: '피지선의 염증으로 인한 피부 트러블' }
+  ];
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => 
+      prev + 3 >= similarDiseases.length ? 0 : prev + 3
+    );
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => 
+      prev - 3 < 0 ? Math.max(0, similarDiseases.length - 3) : prev - 3
+    );
+  };
+
+  const getConfidenceColor = (confidence: number) => {
+    if (confidence >= 80) return 'text-green-600 bg-green-50 border-green-200';
+    if (confidence >= 60) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+    return 'text-red-600 bg-red-50 border-red-200';
   };
 
   return (
@@ -44,70 +58,161 @@ const Analysis = () => {
             피부 분석 결과
           </h1>
           <p className="text-muted-foreground">
-            AI가 분석한 당신의 피부 상태입니다
+            AI가 분석한 환부의 상태입니다
           </p>
         </div>
 
-        {/* 전체 스코어 */}
-        <Card className="glass-card mb-8 overflow-hidden">
-          <CardContent className="p-8 text-center">
-            <div className="relative inline-block mb-6">
-              <div className="w-32 h-32 rounded-full border-8 border-primary-soft/30 flex items-center justify-center relative">
-                <div className="absolute inset-0 rounded-full border-8 border-transparent border-t-primary animate-spin-slow"></div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-primary">{skinScore}</div>
-                  <div className="text-sm text-muted-foreground">/ 100</div>
+        {/* 사용자 업로드 이미지와 예상 질환 */}
+        <Card className="glass-card mb-6 overflow-hidden">
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* 업로드된 사진 */}
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold mb-3">분석 이미지</h2>
+                <div className="aspect-square bg-gradient-glow rounded-2xl p-3">
+                  <div className="w-full h-full bg-white/50 rounded-xl flex items-center justify-center relative overflow-hidden">
+                    <img 
+                      src={userUploadedImage} 
+                      alt="사용자 업로드 이미지" 
+                      className="w-full h-full object-cover rounded-xl"
+                    />
+                    <div className="absolute top-3 left-3">
+                      <Badge className="bg-primary text-white">
+                        환부 촬영
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 예상 질환명과 점수 */}
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold mb-3">분석 결과</h2>
+                
+                <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-primary/20">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-semibold text-lg">예상 질환</h3>
+                    <Badge className={getConfidenceColor(analysisResult.confidence)}>
+                      {analysisResult.confidence}% 일치
+                    </Badge>
+                  </div>
+                  <p className="text-2xl font-bold text-primary mb-2">
+                    {analysisResult.predictedDisease}
+                  </p>
+                  
+                  {/* 신뢰도 바 */}
+                  <div className="mb-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm text-muted-foreground">신뢰도</span>
+                      <span className="font-semibold">{analysisResult.confidence}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-primary h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${analysisResult.confidence}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  {analysisResult.confidence < 70 && (
+                    <div className="flex items-center gap-2 text-amber-600 text-sm p-3 bg-amber-50 rounded-lg border border-amber-200">
+                      <AlertCircle className="w-4 h-4" />
+                      <span>정확한 진단을 위해 전문의 상담을 권장합니다</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-            <h2 className="text-2xl font-bold mb-2">글래스 스킨 레벨</h2>
-            <Badge className="bg-primary-soft text-primary text-lg px-4 py-2">
-              Level 3 - 좋음
-            </Badge>
-            <p className="text-muted-foreground mt-4">
-              전반적으로 건강한 피부 상태입니다. 꾸준한 관리로 더욱 개선할 수 있어요.
-            </p>
           </CardContent>
         </Card>
 
-        {/* 상세 분석 결과 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          {analysisResults.map((result) => (
-            <Card key={result.category} className="glass-card hover:shadow-lg transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{result.icon}</span>
-                    <h3 className="font-semibold">{result.category}</h3>
-                  </div>
-                  <Badge className={getStatusColor(result.status)}>
-                    {getStatusText(result.status)}
-                  </Badge>
-                </div>
-                
-                <div className="mb-3">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-muted-foreground">점수</span>
-                    <span className="font-bold text-lg">{result.score}</span>
-                  </div>
-                  <Progress value={result.score} className="h-2" />
-                </div>
+        {/* 진단 소견 */}
+        <Card className="glass-card mb-6">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Info className="w-5 h-5 text-primary" />
+              <h2 className="text-xl font-semibold">진단 소견</h2>
+            </div>
+            <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-primary/20">
+              <p className="text-gray-700 leading-relaxed mb-4">
+                {analysisResult.summary}
+              </p>
+              <div className="bg-primary-soft/20 rounded-lg p-3">
+                <h4 className="font-medium text-primary mb-2">권장사항</h4>
+                <p className="text-sm text-gray-600">
+                  {analysisResult.recommendation}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-                {result.status === 'poor' && (
-                  <div className="flex items-center gap-2 text-red-600 text-sm mt-3">
-                    <AlertCircle className="w-4 h-4" />
-                    <span>전문의 상담 권장</span>
+        {/* 비슷한 질환 (슬라이드) */}
+        <Card className="glass-card mb-8">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">유사질환</h2>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={prevSlide}
+                  disabled={currentSlide === 0}
+                  className="h-8 w-8 p-0"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={nextSlide}
+                  disabled={currentSlide + 3 >= similarDiseases.length}
+                  className="h-8 w-8 p-0"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {similarDiseases.slice(currentSlide, currentSlide + 3).map((disease, index) => (
+                <div 
+                  key={`${disease.name}-${currentSlide + index}`}
+                  className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-gray-200 hover:border-primary/40 transition-all duration-200"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-medium text-gray-800">{disease.name}</h3>
+                    <Badge variant="outline" className="text-xs">
+                      {disease.confidence}%
+                    </Badge>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    {disease.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+            
+            {/* 슬라이드 인디케이터 */}
+            <div className="flex justify-center mt-4 gap-1">
+              {Array.from({ length: Math.ceil(similarDiseases.length / 3) }).map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                    Math.floor(currentSlide / 3) === index 
+                      ? 'bg-primary' 
+                      : 'bg-gray-300'
+                  }`}
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* 액션 버튼들 */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card className="glass-card hover:shadow-lg transition-all duration-300 cursor-pointer group">
-            <CardContent className="p-6 text-center">
+            <CardContent className="p-6 text-center" onClick={() => navigate('/camera')}>
               <div className="w-16 h-16 bg-primary-soft/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                 <Camera className="w-8 h-8 text-primary" />
               </div>
@@ -117,17 +222,17 @@ const Analysis = () => {
           </Card>
 
           <Card className="glass-card hover:shadow-lg transition-all duration-300 cursor-pointer group">
-            <CardContent className="p-6 text-center">
+            <CardContent className="p-6 text-center" onClick={() => navigate('/questionnaire')}>
               <div className="w-16 h-16 bg-primary-soft/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                 <Sparkles className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="font-semibold mb-2">맞춤 케어</h3>
-              <p className="text-sm text-muted-foreground">AI 추천 케어 루틴</p>
+              <h3 className="font-semibold mb-2">추가 질문</h3>
+              <p className="text-sm text-muted-foreground">더 정확한 분석을 위한 설문</p>
             </CardContent>
           </Card>
 
           <Card className="glass-card hover:shadow-lg transition-all duration-300 cursor-pointer group">
-            <CardContent className="p-6 text-center">
+            <CardContent className="p-6 text-center" onClick={() => navigate('/hospital-search')}>
               <div className="w-16 h-16 bg-primary-soft/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                 <TrendingUp className="w-8 h-8 text-primary" />
               </div>
@@ -135,6 +240,15 @@ const Analysis = () => {
               <p className="text-sm text-muted-foreground">전문의 상담 받기</p>
             </CardContent>
           </Card>
+        </div>
+
+        {/* 면책조항 */}
+        <div className="mt-8 p-4 bg-gray-50/80 backdrop-blur-sm rounded-xl border border-gray-200">
+          <p className="text-xs text-gray-500 text-center leading-relaxed">
+            ※ 본 결과는 AI의 예측값으로 참고용입니다. 정확한 진단은 반드시 전문의의 상담을 받으시기 바랍니다.
+            <br />
+            본 서비스는 의료진단을 대체하지 않으며, 응급상황 시에는 즉시 병원에 내원하시기 바랍니다.
+          </p>
         </div>
       </div>
     </div>
