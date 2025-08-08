@@ -5,10 +5,6 @@ import { Typography } from '@/components/ui/theme-typography';
 import { Container, Section } from '@/components/ui/theme-container';
 import { Header, Navigation, Hero, Footer } from '@/components/ui/theme-layout';
 import { Camera, Search, ArrowRight } from 'lucide-react';
-import step1Camera from '@/assets/step-1-camera.jpg';
-import step2Analysis from '@/assets/step-2-analysis.jpg';
-import step3Results from '@/assets/step-3-results.jpg';
-import step4Hospital from '@/assets/step-4-hospital.jpg';
 
 const Index = () => {
   const features = [{
@@ -25,7 +21,7 @@ const Index = () => {
     <div className="theme-home-bright min-h-screen bg-background">
       {/* Hero Section - Linear Style */}
       <Section spacing="hero" className="relative gradient-hero">
-        <Container size="xl" className="text-center">
+        <Container size="xl">
           {/* Top-right Login */}
           <div className="absolute right-4 top-4 z-20">
             <Link to="/login">
@@ -34,37 +30,43 @@ const Index = () => {
           </div>
           
           {/* Content */}
-          <div className="relative z-10 space-y-14 pt-36">
-            <div className="space-y-8">
-              {/* "피부과 전문 AI 분석" 제거됨 */}
-              <Typography variant="h1" className="max-w-4xl mx-auto">
-                AI가 제안하는<br />당신만의 피부 솔루션
-              </Typography>
-              <Typography variant="h2" className="max-w-2xl mx-auto">
-                전문적인 피부 분석과 맞춤 병원 추천으로 건강한 피부를 만나보세요
-              </Typography>
-            </div>
+          <div className="relative z-10 pt-32">
+            <div className="grid md:grid-cols-2 gap-10 items-center">
+              {/* Left: Image */}
+              <div className="order-1 md:order-none">
+                <img
+                  src="/lovable-uploads/1725a015-f13f-48bb-a759-08aa0891a593.png"
+                  alt="AI 피부 분석 배너 이미지"
+                  className="w-full h-auto rounded-2xl shadow-xl ring-1 ring-border object-cover aspect-square"
+                  loading="eager"
+                  fetchPriority="high"
+                />
+              </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-              <Link to="/camera" className="flex-1">
-                <Button size="lg" className="w-full">
-                  <Camera className="w-5 h-5" />
-                  피부 분석 시작
-                </Button>
-              </Link>
-              <Link to="/hospital" className="flex-1">
-                <Button variant="outline" size="lg" className="w-full">
-                  병원 찾기
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-              </Link>
-            </div>
+              {/* Right: Text + CTAs */}
+              <div className="space-y-8 text-left">
+                <Typography variant="h1" className="max-w-4xl">
+                  AI가 제안하는<br />당신만의 피부 솔루션
+                </Typography>
+                <Typography variant="h2" className="max-w-2xl">
+                  전문적인 피부 분석과 맞춤 병원 추천으로 건강한 피부를 만나보세요
+                </Typography>
 
-            {/* Stats placeholder */}
-            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-16">
-              <div className="text-center"></div>
-              <div className="text-center"></div>
-              <div className="text-center"></div>
+                <div className="flex flex-col sm:flex-row gap-4 max-w-md">
+                  <Link to="/camera" className="flex-1">
+                    <Button size="lg" className="w-full">
+                      <Camera className="w-5 h-5" />
+                      피부 분석 시작
+                    </Button>
+                  </Link>
+                  <Link to="/hospital" className="flex-1">
+                    <Button variant="outline" size="lg" className="w-full">
+                      병원 찾기
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         </Container>
