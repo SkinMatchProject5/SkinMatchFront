@@ -1,418 +1,246 @@
-{/* 진단 소견 */}
-        <Card className="glass-card mb-6">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Info className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-semibold">진단 소견</h2>
-            </div>
-            <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-primary/20">
-              <p className="text-gray-700 leading-relaxed mb-4">
-                {analysisResult.summary}
-              </p>
-              <div className="bg-primary-soft/20 rounded-lg p-3">
-                <p className="text-sm text-gray-600">
-                  {analysisResult.recommendation}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import HospitalCard from '@/components/features/hospital/HospitalCard';
-import { MapPin, SlidersHorizontal, List, Grid3X3, Search, X, ChevronDown, ChevronUp } from 'lucide-react';
-import hospitalMapDemo from '@/assets/hospital-map-demo.jpg';
+import { Camera, Sparkles, TrendingUp, ChevronLeft, ChevronRight, AlertCircle, Info } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-// 접을 수 있는 SearchFilters 컴포넌트
-const CollapsibleSearchFilters = ({ 
-  searchLocation, 
-  setSearchLocation, 
-  selectedFilters, 
-  onToggleFilter, 
-  onClearFilters 
-}) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+const Analysis = () => {
+  const navigate = useNavigate();
+  const [currentSlide, setCurrentSlide] = useState(0);
+  
+  // 사용자가 업로드한 사진 (실제로는 props나 state에서 가져올 것)
+  const userUploadedImage = '/placeholder.svg'; // 실제 업로드된 이미지 URL
+  
+  // AI 분석 결과
+  const analysisResult = {
+    predictedDisease: '습진성 피부염',
+    confidence: 85,
+    summary: '전신 · 이미지 촬영 결과 습진성 피부염이 의심됩니다. 피부의 염증 질환을 통칭하는 용어이며, 다양한 원인으로 인해 발생할 수 있습니다. 임상적으로는 가려움증, 붉은 반점, 각질, 물집 등의 증상을 보이며, 만성적인 경과를 보이기도 합니다. 아토피 피부염은 습진의 한 종류로, 가려움증을 동반하는 만성 염증성 피부 질환입니다.',
+    recommendation: '*해당 결과는 AI진단 이므로 정확한 진단은 근처 병원에 방문하여 받아보시길 바랍니다.'
+  };
 
-  const filterCategories = [
-    {
-      title: '진료 분야',
-      filters: ['여드름', '기미', '주름', '아토피', '민감성피부', '색소침착', '여드름흉터', '모공', '탄력']
-    },
-    {
-      title: '치료 방법',
-      filters: ['레이저치료', '약물치료', '수술치료', '한방치료', '보톡스', '필러', '리프팅']
-    },
-    {
-      title: '병원 유형',
-      filters: ['피부과', '성형외과', '한의원', '종합병원', '개인병원']
-    },
-    {
-      title: '편의사항',
-      filters: ['주차가능', '야간진료', '주말진료', '예약가능', '당일진료', '보험적용']
-    }
+  // 비슷한 질환들 (슬라이드용)
+  const similarDiseases = [
+    { name: '접촉성 피부염', confidence: 78, description: '외부 자극물질로 인한 피부 염증' },
+    { name: '아토피 피부염', confidence: 72, description: '만성적인 알레르기성 피부 질환' },
+    { name: '지루성 피부염', confidence: 68, description: '피지 분비가 많은 부위의 염증' },
+    { name: '건선', confidence: 65, description: '면역계 이상으로 인한 만성 피부 질환' },
+    { name: '두드러기', confidence: 62, description: '알레르기 반응으로 인한 일시적 피부 증상' }
   ];
 
+  const nextSlide = () => {
+    setCurrentSlide((prev) => 
+      prev + 1 >= similarDiseases.length ? 0 : prev + 1
+    );
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => 
+      prev - 1 < 0 ? similarDiseases.length - 1 : prev - 1
+    );
+  };
+
+  const getConfidenceColor = (confidence: number) => {
+    if (confidence >= 80) return 'text-green-600 bg-green-50 border-green-200';
+    if (confidence >= 60) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+    return 'text-red-600 bg-red-50 border-red-200';
+  };
+
   return (
-    <div className="bg-white/90 backdrop-blur-sm border-b">
-      <div className="max-w-7xl mx-auto px-4 py-4">
-        {/* 검색바 */}
-        <div className="flex gap-3 mb-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <input
-              type="text"
-              placeholder="지역명, 병원명 검색"
-              value={searchLocation}
-              onChange={(e) => setSearchLocation(e.target.value)}
-              className="w-full h-12 pl-10 pr-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
-            />
-          </div>
-          <Button
-            variant="outline"
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="h-12 px-4 border-gray-200 hover:bg-primary hover:text-white hover:border-primary"
-          >
-            <SlidersHorizontal className="w-4 h-4 mr-2" />
-            필터
-            {isExpanded ? (
-              <ChevronUp className="w-4 h-4 ml-2" />
-            ) : (
-              <ChevronDown className="w-4 h-4 ml-2" />
-            )}
-          </Button>
+    <div className="min-h-screen bg-gradient-glass p-4">
+      <div className="max-w-4xl mx-auto">
+        {/* 헤더 */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gradient-primary mb-2">
+            피부 분석 결과
+          </h1>
+          <p className="text-muted-foreground">
+            AI가 분석한 환부의 상태입니다
+          </p>
         </div>
 
-        {/* 선택된 필터 표시 */}
-        {selectedFilters.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {selectedFilters.map((filter) => (
-              <Badge
-                key={filter}
-                variant="secondary"
-                className="bg-primary text-white hover:bg-primary/90 cursor-pointer"
-                onClick={() => onToggleFilter(filter)}
-              >
-                {filter}
-                <X className="w-3 h-3 ml-1" />
-              </Badge>
-            ))}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClearFilters}
-              className="text-muted-foreground hover:text-primary"
-            >
-              전체 삭제
-            </Button>
-          </div>
-        )}
-
-        {/* 접을 수 있는 필터 영역 */}
-        {isExpanded && (
-          <div className="bg-white/50 backdrop-blur-sm rounded-xl border border-gray-100 p-4 animate-in slide-in-from-top-2 duration-200">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {filterCategories.map((category) => (
-                <div key={category.title}>
-                  <h3 className="text-sm font-medium text-gray-700 mb-3">
-                    {category.title}
-                  </h3>
-                  <div className="space-y-2">
-                    {category.filters.map((filter) => (
-                      <label
-                        key={filter}
-                        className="flex items-center cursor-pointer group"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedFilters.includes(filter)}
-                          onChange={() => onToggleFilter(filter)}
-                          className="rounded border-gray-300 text-primary focus:ring-primary/50 mr-2"
-                        />
-                        <span className="text-sm text-gray-600 group-hover:text-primary">
-                          {filter}
-                        </span>
-                      </label>
-                    ))}
+        {/* 사용자 업로드 이미지와 예상 질환 */}
+        <Card className="glass-card mb-6 overflow-hidden">
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* 업로드된 사진 */}
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold mb-3">분석 이미지</h2>
+                <div className="aspect-square bg-gradient-glow rounded-2xl p-3">
+                  <div className="w-full h-full bg-white/50 rounded-xl flex items-center justify-center relative overflow-hidden">
+                    <img 
+                      src={userUploadedImage} 
+                      alt="사용자 업로드 이미지" 
+                      className="w-full h-full object-cover rounded-xl"
+                    />
+                    <div className="absolute top-3 left-3">
+                      <Badge className="bg-primary text-white">
+                        환부 촬영
+                      </Badge>
+                    </div>
                   </div>
                 </div>
+              </div>
+
+              {/* 예상 질환명과 점수 + 진단소견 */}
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold mb-3">분석 결과</h2>
+                
+                <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-primary/20">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-semibold text-lg">예상 질환</h3>
+                    <Badge className={getConfidenceColor(analysisResult.confidence)}>
+                      {analysisResult.confidence}% 일치
+                    </Badge>
+                  </div>
+                  <p className="text-2xl font-bold text-primary mb-2">
+                    {analysisResult.predictedDisease}
+                  </p>
+                  
+                  {/* 신뢰도 바 */}
+                  <div className="mb-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm text-muted-foreground">신뢰도</span>
+                      <span className="font-semibold">{analysisResult.confidence}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-primary h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${analysisResult.confidence}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  {analysisResult.confidence < 70 && (
+                    <div className="flex items-center gap-2 text-amber-600 text-sm p-3 bg-amber-50 rounded-lg border border-amber-200">
+                      <AlertCircle className="w-4 h-4" />
+                      <span>정확한 진단을 위해 전문의 상담을 권장합니다</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* 진단 소견 */}
+                <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-primary/20">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Info className="w-4 h-4 text-primary" />
+                    <h3 className="font-semibold text-lg">진단 소견</h3>
+                  </div>
+                  <p className="text-gray-700 leading-relaxed mb-4 text-sm">
+                    {analysisResult.summary}
+                  </p>
+                  <div className="bg-primary-soft/20 rounded-lg p-3">
+                    <p className="text-sm text-gray-600">
+                      {analysisResult.recommendation}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 비슷한 질환 (슬라이드) */}
+        <Card className="glass-card mb-8">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">유사질환</h2>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={prevSlide}
+                  className="h-8 w-8 p-0"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={nextSlide}
+                  className="h-8 w-8 p-0"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+            
+            {/* 단일 슬라이드 표시 */}
+            <div className="w-full">
+              <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-gray-200 hover:border-primary/40 transition-all duration-200">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-medium text-gray-800">{similarDiseases[currentSlide].name}</h3>
+                  <Badge variant="outline" className="text-xs">
+                    {similarDiseases[currentSlide].confidence}%
+                  </Badge>
+                </div>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  {similarDiseases[currentSlide].description}
+                </p>
+              </div>
+            </div>
+            
+            {/* 슬라이드 인디케이터 */}
+            <div className="flex justify-center mt-4 gap-1">
+              {similarDiseases.map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-2 h-2 rounded-full transition-all duration-200 cursor-pointer ${
+                    currentSlide === index 
+                      ? 'bg-primary' 
+                      : 'bg-gray-300'
+                  }`}
+                  onClick={() => setCurrentSlide(index)}
+                />
               ))}
             </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
+          </CardContent>
+        </Card>
 
-const HospitalSearch = () => {
-  const [searchLocation, setSearchLocation] = useState('');
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
-  const [bookmarkedHospitals, setBookmarkedHospitals] = useState<number[]>([]);
+        {/* 액션 버튼들 */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="glass-card hover:shadow-lg transition-all duration-300 cursor-pointer group">
+            <CardContent className="p-6 text-center" onClick={() => navigate('/camera')}>
+              <div className="w-16 h-16 bg-primary-soft/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Camera className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="font-semibold mb-2">재분석하기</h3>
+              <p className="text-sm text-muted-foreground">새로운 사진으로 다시 분석</p>
+            </CardContent>
+          </Card>
 
-  const hospitals = [
-    {
-      id: 1,
-      name: '강남 글래스 스킨 클리닉',
-      image: '/placeholder.svg',
-      rating: 4.8,
-      distance: '0.8km',
-      specialties: ['여드름', '기미', '주름'],
-      address: '서울시 강남구 역삼동 123-45',
-      phone: '02-123-4567',
-      description: '최신 레이저 장비와 K-뷰티 케어 전문 클리닉',
-      availableToday: true,
-      openHours: '09:00-18:00',
-      reviewCount: 1247,
-      isBookmarked: false
-    },
-    {
-      id: 2,
-      name: '뷰티 더마 의원',
-      image: '/placeholder.svg',
-      rating: 4.6,
-      distance: '1.2km',
-      specialties: ['아토피', '민감성피부', '색소침착'],
-      address: '서울시 강남구 신사동 567-89',
-      phone: '02-234-5678',
-      description: '개인 맞춤형 피부 솔루션 제공',
-      availableToday: false,
-      openHours: '10:00-19:00',
-      reviewCount: 892,
-      isBookmarked: true
-    },
-    {
-      id: 3,
-      name: '서울 스킨케어 센터',
-      image: '/placeholder.svg',
-      rating: 4.9,
-      distance: '2.1km',
-      specialties: ['여드름흉터', '모공', '탄력'],
-      address: '서울시 강남구 청담동 234-56',
-      phone: '02-345-6789',
-      description: '피부 재생 치료 전문 클리닉',
-      availableToday: true,
-      openHours: '08:30-17:30',
-      reviewCount: 2156,
-      isBookmarked: false
-    },
-    {
-      id: 4,
-      name: '프리미엄 스킨 클리닉',
-      image: '/placeholder.svg',
-      rating: 4.7,
-      distance: '1.8km',
-      specialties: ['보톡스', 'V라인', '리프팅'],
-      address: '서울시 강남구 논현동 789-12',
-      phone: '02-456-7890',
-      description: 'VIP 개인 맞춤 케어 서비스',
-      availableToday: true,
-      openHours: '09:30-18:30',
-      reviewCount: 634,
-      isBookmarked: false
-    },
-    {
-      id: 5,
-      name: '자연치유 한의원',
-      image: '/placeholder.svg',
-      rating: 4.4,
-      distance: '3.2km',
-      specialties: ['한방치료', '체질개선', '면역강화'],
-      address: '서울시 강남구 대치동 345-67',
-      phone: '02-567-8901',
-      description: '천연 한방 피부 치료 전문',
-      availableToday: false,
-      openHours: '10:00-20:00',
-      reviewCount: 445,
-      isBookmarked: true
-    }
-  ];
+          <Card className="glass-card hover:shadow-lg transition-all duration-300 cursor-pointer group">
+            <CardContent className="p-6 text-center" onClick={() => navigate('/questionnaire')}>
+              <div className="w-16 h-16 bg-primary-soft/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Sparkles className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="font-semibold mb-2">추가 질문</h3>
+              <p className="text-sm text-muted-foreground">더 정확한 분석을 위한 설문</p>
+            </CardContent>
+          </Card>
 
-  const toggleFilter = (filter: string) => {
-    setSelectedFilters(prev => 
-      prev.includes(filter) 
-        ? prev.filter(f => f !== filter)
-        : [...prev, filter]
-    );
-  };
+          <Card className="glass-card hover:shadow-lg transition-all duration-300 cursor-pointer group">
+            <CardContent className="p-6 text-center" onClick={() => navigate('/hospital-search')}>
+              <div className="w-16 h-16 bg-primary-soft/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <TrendingUp className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="font-semibold mb-2">병원 찾기</h3>
+              <p className="text-sm text-muted-foreground">전문의 상담 받기</p>
+            </CardContent>
+          </Card>
+        </div>
 
-  const clearFilters = () => {
-    setSelectedFilters([]);
-  };
-
-  const handleBookmark = (hospitalId: number) => {
-    setBookmarkedHospitals(prev => 
-      prev.includes(hospitalId)
-        ? prev.filter(id => id !== hospitalId)
-        : [...prev, hospitalId]
-    );
-  };
-
-  const handleCall = (phone: string) => {
-    window.open(`tel:${phone}`);
-  };
-
-  const handleNavigate = (address: string) => {
-    // 실제 구현에서는 지도 앱을 열거나 내부 지도 기능을 사용
-    console.log('길찾기:', address);
-  };
-
-  const hospitalsWithBookmarks = hospitals.map(hospital => ({
-    ...hospital,
-    isBookmarked: bookmarkedHospitals.includes(hospital.id)
-  }));
-
-  const resultCount = hospitalsWithBookmarks.length;
-
-  return (
-    <div className="min-h-screen bg-gradient-glass">
-      {/* 헤더 */}
-      <div className="bg-white/90 backdrop-blur-sm shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gradient-primary mb-2">
-            전문 병원 찾기
-          </h1>
-          <p className="text-muted-foreground mb-6">
-            AI 분석 결과에 맞는 피부 전문 병원을 찾아보세요
+        {/* 면책조항 */}
+        <div className="mt-8 p-4 bg-gray-50/80 backdrop-blur-sm rounded-xl border border-gray-200">
+          <p className="text-xs text-gray-500 text-center leading-relaxed">
+            ※ 본 결과는 AI의 예측값으로 참고용입니다. 정확한 진단은 반드시 전문의의 상담을 받으시기 바랍니다.
+            <br />
+            본 서비스는 의료진단을 대체하지 않으며, 응급상황 시에는 즉시 병원에 내원하시기 바랍니다.
           </p>
         </div>
       </div>
-
-      {/* 검색 및 필터 */}
-      <CollapsibleSearchFilters
-        searchLocation={searchLocation}
-        setSearchLocation={setSearchLocation}
-        selectedFilters={selectedFilters}
-        onToggleFilter={toggleFilter}
-        onClearFilters={clearFilters}
-      />
-
-      {/* 결과 헤더 */}
-      <div className="max-w-7xl mx-auto px-4 py-4">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <h2 className="text-lg font-semibold">
-              검색 결과 <span className="text-primary">{resultCount}개</span>
-            </h2>
-            {selectedFilters.length > 0 && (
-              <Badge variant="secondary" className="bg-primary-soft text-primary">
-                {selectedFilters.length}개 필터 적용중
-              </Badge>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              variant={viewMode === 'list' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setViewMode('list')}
-              className="h-9 px-3"
-            >
-              <List className="w-4 h-4" />
-            </Button>
-            <Button
-              variant={viewMode === 'grid' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setViewMode('grid')}
-              className="h-9 px-3"
-            >
-              <Grid3X3 className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* 지도 영역 */}
-          <div className="lg:sticky lg:top-32 h-[600px]">
-            <Card className="h-full glass-card overflow-hidden">
-              <CardContent className="p-0 h-full relative">
-                {/* 데모용 구글맵 스타일 이미지 - 실제 서비스에서는 Google Maps API로 교체 */}
-                {/* TODO: 실제 구현 시 Google Maps JavaScript API 또는 Naver Maps API 연동 */}
-                <div className="h-full relative">
-                  <img 
-                    src={hospitalMapDemo} 
-                    alt="Hospital map interface demo" 
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary-soft/10 to-primary-glow/10"></div>
-                  
-                  {/* 오버레이 정보 */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center bg-white/90 backdrop-blur-sm rounded-lg p-4 border border-primary/30">
-                    <MapPin className="w-8 h-8 text-primary mx-auto mb-2" />
-                    <p className="text-sm font-medium text-primary mb-1">
-                      실시간 병원 위치
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      개발 시 실제 지도로 교체
-                    </p>
-                  </div>
-                </div>
-                
-                {/* 지도 컨트롤 */}
-                <div className="absolute top-4 right-4 space-y-2">
-                  <Button size="sm" variant="outline" className="bg-white/90">
-                    현재 위치
-                  </Button>
-                  <Button size="sm" variant="outline" className="bg-white/90">
-                    확대
-                  </Button>
-                </div>
-
-                {/* 범례 */}
-                <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3">
-                  <div className="text-xs space-y-1">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-primary rounded-full"></div>
-                      <span>피부과</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                      <span>성형외과</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      <span>한의원</span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* 병원 리스트 */}
-          <div className="space-y-4">
-            {resultCount === 0 ? (
-              <Card className="glass-card">
-                <CardContent className="p-12 text-center">
-                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                    <MapPin className="w-8 h-8 text-muted-foreground" />
-                  </div>
-                  <h3 className="text-lg font-medium mb-2">검색 결과가 없습니다</h3>
-                  <p className="text-muted-foreground mb-4">
-                    다른 검색어나 필터를 사용해보세요
-                  </p>
-                  <Button variant="outline" onClick={clearFilters}>
-                    필터 초기화
-                  </Button>
-                </CardContent>
-              </Card>
-            ) : (
-              hospitalsWithBookmarks.map((hospital) => (
-                <HospitalCard
-                  key={hospital.id}
-                  hospital={hospital}
-                  onBookmark={handleBookmark}
-                  onCall={handleCall}
-                  onNavigate={handleNavigate}
-                />
-              ))
-            )}
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
 
-export default HospitalSearch;
+export default Analysis;
