@@ -5,7 +5,6 @@ import { Typography } from '@/components/ui/theme-typography';
 import { Container, Section } from '@/components/ui/theme-container';
 import { Header, Navigation, Hero, Footer } from '@/components/ui/theme-layout';
 import { Camera, Search, ArrowRight } from 'lucide-react';
-import heroModel from '@/assets/hero-model.jpg';
 import step1Camera from '@/assets/step-1-camera.jpg';
 import step2Analysis from '@/assets/step-2-analysis.jpg';
 import step3Results from '@/assets/step-3-results.jpg';
@@ -32,11 +31,6 @@ const Index = () => {
             <Link to="/login">
               <Button variant="ghost" size="sm" className="scale-[1.5]">로그인</Button>
             </Link>
-          </div>
-
-          {/* Background image */}
-          <div className="absolute inset-0 z-0 opacity-10">
-            <img src={heroModel} alt="K-beauty model background" className="w-full h-full object-cover" />
           </div>
           
           {/* Content */}
