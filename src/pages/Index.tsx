@@ -58,9 +58,7 @@ const Index = () => {
           
           <div className="relative z-10 space-y-8">
             <div className="space-y-4">
-              <Typography variant="caption" className="uppercase tracking-wider text-primary">
-                피부과 전문 AI 분석
-              </Typography>
+              <Typography variant="caption" className="uppercase tracking-wider text-primary">피부과 전문 AI 분석</Typography>
               <Typography variant="h1" className="max-w-4xl mx-auto">
                 AI가 제안하는<br />당신만의 피부 솔루션
               </Typography>
@@ -96,8 +94,8 @@ const Index = () => {
                 
               </div>
               <div className="text-center">
-                <Typography variant="h3" className="text-primary">1.2K+</Typography>
-                <Typography variant="bodySmall">협력 병원</Typography>
+                
+                
               </div>
             </div>
           </div>
