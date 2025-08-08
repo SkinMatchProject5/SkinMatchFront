@@ -35,7 +35,7 @@ const Index = () => {
               {/* Left: Image */}
               <div className="order-1 md:order-none">
                 <img
-                  src="/lovable-uploads/1725a015-f13f-48bb-a759-08aa0891a593.png"
+                  src="/lovable-uploads/8436a2f6-9714-4388-8ba5-fbc28c9cbac1.png"
                   alt="AI 피부 분석 배너 이미지"
                   className="w-full h-auto rounded-2xl shadow-xl ring-1 ring-border object-cover aspect-square"
                   loading="eager"
