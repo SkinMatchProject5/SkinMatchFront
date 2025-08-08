@@ -48,7 +48,7 @@ const Index = () => {
           {/* Top-right Login */}
           <div className="absolute right-4 top-4 z-20">
             <Link to="/login">
-              <Button variant="ghost" size="sm" className="scale-[3]">로그인</Button>
+              <Button variant="ghost" size="s" className="scale-[3]">로그인</Button>
             </Link>
           </div>
           {/* TODO: 실제 서비스에서는 고품질 K-뷰티 모델 사진으로 교체 */}
