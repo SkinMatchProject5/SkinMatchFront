@@ -2,10 +2,130 @@ import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import SearchFilters from '@/components/features/hospital/SearchFilters';
 import HospitalCard from '@/components/features/hospital/HospitalCard';
-import { MapPin, SlidersHorizontal, List, Grid3X3 } from 'lucide-react';
+import { MapPin, SlidersHorizontal, List, Grid3X3, Search, X, ChevronDown, ChevronUp } from 'lucide-react';
 import hospitalMapDemo from '@/assets/hospital-map-demo.jpg';
+
+// 접을 수 있는 SearchFilters 컴포넌트
+const CollapsibleSearchFilters = ({ 
+  searchLocation, 
+  setSearchLocation, 
+  selectedFilters, 
+  onToggleFilter, 
+  onClearFilters 
+}) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const filterCategories = [
+    {
+      title: '진료 분야',
+      filters: ['여드름', '기미', '주름', '아토피', '민감성피부', '색소침착', '여드름흉터', '모공', '탄력']
+    },
+    {
+      title: '치료 방법',
+      filters: ['레이저치료', '약물치료', '수술치료', '한방치료', '보톡스', '필러', '리프팅']
+    },
+    {
+      title: '병원 유형',
+      filters: ['피부과', '성형외과', '한의원', '종합병원', '개인병원']
+    },
+    {
+      title: '편의사항',
+      filters: ['주차가능', '야간진료', '주말진료', '예약가능', '당일진료', '보험적용']
+    }
+  ];
+
+  return (
+    <div className="bg-white/90 backdrop-blur-sm border-b">
+      <div className="max-w-7xl mx-auto px-4 py-4">
+        {/* 검색바 */}
+        <div className="flex gap-3 mb-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <input
+              type="text"
+              placeholder="지역명, 병원명 검색"
+              value={searchLocation}
+              onChange={(e) => setSearchLocation(e.target.value)}
+              className="w-full h-12 pl-10 pr-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+            />
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="h-12 px-4 border-gray-200 hover:bg-primary hover:text-white hover:border-primary"
+          >
+            <SlidersHorizontal className="w-4 h-4 mr-2" />
+            필터
+            {isExpanded ? (
+              <ChevronUp className="w-4 h-4 ml-2" />
+            ) : (
+              <ChevronDown className="w-4 h-4 ml-2" />
+            )}
+          </Button>
+        </div>
+
+        {/* 선택된 필터 표시 */}
+        {selectedFilters.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {selectedFilters.map((filter) => (
+              <Badge
+                key={filter}
+                variant="secondary"
+                className="bg-primary text-white hover:bg-primary/90 cursor-pointer"
+                onClick={() => onToggleFilter(filter)}
+              >
+                {filter}
+                <X className="w-3 h-3 ml-1" />
+              </Badge>
+            ))}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClearFilters}
+              className="text-muted-foreground hover:text-primary"
+            >
+              전체 삭제
+            </Button>
+          </div>
+        )}
+
+        {/* 접을 수 있는 필터 영역 */}
+        {isExpanded && (
+          <div className="bg-white/50 backdrop-blur-sm rounded-xl border border-gray-100 p-4 animate-in slide-in-from-top-2 duration-200">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {filterCategories.map((category) => (
+                <div key={category.title}>
+                  <h3 className="text-sm font-medium text-gray-700 mb-3">
+                    {category.title}
+                  </h3>
+                  <div className="space-y-2">
+                    {category.filters.map((filter) => (
+                      <label
+                        key={filter}
+                        className="flex items-center cursor-pointer group"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedFilters.includes(filter)}
+                          onChange={() => onToggleFilter(filter)}
+                          className="rounded border-gray-300 text-primary focus:ring-primary/50 mr-2"
+                        />
+                        <span className="text-sm text-gray-600 group-hover:text-primary">
+                          {filter}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const HospitalSearch = () => {
   const [searchLocation, setSearchLocation] = useState('');
@@ -142,7 +262,7 @@ const HospitalSearch = () => {
       </div>
 
       {/* 검색 및 필터 */}
-      <SearchFilters
+      <CollapsibleSearchFilters
         searchLocation={searchLocation}
         setSearchLocation={setSearchLocation}
         selectedFilters={selectedFilters}
