@@ -206,53 +206,34 @@ const HospitalSearch = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* 지도 영역 */}
-          <div className="lg:sticky lg:top-32 h-[600px]">
-            <Card className="h-full glass-card overflow-hidden">
+        <div className="relative">
+          {/* 지도 배경 레이어 */}
+          <div className="absolute inset-0">
+            <Card className="h-full w-full glass-card overflow-hidden">
               <CardContent className="p-0 h-full relative">
-                {/* 데모용 구글맵 스타일 이미지 - 실제 서비스에서는 Google Maps API로 교체 */}
-                {/* TODO: 실제 구현 시 Google Maps JavaScript API 또는 Naver Maps API 연동 */}
-                <div className="h-full relative">
+                <div className="h-full min-h-[700px] relative">
                   <img src={hospitalMapDemo} alt="Hospital map interface demo" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-br from-primary-soft/10 to-primary-glow/10"></div>
-                  
-                  {/* 오버레이 정보 */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center bg-white/90 backdrop-blur-sm rounded-lg p-4 border border-primary/30">
-                    <MapPin className="w-8 h-8 text-primary mx-auto mb-2" />
-                    <p className="text-sm font-medium text-primary mb-1">
-                      실시간 병원 위치
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      개발 시 실제 지도로 교체
-                    </p>
-                  </div>
-                </div>
-                
-                {/* 지도 컨트롤 */}
-                <div className="absolute top-4 right-4 space-y-2">
-                  <Button size="sm" variant="outline" className="bg-white/90">
-                    현재 위치
-                  </Button>
-                  <Button size="sm" variant="outline" className="bg-white/90">
-                    확대
-                  </Button>
-                </div>
 
-                {/* 범례 */}
-                <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3">
-                  <div className="text-xs space-y-1">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-primary rounded-full"></div>
-                      <span>피부과</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                      <span>성형외과</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      <span>한의원</span>
+                  {/* 오버레이 정보 */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center bg-white/90 backdrop-blur-sm rounded-lg p-4 border border-primary/30">
+                    <MapPin className="w-8 h-8 text-primary mx-auto mb-2" />
+                    <p className="text-sm font-medium text-primary mb-1">실시간 병원 위치</p>
+                    <p className="text-xs text-muted-foreground">개발 시 실제 지도로 교체</p>
+                  </div>
+
+                  {/* 지도 컨트롤 */}
+                  <div className="absolute top-4 right-4 space-y-2">
+                    <Button size="sm" variant="outline" className="bg-white/90">현재 위치</Button>
+                    <Button size="sm" variant="outline" className="bg-white/90">확대</Button>
+                  </div>
+
+                  {/* 범례 */}
+                  <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3">
+                    <div className="text-xs space-y-1">
+                      <div className="flex items-center gap-2"><div className="w-3 h-3 bg-primary rounded-full"></div><span>피부과</span></div>
+                      <div className="flex items-center gap-2"><div className="w-3 h-3 bg-purple-500 rounded-full"></div><span>성형외과</span></div>
+                      <div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-500 rounded-full"></div><span>한의원</span></div>
                     </div>
                   </div>
                 </div>
@@ -260,22 +241,34 @@ const HospitalSearch = () => {
             </Card>
           </div>
 
-          {/* 병원 리스트 */}
-          <div className="space-y-4">
-            {resultCount === 0 ? <Card className="glass-card">
-                <CardContent className="p-12 text-center">
-                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                    <MapPin className="w-8 h-8 text-muted-foreground" />
-                  </div>
-                  <h3 className="text-lg font-medium mb-2">검색 결과가 없습니다</h3>
-                  <p className="text-muted-foreground mb-4">
-                    다른 검색어나 필터를 사용해보세요
-                  </p>
-                  <Button variant="outline" onClick={clearFilters}>
-                    필터 초기화
-                  </Button>
-                </CardContent>
-              </Card> : hospitalsWithBookmarks.map(hospital => <HospitalCard key={hospital.id} hospital={hospital} onBookmark={handleBookmark} onCall={handleCall} onNavigate={handleNavigate} />)}
+          {/* 결과 리스트 오버레이 */}
+          <div className="relative z-10 py-4">
+            <div className="w-full lg:max-w-xl lg:ml-auto">
+              <div className="space-y-4">
+                {resultCount === 0 ? (
+                  <Card className="glass-card">
+                    <CardContent className="p-12 text-center">
+                      <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                        <MapPin className="w-8 h-8 text-muted-foreground" />
+                      </div>
+                      <h3 className="text-lg font-medium mb-2">검색 결과가 없습니다</h3>
+                      <p className="text-muted-foreground mb-4">다른 검색어나 필터를 사용해보세요</p>
+                      <Button variant="outline" onClick={clearFilters}>필터 초기화</Button>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  hospitalsWithBookmarks.map(hospital => (
+                    <HospitalCard
+                      key={hospital.id}
+                      hospital={hospital}
+                      onBookmark={handleBookmark}
+                      onCall={handleCall}
+                      onNavigate={handleNavigate}
+                    />
+                  ))
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
