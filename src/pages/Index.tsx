@@ -69,7 +69,7 @@ const Index = () => {
       return idx;
     };
 
-    const animateTo = (target: number, duration = 900) => {
+    const animateTo = (target: number, duration = 1100) => {
       const start = el.scrollTop;
       const change = target - start;
       if (change === 0) return;
@@ -96,7 +96,7 @@ const Index = () => {
       e.preventDefault();
       const current = getCurrentIndex();
       const next = clamp(current + (delta > 0 ? 1 : -1), 0, sections.length - 1);
-      if (next !== current) animateTo(sections[next].offsetTop, 900);
+      if (next !== current) animateTo(sections[next].offsetTop, 1100);
     };
 
     const onKey = (e: KeyboardEvent) => {
@@ -107,12 +107,12 @@ const Index = () => {
         e.preventDefault();
         const current = getCurrentIndex();
         const next = clamp(current + 1, 0, sections.length - 1);
-        if (next !== current) animateTo(sections[next].offsetTop, 900);
+        if (next !== current) animateTo(sections[next].offsetTop, 1100);
       } else if (upKeys.includes(e.key) || (e.key === ' ' && e.shiftKey)) {
         e.preventDefault();
         const current = getCurrentIndex();
         const prev = clamp(current - 1, 0, sections.length - 1);
-        if (prev !== current) animateTo(sections[prev].offsetTop, 900);
+        if (prev !== current) animateTo(sections[prev].offsetTop, 1100);
       }
     };
 
