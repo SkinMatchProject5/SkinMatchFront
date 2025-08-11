@@ -86,7 +86,7 @@ const Index = () => {
                 <div className="bg-card border border-border rounded-xl p-5 flex gap-3 items-start">
                   <ShieldCheck className="w-5 h-5 text-primary shrink-0" />
                   <div>
-                    <Typography variant="h4" className="mb-1">스마트 피부 진당</Typography>
+                    <Typography variant="h4" className="mb-1">스마트 피부 진단</Typography>
                     <Typography variant="bodySmall">다양한 피부 이미지 학습으로 높은 신뢰도의 분석 제공</Typography>
                   </div>
                 </div>
