@@ -101,7 +101,7 @@ const Index = () => {
                   <Sparkles className="w-5 h-5 text-primary shrink-0" />
                   <div>
                     <Typography variant="h4" className="mb-1">맞춤 가이드</Typography>
-                    <Typography variant="bodySmall">피부 증상에 맞춘 관리 팁과 병원 추천</Typography>
+                    <Typography variant="bodySmall">피부 증상에 맞춘 병원 추천</Typography>
                   </div>
                 </div>
                 <div className="bg-card border border-border rounded-xl p-5 flex gap-3 items-start">
