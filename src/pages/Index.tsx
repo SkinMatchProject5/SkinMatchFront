@@ -240,8 +240,9 @@ const Index = () => {
       </Section>
 
       {/* Features Section */}
-      <Section spacing="default" background="gradient" className="snap-start min-h-screen flex items-center">
-        <Container size="xl">
+      <Section spacing="default" background="gradient" className="snap-start min-h-screen flex items-center relative">
+        <div aria-hidden className="absolute inset-0 z-0 bg-cover bg-center" style={{ backgroundImage: "url('/lovable-uploads/563482cb-57b5-414f-8f61-de7406a40480.png')" }} />
+        <Container size="xl" className="relative z-10">
           <RevealOnSnap>
             <div className="text-center mb-16 space-y-4">
               <Typography variant="h3">전문적인 피부 케어 솔루션</Typography>
