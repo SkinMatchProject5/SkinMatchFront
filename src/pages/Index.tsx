@@ -5,7 +5,7 @@ import { Typography } from '@/components/ui/theme-typography';
 import { Container, Section } from '@/components/ui/theme-container';
 import { Header, Navigation, Hero, Footer } from '@/components/ui/theme-layout';
 import { Camera, Search, ArrowRight, ShieldCheck, Timer, Sparkles, MousePointerClick } from 'lucide-react';
-import faceAnalysisImg from '@/assets/face-analysis-demo.jpg';
+
 
 const Index = () => {
   const features = [{
@@ -122,7 +122,7 @@ const Index = () => {
               </div>
             </div>
             <div className="order-first md:order-last">
-              <img src={faceAnalysisImg} alt="AI 피부 진단 데모 이미지" loading="lazy" className="w-full h-auto rounded-2xl shadow-xl ring-1 ring-border object-cover" />
+              <img src="/lovable-uploads/b2f142a6-30a4-47e9-a53f-94c011b9daee.png" alt="AI 피부질환 진단 장점 홍보 이미지" loading="lazy" className="w-full h-auto rounded-2xl shadow-xl ring-1 ring-border object-cover" />
             </div>
           </div>
         </Container>
