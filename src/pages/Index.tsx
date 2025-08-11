@@ -83,35 +83,36 @@ const Index = () => {
                 빠르고 정확한 분석으로 조기 발견과 맞춤 치료를 돕습니다.
               </Typography>
               <div className="grid sm:grid-cols-2 gap-4">
-                <div className="bg-card border border-border rounded-xl p-5 flex gap-3 items-start">
-                  <ShieldCheck className="w-5 h-5 text-primary shrink-0" />
-                  <div>
-                    <Typography variant="h4" className="mb-1">정밀분석</Typography>
-                    <Typography variant="bodySmall">다양한 피부 이미지 학습으로 높은 신뢰도의 분석 제공</Typography>
-                  </div>
-                </div>
-                <div className="bg-card border border-border rounded-xl p-5 flex gap-3 items-start">
-                  <Timer className="w-5 h-5 text-primary shrink-0" />
-                  <div>
-                    <Typography variant="h4" className="mb-1">즉시 결과</Typography>
-                    <Typography variant="bodySmall">촬영 후 몇 초 내 결과 확인 및 다음 단계 안내</Typography>
-                  </div>
-                </div>
-                <div className="bg-card border border-border rounded-xl p-5 flex gap-3 items-start">
-                  <Sparkles className="w-5 h-5 text-primary shrink-0" />
-                  <div>
-                    <Typography variant="h4" className="mb-1">맞춤 가이드</Typography>
-                    <Typography variant="bodySmall">피부 증상에 맞춘 병원 추천</Typography>
-                  </div>
-                </div>
-                <div className="bg-card border border-border rounded-xl p-5 flex gap-3 items-start">
-                  <Lock className="w-5 h-5 text-primary shrink-0" />
-                  <div>
-                    <Typography variant="h4" className="mb-1">편리한 사용성</Typography>
-                    <Typography variant="bodySmall">누구나 쉽게 이용 가능한 직관적 인터페이스</Typography>
-                  </div>
-                </div>
-              </div>
+  <div className="bg-card border border-border rounded-xl p-5 flex gap-3 items-start">
+    <ShieldCheck className="w-5 h-5 text-primary shrink-0" />
+    <div>
+      <Typography variant="h4" className="mb-1">정밀분석</Typography>
+      <Typography variant="bodySmall">다양한 피부 이미지 학습으로 높은 신뢰도의 분석 제공</Typography>
+    </div>
+  </div>
+  <div className="bg-card border border-border rounded-xl p-5 flex gap-3 items-start">
+    <Timer className="w-5 h-5 text-primary shrink-0" />
+    <div>
+      <Typography variant="h4" className="mb-1">즉시 결과</Typography>
+      <Typography variant="bodySmall">촬영 후 몇 초 내 결과 확인 및 다음 단계 안내</Typography>
+    </div>
+  </div>
+  <div className="bg-card border border-border rounded-xl p-5 flex gap-3 items-start">
+    <Sparkles className="w-5 h-5 text-primary shrink-0" />
+    <div>
+      <Typography variant="h4" className="mb-1">맞춤 가이드</Typography>
+      <Typography variant="bodySmall">피부 증상에 맞춘 병원 추천</Typography>
+    </div>
+  </div>
+  <div className="bg-card border border-border rounded-xl p-5 flex gap-3 items-start">
+    <MousePointerClick className="w-5 h-5 text-primary shrink-0" />
+    <div>
+      <Typography variant="h4" className="mb-1">편리한 사용성</Typography>
+      <Typography variant="bodySmall">누구나 쉽게 사용할 수 있는 직관적인 인터페이스</Typography>
+    </div>
+  </div>
+</div>
+
               <div className="pt-2">
                 <Link to="/camera">
                   <Button size="lg">
