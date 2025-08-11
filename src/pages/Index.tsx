@@ -46,8 +46,78 @@ const Index = () => {
     );
   };
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let isAnimating = false;
+    let rafId = 0;
+
+    const easeInOutCubic = (t: number) =>
+      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+    const animateTo = (target: number, duration = 1200) => {
+      const start = container.scrollTop;
+      const distance = target - start;
+      const startTime = performance.now();
+      isAnimating = true;
+
+      const step = (now: number) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        container.scrollTop = start + distance * easeInOutCubic(progress);
+        if (progress < 1) {
+          rafId = requestAnimationFrame(step);
+        } else {
+          isAnimating = false;
+        }
+      };
+
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(step);
+    };
+
+    const sectionCount = () => container.querySelectorAll('section').length;
+    const currentIndex = () => Math.round(container.scrollTop / container.clientHeight);
+
+    const scrollToIndex = (index: number) => {
+      const clamped = Math.max(0, Math.min(index, sectionCount() - 1));
+      animateTo(clamped * container.clientHeight, 1200);
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) < 2) return;
+      e.preventDefault();
+      if (isAnimating) return;
+      const next = currentIndex() + (e.deltaY > 0 ? 1 : -1);
+      scrollToIndex(next);
+    };
+
+    const onKey = (e: KeyboardEvent) => {
+      if (isAnimating) { e.preventDefault(); return; }
+      if (["ArrowDown","PageDown"," "].includes(e.key)) {
+        e.preventDefault();
+        scrollToIndex(currentIndex() + 1);
+      } else if (["ArrowUp","PageUp"].includes(e.key)) {
+        e.preventDefault();
+        scrollToIndex(currentIndex() - 1);
+      }
+    };
+
+    container.addEventListener('wheel', onWheel, { passive: false });
+    window.addEventListener('keydown', onKey, { passive: false });
+
+    return () => {
+      container.removeEventListener('wheel', onWheel);
+      window.removeEventListener('keydown', onKey);
+      cancelAnimationFrame(rafId);
+    };
+  }, []);
+
   return (
-    <div className="theme-home-bright h-screen bg-background overflow-y-scroll snap-y snap-mandatory scroll-smooth">
+    <div ref={containerRef} className="theme-home-bright h-screen bg-background overflow-y-scroll snap-y snap-mandatory">
       {/* Hero Section - Linear Style */}
       <Section spacing="hero" className="relative gradient-hero snap-start min-h-screen flex items-center">
         <Container size="xl">
