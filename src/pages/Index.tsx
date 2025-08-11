@@ -107,8 +107,8 @@ const Index = () => {
                 <div className="bg-card border border-border rounded-xl p-5 flex gap-3 items-start">
                   <Lock className="w-5 h-5 text-primary shrink-0" />
                   <div>
-                    <Typography variant="h4" className="mb-1">개인정보 보호</Typography>
-                    <Typography variant="bodySmall">촬영 데이터의 안전한 처리와 저장 정책 준수</Typography>
+                    <Typography variant="h4" className="mb-1">편리한 사용성</Typography>
+                    <Typography variant="bodySmall">누구나 쉽게 이용 가능한 직관적 인터페이스</Typography>
                   </div>
                 </div>
               </div>
