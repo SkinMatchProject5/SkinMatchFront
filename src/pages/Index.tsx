@@ -46,8 +46,87 @@ const Index = () => {
     );
   };
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Desktop smooth section-by-section scroll with iOS-like easing
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    let isAnimating = false;
+
+    const sections = Array.from(el.querySelectorAll('.snap-start')) as HTMLElement[];
+    const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
+    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+
+    const getCurrentIndex = () => {
+      const y = el.scrollTop;
+      const tops = sections.map(s => s.offsetTop);
+      let idx = 0;
+      for (let i = 0; i < tops.length; i++) {
+        if (y >= tops[i] - 1) idx = i; else break;
+      }
+      return idx;
+    };
+
+    const animateTo = (target: number, duration = 900) => {
+      const start = el.scrollTop;
+      const change = target - start;
+      if (change === 0) return;
+      const startTime = performance.now();
+      isAnimating = true;
+
+      const step = (now: number) => {
+        const t = Math.min(1, (now - startTime) / duration);
+        const eased = easeOutCubic(t);
+        el.scrollTo({ top: start + change * eased });
+        if (t < 1) requestAnimationFrame(step);
+        else isAnimating = false;
+      };
+
+      requestAnimationFrame(step);
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      // Only customize desktop wheel scrolling
+      if (isAnimating) { e.preventDefault(); return; }
+      // Ignore tiny deltas (e.g., inertia tail)
+      const delta = e.deltaY;
+      if (Math.abs(delta) < 10) return; // allow micro moves
+      e.preventDefault();
+      const current = getCurrentIndex();
+      const next = clamp(current + (delta > 0 ? 1 : -1), 0, sections.length - 1);
+      if (next !== current) animateTo(sections[next].offsetTop, 900);
+    };
+
+    const onKey = (e: KeyboardEvent) => {
+      if (isAnimating) { e.preventDefault(); return; }
+      const downKeys = ['ArrowDown', 'PageDown', ' '];
+      const upKeys = ['ArrowUp', 'PageUp'];
+      if (downKeys.includes(e.key) || (e.key === ' ' && !e.shiftKey)) {
+        e.preventDefault();
+        const current = getCurrentIndex();
+        const next = clamp(current + 1, 0, sections.length - 1);
+        if (next !== current) animateTo(sections[next].offsetTop, 900);
+      } else if (upKeys.includes(e.key) || (e.key === ' ' && e.shiftKey)) {
+        e.preventDefault();
+        const current = getCurrentIndex();
+        const prev = clamp(current - 1, 0, sections.length - 1);
+        if (prev !== current) animateTo(sections[prev].offsetTop, 900);
+      }
+    };
+
+    el.addEventListener('wheel', onWheel, { passive: false });
+    window.addEventListener('keydown', onKey, { passive: false });
+
+    return () => {
+      el.removeEventListener('wheel', onWheel as any);
+      window.removeEventListener('keydown', onKey as any);
+    };
+  }, []);
+
   return (
-    <div className="theme-home-bright h-screen bg-background overflow-y-scroll snap-y snap-mandatory scroll-smooth">
+    <div ref={containerRef} className="theme-home-bright h-screen bg-background overflow-y-scroll snap-y snap-mandatory scroll-smooth">
       {/* Hero Section - Linear Style */}
       <Section spacing="hero" className="relative gradient-hero snap-start min-h-screen flex items-center">
         <Container size="xl">
