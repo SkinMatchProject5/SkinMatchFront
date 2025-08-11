@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Camera as CameraIcon, Upload, RotateCcw, Check, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import faceAnalysisDemo from '@/assets/face-analysis-demo.jpg';
+
 
 const Camera = () => {
   const navigate = useNavigate();
@@ -72,14 +72,7 @@ const Camera = () => {
               <div className="aspect-[4/3] bg-gradient-to-br from-primary-soft/10 to-primary-glow/10 relative flex items-center justify-center overflow-hidden">
                 {/* 데모용 이미지 - 실제 서비스에서는 실시간 카메라 피드로 교체 */}
                 {/* TODO: 실제 구현 시 getUserMedia API로 카메라 스트림 연결 */}
-                <div className="absolute inset-0">
-                  <img 
-                    src={faceAnalysisDemo} 
-                    alt="Camera demo" 
-                    className="w-full h-full object-cover opacity-40"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary-soft/20 to-primary-glow/20"></div>
-                </div>
+                <div className="absolute inset-0 bg-gradient-to-br from-primary-soft/20 to-primary-glow/20"></div>
                 
                 {/* 가이드라인 */}
                 <div className="absolute inset-0 flex items-center justify-center z-10">
