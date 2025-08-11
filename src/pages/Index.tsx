@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/ui/theme-typography';
 import { Container, Section } from '@/components/ui/theme-container';
 import { Header, Navigation, Hero, Footer } from '@/components/ui/theme-layout';
-import { Camera, Search, ArrowRight, ShieldCheck, Timer, Sparkles, Lock } from 'lucide-react';
+import { Camera, Search, ArrowRight, ShieldCheck, Timer, Sparkles, MousePointerClick } from 'lucide-react';
 import faceAnalysisImg from '@/assets/face-analysis-demo.jpg';
 
 const Index = () => {
@@ -86,7 +86,7 @@ const Index = () => {
                 <div className="bg-card border border-border rounded-xl p-5 flex gap-3 items-start">
                   <ShieldCheck className="w-5 h-5 text-primary shrink-0" />
                   <div>
-                    <Typography variant="h4" className="mb-1">스마트 피부 진단</Typography>
+                    <Typography variant="h4" className="mb-1">스마트 피부 진당</Typography>
                     <Typography variant="bodySmall">다양한 피부 이미지 학습으로 높은 신뢰도의 분석 제공</Typography>
                   </div>
                 </div>
@@ -105,10 +105,10 @@ const Index = () => {
                   </div>
                 </div>
                 <div className="bg-card border border-border rounded-xl p-5 flex gap-3 items-start">
-                  <Lock className="w-5 h-5 text-primary shrink-0" />
+                  <MousePointerClick className="w-5 h-5 text-primary shrink-0" />
                   <div>
-                    <Typography variant="h4" className="mb-1">개인정보 보호</Typography>
-                    <Typography variant="bodySmall">촬영 데이터의 안전한 처리와 저장 정책 준수</Typography>
+                    <Typography variant="h4" className="mb-1">편리한 사용성</Typography>
+                    <Typography variant="bodySmall">누구나 쉽게 사용할 수 있는 직관적인 인터페이스</Typography>
                   </div>
                 </div>
               </div>
