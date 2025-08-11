@@ -19,9 +19,9 @@ const Index = () => {
   }];
 
   return (
-    <div className="theme-home-bright min-h-screen bg-background">
+    <div className="theme-home-bright h-screen bg-background overflow-y-scroll snap-y snap-mandatory scroll-smooth">
       {/* Hero Section - Linear Style */}
-      <Section spacing="hero" className="relative gradient-hero">
+      <Section spacing="hero" className="relative gradient-hero snap-start min-h-screen flex items-center">
         <Container size="xl">
           {/* Top-right Login */}
           <div className="absolute right-4 top-4 z-20">
@@ -74,7 +74,7 @@ const Index = () => {
       </Section>
 
       {/* AI 진단 홍보 Section */}
-      <Section spacing="lg" background="muted">
+      <Section spacing="lg" background="muted" className="snap-start min-h-screen flex items-center">
         <Container size="xl">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
@@ -129,7 +129,7 @@ const Index = () => {
       </Section>
 
       {/* Features Section */}
-      <Section spacing="default" background="gradient">
+      <Section spacing="default" background="gradient" className="snap-start min-h-screen flex items-center">
         <Container size="xl">
           <div className="text-center mb-16 space-y-4">
             <Typography variant="h3">전문적인 피부 케어 솔루션</Typography>
