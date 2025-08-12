@@ -39,7 +39,7 @@ const Index = () => {
     return (
       <div
         ref={ref}
-        className={`${visible ? 'opacity-100 animate-enter' : 'opacity-0 translate-y-3'} transition-all duration-500 will-change-transform ${className ?? ''}`}
+        className={`${visible ? 'opacity-100 animate-enter' : 'opacity-100 animate-exit'} will-change-[transform,opacity] ${className ?? ''}`}
       >
         {children}
       </div>
