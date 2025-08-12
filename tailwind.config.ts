@@ -76,8 +76,9 @@ export default {
 				}
 			},
 			fontFamily: {
-				'inter': ['Inter', 'system-ui', 'sans-serif'],
-				'pretendard': ['Inter', 'system-ui', 'sans-serif'], // Using Inter as fallback for Korean
+				brand: ['Inter', '"Helvetica Neue"', '"SF Pro Display"', 'Poppins', 'ui-sans-serif', 'system-ui', '-apple-system', '"Segoe UI"', 'Roboto', '"Noto Sans"', 'sans-serif'],
+				inter: ['Inter', 'system-ui', 'sans-serif'],
+				pretendard: ['Inter', 'system-ui', 'sans-serif'], // Using Inter as fallback for Korean
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

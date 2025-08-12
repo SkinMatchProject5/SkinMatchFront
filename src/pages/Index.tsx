@@ -130,6 +130,15 @@ const Index = () => {
               <Button variant="ghost" size="sm" className="scale-[1.5]">로그인</Button>
             </Link>
           </div>
+
+          {/* Top-left Brand Wordmark */}
+          <div className="absolute left-4 top-4 z-20">
+            <Link to="/" aria-label="Skin Match 홈" className="block select-none">
+              <span className="font-brand text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-gradient-primary">
+                Skin Match
+              </span>
+            </Link>
+          </div>
           
           {/* Content */}
           <RevealOnSnap>
