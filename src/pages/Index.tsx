@@ -240,20 +240,27 @@ const Index = () => {
       </Section>
 
       {/* Features Section */}
-      <Section spacing="default" background="gradient" className="snap-start min-h-screen flex items-center">
-        <Container size="xl">
+      <Section spacing="default" background="gradient" className="relative overflow-hidden snap-start min-h-screen flex items-center">
+        {/* Decorative background elements */}
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-24 -right-20 w-72 h-72 rounded-full bg-primary/20 blur-3xl opacity-30 animate-glow" />
+          <div className="absolute -bottom-24 -left-16 w-80 h-80 flow-shape bg-gradient-primary opacity-20 blur-2xl animate-float" />
+          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-px bg-gradient-to-r from-primary/0 via-primary/30 to-primary/0" />
+        </div>
+        <Container size="xl" className="relative z-10">
           <RevealOnSnap>
             <div className="text-center mb-16 space-y-4">
               <Typography variant="h3">전문적인 피부 케어 솔루션</Typography>
               <Typography variant="subtitle" className="max-w-2xl mx-auto">
                 AI 분석부터 병원 추천까지 통합적인 피부 관리 서비스
               </Typography>
+              <div className="mx-auto h-1 w-24 rounded-full bg-gradient-to-r from-primary/0 via-primary/60 to-primary/0" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {features.map((feature, index) => (
                 <div key={index} className="group">
-                  <div className="bg-card rounded-xl p-8 h-full border border-border hover:border-primary/20 transition-all duration-300">
+                  <div className="bg-card/90 backdrop-blur-sm rounded-xl p-8 h-full border border-border hover:border-primary/20 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
                     <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-6 group-hover:bg-primary/15 transition-colors">
                       <feature.icon className="w-6 h-6 text-primary" />
                     </div>
