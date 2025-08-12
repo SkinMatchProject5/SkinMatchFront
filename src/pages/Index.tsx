@@ -187,16 +187,10 @@ const Index = () => {
               {/* CTA row */}
               <div className="mt-6 flex flex-col sm:flex-row gap-4 w-full max-w-md mx-auto">
                 <Link to="/camera" className="flex-1">
-                  <Button size="lg" className="w-full">
-                    <Camera className="w-5 h-5" />
-                    피부 분석 시작
-                  </Button>
+                  
                 </Link>
                 <Link to="/hospital" className="flex-1">
-                  <Button variant="outline" size="lg" className="w-full">
-                    병원 찾기
-                    <ArrowRight className="w-4 h-4" />
-                  </Button>
+                  
                 </Link>
               </div>
             </div>
