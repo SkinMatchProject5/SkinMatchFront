@@ -142,29 +142,73 @@ const Index = () => {
           
           {/* Content */}
           <RevealOnSnap>
-            <div className="relative z-10 pt-32">
-              <div className="flex flex-col items-center text-center gap-8">
-                <Typography variant="h1" className="max-w-5xl font-brand text-gradient-primary">
+            <div className="relative z-10 pt-28 md:pt-32 w-full">
+              {/* Massive headline */}
+              <div className="px-2 md:px-6">
+                <Typography
+                  variant="h1"
+                  className="font-brand tracking-tight text-foreground text-center text-[16vw] md:text-[11vw] leading-[0.9]"
+                >
                   Skin Match
                 </Typography>
-                <Typography variant="h2" className="max-w-2xl">
-                  전문적인 피부 분석과 맞춤 병원 추천으로 건강한 피부를 만나보세요
-                </Typography>
+                <div className="mt-4 md:mt-6 flex items-start justify-between text-muted-foreground text-xs sm:text-sm md:text-base">
+                  <p className="max-w-[42ch] text-left">
+                    AI 피부 분석으로 신뢰할 수 있는 케어를 경험하세요.
+                  </p>
+                  <p className="max-w-[42ch] text-right">
+                    일상 속 편리한 피부 관리, 결과 기반 맞춤 병원 연계.
+                  </p>
+                </div>
+              </div>
 
-                <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
-                  <Link to="/camera" className="flex-1">
-                    <Button size="lg" className="w-full">
-                      <Camera className="w-5 h-5" />
-                      피부 분석 시작
-                    </Button>
-                  </Link>
-                  <Link to="/hospital" className="flex-1">
-                    <Button variant="outline" size="lg" className="w-full">
-                      병원 찾기
+              {/* Showcase card */}
+              <div className="relative mt-6 md:mt-10 rounded-3xl bg-card border border-border shadow-lg overflow-hidden">
+                <img
+                  src="/lovable-uploads/7723b9f9-13eb-40e3-b772-a09469caceb7.png"
+                  alt="AI 피부 분석 데모 미리보기"
+                  loading="lazy"
+                  className="w-full h-[220px] sm:h-[300px] md:h-[420px] object-cover"
+                />
+                {/* CTA pill */}
+                <div className="absolute right-4 top-4">
+                  <Link to="/camera">
+                    <Button size="sm" className="rounded-full px-5">
+                      지금 시작
                       <ArrowRight className="w-4 h-4" />
                     </Button>
                   </Link>
                 </div>
+                {/* Mini cards */}
+                <div className="absolute left-4 bottom-4 flex gap-3">
+                  <div className="bg-card/90 backdrop-blur-sm border border-border rounded-xl px-3 py-2 shadow-sm flex items-center gap-2">
+                    <Camera className="w-4 h-4 text-primary" />
+                    <span className="text-xs sm:text-sm">촬영</span>
+                  </div>
+                  <div className="bg-card/90 backdrop-blur-sm border border-border rounded-xl px-3 py-2 shadow-sm flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    <span className="text-xs sm:text-sm">AI 분석</span>
+                  </div>
+                  <div className="bg-card/90 backdrop-blur-sm border border-border rounded-xl px-3 py-2 shadow-sm flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-primary" />
+                    <span className="text-xs sm:text-sm">결과/추천</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* CTA row */}
+              <div className="mt-6 flex flex-col sm:flex-row gap-4 w-full max-w-md mx-auto">
+                <Link to="/camera" className="flex-1">
+                  <Button size="lg" className="w-full">
+                    <Camera className="w-5 h-5" />
+                    피부 분석 시작
+                  </Button>
+                </Link>
+                <Link to="/hospital" className="flex-1">
+                  <Button variant="outline" size="lg" className="w-full">
+                    병원 찾기
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
               </div>
             </div>
           </RevealOnSnap>
