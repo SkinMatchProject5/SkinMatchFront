@@ -145,10 +145,7 @@ const Index = () => {
             <div className="relative z-10 pt-28 md:pt-32 w-full">
               {/* Massive headline */}
               <div className="px-2 md:px-6">
-                <Typography
-                  variant="h1"
-                  className="font-brand tracking-tight text-foreground text-center text-[16vw] md:text-[11vw] leading-[0.9]"
-                >
+                <Typography variant="h1" className="font-brand tracking-tight text-foreground text-center text-[16vw] md:text-[11vw] leading-[0.9]">
                   Skin Match
                 </Typography>
                 <div className="mt-4 md:mt-6 flex items-start justify-between text-muted-foreground text-xs sm:text-sm md:text-base">
@@ -163,19 +160,11 @@ const Index = () => {
 
               {/* Showcase card */}
               <div className="relative mt-6 md:mt-10 rounded-3xl bg-card border border-border shadow-lg overflow-hidden">
-                <img
-                  src="/lovable-uploads/4ff4098a-c50e-4ad6-8532-09979b70fac7.png"
-                  alt="AI 피부 분석 데모 미리보기"
-                  loading="lazy"
-                  className="w-full h-[220px] sm:h-[300px] md:h-[420px] object-cover"
-                />
+                <img src="/lovable-uploads/4ff4098a-c50e-4ad6-8532-09979b70fac7.png" alt="AI 피부 분석 데모 미리보기" loading="lazy" className="w-full h-[220px] sm:h-[300px] md:h-[420px] object-cover" />
                 {/* CTA pill */}
                 <div className="absolute right-4 top-4">
                   <Link to="/camera">
-                    <Button size="sm" className="rounded-full px-5">
-                      지금 시작
-                      <ArrowRight className="w-4 h-4" />
-                    </Button>
+                    
                   </Link>
                 </div>
                 {/* Mini cards */}
