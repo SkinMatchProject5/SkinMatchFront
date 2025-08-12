@@ -146,7 +146,7 @@ const Index = () => {
               {/* Massive headline */}
               <div className="px-2 md:px-6">
                 <Typography variant="h1" className="font-brand tracking-tight text-foreground text-center text-[16vw] md:text-[11vw] leading-[0.9]">
-                  Skin Match
+                  AI가 제안하는 당신만의 피부 솔루션
                 </Typography>
                 <div className="mt-4 md:mt-6 flex items-start justify-between text-muted-foreground text-xs sm:text-sm md:text-base">
                   <p className="max-w-[42ch] text-left">
