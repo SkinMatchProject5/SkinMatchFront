@@ -164,7 +164,7 @@ const Index = () => {
               {/* Showcase card */}
               <div className="relative mt-6 md:mt-10 rounded-3xl bg-card border border-border shadow-lg overflow-hidden">
                 <img
-                  src="/lovable-uploads/7723b9f9-13eb-40e3-b772-a09469caceb7.png"
+                  src="/lovable-uploads/4ff4098a-c50e-4ad6-8532-09979b70fac7.png"
                   alt="AI 피부 분석 데모 미리보기"
                   loading="lazy"
                   className="w-full h-[220px] sm:h-[300px] md:h-[420px] object-cover"
