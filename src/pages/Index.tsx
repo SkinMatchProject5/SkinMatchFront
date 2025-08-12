@@ -5,8 +5,6 @@ import { Typography } from '@/components/ui/theme-typography';
 import { Container, Section } from '@/components/ui/theme-container';
 import { Header, Navigation, Hero, Footer } from '@/components/ui/theme-layout';
 import { Camera, Search, ArrowRight, ShieldCheck, Timer, Sparkles, MousePointerClick } from 'lucide-react';
-
-
 const Index = () => {
   const features = [{
     icon: Camera,
@@ -19,77 +17,71 @@ const Index = () => {
   }];
 
   // 스냅 시 섹션이 보일 때 부드럽게 나타나는 래퍼
-  const RevealOnSnap: React.FC<{ className?: string; children: React.ReactNode }> = ({ className, children }) => {
+  const RevealOnSnap: React.FC<{
+    className?: string;
+    children: React.ReactNode;
+  }> = ({
+    className,
+    children
+  }) => {
     const ref = useRef<HTMLDivElement>(null);
     const [visible, setVisible] = useState(false);
-
     useEffect(() => {
       const el = ref.current;
       if (!el) return;
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          setVisible(entry.isIntersecting);
-        },
-        { threshold: 0.5 }
-      );
+      const observer = new IntersectionObserver(([entry]) => {
+        setVisible(entry.isIntersecting);
+      }, {
+        threshold: 0.5
+      });
       observer.observe(el);
       return () => observer.disconnect();
     }, []);
-
-    return (
-      <div
-        ref={ref}
-        className={`${visible ? 'opacity-100 animate-enter' : 'opacity-100 animate-exit'} will-change-[transform,opacity] ${className ?? ''}`}
-      >
+    return <div ref={ref} className={`${visible ? 'opacity-100 animate-enter' : 'opacity-100 animate-exit'} will-change-[transform,opacity] ${className ?? ''}`}>
         {children}
-      </div>
-    );
+      </div>;
   };
-
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Desktop smooth section-by-section scroll with iOS-like easing
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-
     let isAnimating = false;
-
     const sections = Array.from(el.querySelectorAll('.snap-start')) as HTMLElement[];
     const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
     const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
-
     const getCurrentIndex = () => {
       const y = el.scrollTop;
       const tops = sections.map(s => s.offsetTop);
       let idx = 0;
       for (let i = 0; i < tops.length; i++) {
-        if (y >= tops[i] - 1) idx = i; else break;
+        if (y >= tops[i] - 1) idx = i;else break;
       }
       return idx;
     };
-
     const animateTo = (target: number, duration = 900) => {
       const start = el.scrollTop;
       const change = target - start;
       if (change === 0) return;
       const startTime = performance.now();
       isAnimating = true;
-
       const step = (now: number) => {
         const t = Math.min(1, (now - startTime) / duration);
         const eased = easeOutCubic(t);
-        el.scrollTo({ top: start + change * eased });
-        if (t < 1) requestAnimationFrame(step);
-        else isAnimating = false;
+        el.scrollTo({
+          top: start + change * eased
+        });
+        if (t < 1) requestAnimationFrame(step);else isAnimating = false;
       };
-
       requestAnimationFrame(step);
     };
-
     const onWheel = (e: WheelEvent) => {
       // Only customize desktop wheel scrolling
-      if (isAnimating) { e.preventDefault(); return; }
+      if (isAnimating) {
+        e.preventDefault();
+        return;
+      }
       // Ignore tiny deltas (e.g., inertia tail)
       const delta = e.deltaY;
       if (Math.abs(delta) < 10) return; // allow micro moves
@@ -98,35 +90,37 @@ const Index = () => {
       const next = clamp(current + (delta > 0 ? 1 : -1), 0, sections.length - 1);
       if (next !== current) animateTo(sections[next].offsetTop, 900);
     };
-
     const onKey = (e: KeyboardEvent) => {
-      if (isAnimating) { e.preventDefault(); return; }
+      if (isAnimating) {
+        e.preventDefault();
+        return;
+      }
       const downKeys = ['ArrowDown', 'PageDown', ' '];
       const upKeys = ['ArrowUp', 'PageUp'];
-      if (downKeys.includes(e.key) || (e.key === ' ' && !e.shiftKey)) {
+      if (downKeys.includes(e.key) || e.key === ' ' && !e.shiftKey) {
         e.preventDefault();
         const current = getCurrentIndex();
         const next = clamp(current + 1, 0, sections.length - 1);
         if (next !== current) animateTo(sections[next].offsetTop, 900);
-      } else if (upKeys.includes(e.key) || (e.key === ' ' && e.shiftKey)) {
+      } else if (upKeys.includes(e.key) || e.key === ' ' && e.shiftKey) {
         e.preventDefault();
         const current = getCurrentIndex();
         const prev = clamp(current - 1, 0, sections.length - 1);
         if (prev !== current) animateTo(sections[prev].offsetTop, 900);
       }
     };
-
-    el.addEventListener('wheel', onWheel, { passive: false });
-    window.addEventListener('keydown', onKey, { passive: false });
-
+    el.addEventListener('wheel', onWheel, {
+      passive: false
+    });
+    window.addEventListener('keydown', onKey, {
+      passive: false
+    });
     return () => {
       el.removeEventListener('wheel', onWheel as any);
       window.removeEventListener('keydown', onKey as any);
     };
   }, []);
-
-  return (
-    <div ref={containerRef} className="theme-home-bright h-screen bg-background overflow-y-scroll snap-y snap-mandatory scroll-smooth">
+  return <div ref={containerRef} className="theme-home-bright h-screen bg-background overflow-y-scroll snap-y snap-mandatory scroll-smooth">
       {/* Hero Section - Linear Style */}
       <Section spacing="hero" className="relative gradient-hero snap-start min-h-screen flex items-center">
         <Container size="xl">
@@ -143,13 +137,7 @@ const Index = () => {
               <div className="grid md:grid-cols-2 gap-10 items-center">
                 {/* Left: Image */}
                 <div className="order-1 md:order-none">
-                  <img
-                    src="/lovable-uploads/8436a2f6-9714-4388-8ba5-fbc28c9cbac1.png"
-                    alt="AI 피부 분석 배너 이미지"
-                    className="w-full h-auto rounded-2xl shadow-xl ring-1 ring-border object-cover aspect-square"
-                    loading="eager"
-                    fetchPriority="high"
-                  />
+                  
                 </div>
 
                 {/* Right: Text + CTAs */}
@@ -258,8 +246,7 @@ const Index = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {features.map((feature, index) => (
-                <div key={index} className="group">
+              {features.map((feature, index) => <div key={index} className="group">
                   <div className="bg-card/90 backdrop-blur-sm rounded-xl p-8 h-full border border-border hover:border-primary/20 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
                     <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-6 group-hover:bg-primary/15 transition-colors">
                       <feature.icon className="w-6 h-6 text-primary" />
@@ -271,14 +258,11 @@ const Index = () => {
                       {feature.description}
                     </Typography>
                   </div>
-                </div>
-              ))}
+                </div>)}
             </div>
           </RevealOnSnap>
         </Container>
       </Section>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
