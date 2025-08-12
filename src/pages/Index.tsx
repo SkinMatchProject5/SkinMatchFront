@@ -146,11 +146,14 @@ const Index = () => {
               {/* Massive headline */}
               <div className="px-2 md:px-6">
                 <Typography variant="h1" className="font-brand tracking-tight text-foreground text-center text-[16vw] md:text-[11vw] leading-[0.9]">
-                  AI가 제안하는 당신만의 피부 솔루션
+                  Skin Match
                 </Typography>
                 <div className="mt-4 md:mt-6 flex items-start justify-between text-muted-foreground text-xs sm:text-sm md:text-base">
                   <p className="max-w-[42ch] text-left">
-                    전문적인 피부 분석과 맞춤 병원 추천으로 건강한 피부를 만나보세요.
+                    AI 피부 분석으로 신뢰할 수 있는 케어를 경험하세요.
+                  </p>
+                  <p className="max-w-[42ch] text-right">
+                    일상 속 편리한 피부 관리, 결과 기반 맞춤 병원 연계.
                   </p>
                 </div>
               </div>
