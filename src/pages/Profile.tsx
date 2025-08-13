@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,19 +8,22 @@ import { Textarea } from '@/components/ui/textarea';
 import { Typography } from '@/components/ui/theme-typography';
 import { Container, Section } from '@/components/ui/theme-container';
 import { ArrowLeft, Camera, LogOut, Save, User } from 'lucide-react';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { authService } from '@/services/authService';
+import { toast } from 'sonner';
 
 const Profile = () => {
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(true); // TODO: Get from auth context
+  const { user, isAuthenticated, isLoading, logout } = useAuthContext();
   const [profileData, setProfileData] = useState({
-    nickname: '김사용자',
-    name: '김철수',
+    nickname: '',
+    name: '',
     gender: 'male',
     birthYear: '1990',
-    email: 'user@example.com',
+    email: '',
     nationality: 'korean',
-    allergies: '복숭아, 견과류',
-    surgicalHistory: '없음',
+    allergies: '',
+    surgicalHistory: '',
     profileImage: null as File | null
   });
   const [errors, setErrors] = useState<{[key: string]: string}>({});
@@ -71,20 +74,42 @@ const Profile = () => {
   };
 
   const handleSave = () => {
-    if (validateForm()) {
-      // TODO: Implement profile update with axios
-      console.log('Profile update:', profileData);
-    }
+    if (!validateForm()) return;
+    (async () => {
+      try {
+        const res = await authService.updateProfile({
+          name: profileData.name,
+          nickname: profileData.nickname,
+          profileImage: undefined,
+          gender: profileData.gender,
+          birthYear: profileData.birthYear,
+          nationality: profileData.nationality,
+          allergies: profileData.allergies,
+          surgicalHistory: profileData.surgicalHistory,
+        });
+        if (res.success) {
+          toast.success('프로필이 저장되었습니다.');
+        } else {
+          toast.error(res.message || '프로필 저장에 실패했습니다.');
+        }
+      } catch (e: any) {
+        toast.error(e.response?.data?.message || '프로필 저장 중 오류가 발생했습니다.');
+      }
+    })();
   };
 
-  const handleLogout = () => {
-    // TODO: Implement logout logic
-    setIsLoggedIn(false);
+  const handleLogout = async () => {
+    await logout();
     navigate('/');
   };
 
-  // Show login prompt if not logged in
-  if (!isLoggedIn) {
+  // 로그인 여부 확인 중 로딩 표시
+  if (isLoading) {
+    return null;
+  }
+
+  // 비로그인 접근 차단
+  if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-background">
         <Section spacing="default">
@@ -124,6 +149,33 @@ const Profile = () => {
       </div>
     );
   }
+
+  // 사용자 정보 불러오기
+  useEffect(() => {
+    const load = async () => {
+      if (!user) return;
+      try {
+        const res = await authService.getCurrentUser();
+        if (res.success && res.data) {
+          const d = res.data;
+          setProfileData({
+            nickname: d.nickname || user.name || '',
+            name: d.name || user.name || '',
+            gender: d.gender || 'male',
+            birthYear: d.birthYear || '1990',
+            email: d.email || user.email || '',
+            nationality: d.nationality || 'korean',
+            allergies: d.allergies || '',
+            surgicalHistory: d.surgicalHistory || '',
+            profileImage: null,
+          });
+        }
+      } catch (e) {
+        toast.error('프로필 정보를 불러오지 못했습니다.');
+      }
+    };
+    load();
+  }, [user]);
 
   return (
     <div className="min-h-screen bg-background">

@@ -3,22 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Star, Phone, Navigation, Clock, Heart } from 'lucide-react';
-
-interface Hospital {
-  id: number;
-  name: string;
-  image: string;
-  rating: number;
-  distance: string;
-  specialties: string[];
-  address: string;
-  phone: string;
-  description: string;
-  availableToday: boolean;
-  openHours?: string;
-  reviewCount?: number;
-  isBookmarked?: boolean;
-}
+import { Hospital } from '@/services/hospitalService';
 
 interface HospitalCardProps {
   hospital: Hospital;

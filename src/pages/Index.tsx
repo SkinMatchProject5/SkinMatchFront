@@ -5,7 +5,11 @@ import { Typography } from '@/components/ui/theme-typography';
 import { Container, Section } from '@/components/ui/theme-container';
 import { Header, Navigation, Hero, Footer } from '@/components/ui/theme-layout';
 import { Camera, Search, ArrowRight, ShieldCheck, Timer, Sparkles, MousePointerClick } from 'lucide-react';
+import { useAuthContext } from '@/contexts/AuthContext';
+
 const Index = () => {
+  const { isAuthenticated, logout } = useAuthContext();
+  
   const features = [{
     icon: Camera,
     title: 'AI 피부 분석',
@@ -124,11 +128,22 @@ const Index = () => {
       {/* Hero Section - Linear Style */}
       <Section spacing="hero" className="relative gradient-hero snap-start min-h-screen flex items-center">
         <Container size="xl">
-          {/* Top-right Login */}
+          {/* Top-right Login/Logout */}
           <div className="absolute right-4 top-4 z-20">
-            <Link to="/login">
-              <Button variant="ghost" size="sm" className="scale-[1.5]">로그인</Button>
-            </Link>
+            {isAuthenticated ? (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="scale-[1.5]"
+                onClick={logout}
+              >
+                로그아웃
+              </Button>
+            ) : (
+              <Link to="/login">
+                <Button variant="ghost" size="sm" className="scale-[1.5]">로그인</Button>
+              </Link>
+            )}
           </div>
 
           {/* Top-left Brand Wordmark */}

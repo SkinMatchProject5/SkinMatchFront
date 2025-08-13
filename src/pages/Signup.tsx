@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Typography } from '@/components/ui/theme-typography';
-import { Container, Section } from '@/components/ui/theme-container';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Eye, EyeOff, ArrowLeft, Check, X } from 'lucide-react';
+import { authService } from '@/services/authService';
+import { toast } from 'sonner';
 import SocialLogin from '@/components/auth/SocialLogin';
 
 const Signup = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -75,11 +78,34 @@ const Signup = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      // TODO: Implement signup logic with axios
-      console.log('Signup attempt:', formData);
+      setIsLoading(true);
+      
+      try {
+        const response = await authService.signup(formData);
+        if (response.success) {
+          toast.success('회원가입이 완료되었습니다!');
+          navigate('/login');
+        } else {
+          toast.error(response.message || '회원가입에 실패했습니다.');
+        }
+      } catch (error: any) {
+        console.error('회원가입 실패:', error);
+        
+        const errorMessage = error.response?.data?.error || 
+                            error.response?.data?.message || 
+                            '회원가입에 실패했습니다.';
+        
+        toast.error(errorMessage);
+        
+        if (errorMessage.includes('이미 사용중인 이메일')) {
+          setErrors(prev => ({ ...prev, email: '이미 사용중인 이메일입니다.' }));
+        }
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -93,7 +119,7 @@ const Signup = () => {
     if (/[0-9]/.test(formData.password)) score++;
     if (/[^A-Za-z0-9]/.test(formData.password)) score++;
     
-    if (score <= 2) return { score, text: '약함', color: 'text-destructive' };
+    if (score <= 2) return { score, text: '약함', color: 'text-red-500' };
     if (score <= 3) return { score, text: '보통', color: 'text-yellow-500' };
     return { score, text: '강함', color: 'text-green-500' };
   };
@@ -101,214 +127,187 @@ const Signup = () => {
   const passwordStrength = getPasswordStrength();
 
   return (
-    <div className="min-h-screen bg-background">
-      <Section spacing="default">
-        <Container size="sm" className="max-w-md">
-          {/* Header */}
-          <div className="mb-8">
-            <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6">
-              <ArrowLeft className="w-4 h-4" />
-              <Typography variant="bodySmall">돌아가기</Typography>
-            </Link>
-            
-            <div className="text-center space-y-2">
-              <Typography variant="h3">회원가입</Typography>
-              <Typography variant="body" className="text-muted-foreground">
-                새 계정을 만들어 서비스를 시작하세요
-              </Typography>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8">
+      <div className="w-full max-w-md">
+        <div className="mb-8">
+          <Link to="/" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors mb-6">
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm">돌아가기</span>
+          </Link>
+        </div>
 
-          {/* Signup Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-4">
-              {/* Username */}
-              <div className="space-y-2">
-                <Label htmlFor="username">아이디</Label>
-                <Input
-                  id="username"
-                  name="username"
-                  type="text"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  placeholder="아이디를 입력하세요"
-                  className={errors.username ? 'border-destructive' : ''}
-                />
-                {errors.username && (
-                  <Typography variant="caption" className="text-destructive">
-                    {errors.username}
-                  </Typography>
-                )}
-              </div>
-
-              {/* Email */}
-              <div className="space-y-2">
-                <Label htmlFor="email">이메일</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="이메일을 입력하세요"
-                  className={errors.email ? 'border-destructive' : ''}
-                />
-                {errors.email && (
-                  <Typography variant="caption" className="text-destructive">
-                    {errors.email}
-                  </Typography>
-                )}
-              </div>
-
-              {/* Password */}
-              <div className="space-y-2">
-                <Label htmlFor="password">비밀번호</Label>
-                <div className="relative">
+        <Card>
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">회원가입</CardTitle>
+            <p className="text-gray-600">새 계정을 만들어 서비스를 시작하세요</p>
+          </CardHeader>
+          
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="username">아이디</Label>
                   <Input
-                    id="password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={formData.password}
+                    id="username"
+                    name="username"
+                    type="text"
+                    value={formData.username}
                     onChange={handleInputChange}
-                    placeholder="비밀번호를 입력하세요"
-                    className={errors.password ? 'border-destructive pr-10' : 'pr-10'}
+                    placeholder="아이디를 입력하세요"
+                    className={errors.username ? 'border-red-500' : ''}
                   />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-0 top-0 h-full px-3"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
-                  </Button>
+                  {errors.username && (
+                    <p className="text-sm text-red-500">{errors.username}</p>
+                  )}
                 </div>
-                {formData.password && (
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full transition-all duration-300 ${
-                          passwordStrength.score <= 2 ? 'bg-destructive' :
-                          passwordStrength.score <= 3 ? 'bg-yellow-500' : 'bg-green-500'
-                        }`}
-                        style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
-                      />
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">이메일</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="이메일을 입력하세요"
+                    className={errors.email ? 'border-red-500' : ''}
+                  />
+                  {errors.email && (
+                    <p className="text-sm text-red-500">{errors.email}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password">비밀번호</Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      placeholder="비밀번호를 입력하세요"
+                      className={errors.password ? 'border-red-500 pr-10' : 'pr-10'}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </Button>
+                  </div>
+                  {formData.password && (
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full transition-all duration-300 ${
+                            passwordStrength.score <= 2 ? 'bg-red-500' :
+                            passwordStrength.score <= 3 ? 'bg-yellow-500' : 'bg-green-500'
+                          }`}
+                          style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
+                        />
+                      </div>
+                      <span className={`text-sm ${passwordStrength.color}`}>
+                        {passwordStrength.text}
+                      </span>
                     </div>
-                    <Typography variant="caption" className={passwordStrength.color}>
-                      {passwordStrength.text}
-                    </Typography>
-                  </div>
-                )}
-                {errors.password && (
-                  <Typography variant="caption" className="text-destructive">
-                    {errors.password}
-                  </Typography>
-                )}
-              </div>
-
-              {/* Confirm Password */}
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">비밀번호 확인</Label>
-                <div className="relative">
-                  <Input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    value={formData.confirmPassword}
-                    onChange={handleInputChange}
-                    placeholder="비밀번호를 다시 입력하세요"
-                    className={errors.confirmPassword ? 'border-destructive pr-10' : 'pr-10'}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-0 top-0 h-full px-3"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
-                  </Button>
+                  )}
+                  {errors.password && (
+                    <p className="text-sm text-red-500">{errors.password}</p>
+                  )}
                 </div>
-                {formData.confirmPassword && formData.password && (
-                  <div className="flex items-center gap-2">
-                    {formData.password === formData.confirmPassword ? (
-                      <Check className="w-4 h-4 text-green-500" />
-                    ) : (
-                      <X className="w-4 h-4 text-destructive" />
-                    )}
-                    <Typography variant="caption" className={
-                      formData.password === formData.confirmPassword ? 'text-green-500' : 'text-destructive'
-                    }>
-                      {formData.password === formData.confirmPassword ? '비밀번호가 일치합니다' : '비밀번호가 일치하지 않습니다'}
-                    </Typography>
+
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">비밀번호 확인</Label>
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      value={formData.confirmPassword}
+                      onChange={handleInputChange}
+                      placeholder="비밀번호를 다시 입력하세요"
+                      className={errors.confirmPassword ? 'border-red-500 pr-10' : 'pr-10'}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </Button>
                   </div>
-                )}
-                {errors.confirmPassword && (
-                  <Typography variant="caption" className="text-destructive">
-                    {errors.confirmPassword}
-                  </Typography>
-                )}
+                  {formData.confirmPassword && formData.password && (
+                    <div className="flex items-center gap-2">
+                      {formData.password === formData.confirmPassword ? (
+                        <Check className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <X className="w-4 h-4 text-red-500" />
+                      )}
+                      <span className={`text-sm ${
+                        formData.password === formData.confirmPassword ? 'text-green-500' : 'text-red-500'
+                      }`}>
+                        {formData.password === formData.confirmPassword ? '비밀번호가 일치합니다' : '비밀번호가 일치하지 않습니다'}
+                      </span>
+                    </div>
+                  )}
+                  {errors.confirmPassword && (
+                    <p className="text-sm text-red-500">{errors.confirmPassword}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="address">주소</Label>
+                  <Input
+                    id="address"
+                    name="address"
+                    type="text"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    placeholder="주소를 입력하세요"
+                    className={errors.address ? 'border-red-500' : ''}
+                  />
+                  {errors.address && (
+                    <p className="text-sm text-red-500">{errors.address}</p>
+                  )}
+                </div>
               </div>
 
-              {/* Address */}
-              <div className="space-y-2">
-                <Label htmlFor="address">주소</Label>
-                <Input
-                  id="address"
-                  name="address"
-                  type="text"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  placeholder="주소를 입력하세요"
-                  className={errors.address ? 'border-destructive' : ''}
-                />
-                {errors.address && (
-                  <Typography variant="caption" className="text-destructive">
-                    {errors.address}
-                  </Typography>
-                )}
+              <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
+                {isLoading ? '회원가입 중...' : '회원가입'}
+              </Button>
+            </form>
+
+            {/* Social Login */}
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-white text-gray-500">또는</span>
+                </div>
               </div>
+              
+              <SocialLogin isSignup />
             </div>
 
-            {/* Submit Button */}
-            <Button type="submit" size="lg" className="w-full">
-              회원가입
-            </Button>
-          </form>
-
-          {/* Social Login */}
-          <div className="mt-8">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-background text-muted-foreground">또는</span>
-              </div>
+            <div className="mt-6 text-center">
+              <p className="text-gray-600">
+                이미 계정이 있으신가요?{' '}
+                <Link to="/login" className="text-blue-600 hover:underline font-medium">
+                  로그인
+                </Link>
+              </p>
             </div>
-            
-            <SocialLogin isSignup />
-          </div>
-
-          {/* Login link */}
-          <div className="mt-8 text-center">
-            <Typography variant="body" className="text-muted-foreground">
-              이미 계정이 있으신가요?{' '}
-              <Link to="/login" className="text-primary hover:underline font-medium">
-                로그인
-              </Link>
-            </Typography>
-          </div>
-        </Container>
-      </Section>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

@@ -1,20 +1,87 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/ui/theme-typography';
+import { authService } from '@/services/authService';
+import { toast } from 'sonner';
+import { validateRedirectUrl } from '@/utils/oauth';
+import { logger } from '@/utils/logger';
+import { oauthDebugger } from '@/utils/debugger';
 
 interface SocialLoginProps {
   isSignup?: boolean;
 }
 
 const SocialLogin = ({ isSignup = false }: SocialLoginProps) => {
-  const handleSocialLogin = (provider: string) => {
-    // TODO: Implement social login with axios
-    console.log(`${isSignup ? 'Signup' : 'Login'} with ${provider}`);
+  const [loading, setLoading] = useState<string | null>(null);
+
+  const handleSocialLogin = async (provider: string) => {
+    const providerKey = provider.toLowerCase();
+    setLoading(providerKey);
+    
+    try {
+      // 디버깅 정보 출력
+      oauthDebugger.logRequest(provider, 'GET', `/oauth/url/${providerKey}`);
+      
+      logger.oauth('LOGIN_START', provider, { isSignup });
+      
+      // OAuth URL 가져오기
+      const response = await authService.getOAuthUrl(providerKey);
+      
+      // 응답 디버깅
+      oauthDebugger.logResponse(provider, response);
+      
+      if (response.success && (response.data.url || response.data.loginUrl)) {
+        const redirectUrl = response.data.url || response.data.loginUrl;
+        
+        // URL 안전성 검증
+        if (!validateRedirectUrl(redirectUrl)) {
+          logger.error('Unsafe redirect URL', { url: redirectUrl, provider });
+          toast.error('안전하지 않은 리다이렉트 URL입니다.');
+          return;
+        }
+        
+        // 서버(Sprint Security)가 state를 관리하므로 그대로 리다이렉트
+        logger.oauth('REDIRECT', provider, { url: redirectUrl });
+        window.location.href = redirectUrl;
+      } else {
+        logger.oauth('URL_FAILED', provider, response);
+        toast.error(`${provider} 로그인 URL을 가져올 수 없습니다.`);
+      }
+    } catch (error: any) {
+      // 에러 디버깅
+      oauthDebugger.logResponse(provider, error, true);
+      
+      logger.oauth('LOGIN_ERROR', provider, {
+        error: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      
+      // 사용자에게 더 자세한 에러 정보 제공
+      let errorMessage = `${provider} 로그인에 실패했습니다.`;
+      
+      if (error.response?.status === 500) {
+        errorMessage = `${provider} 서버에서 내부 오류가 발생했습니다. 백엔드 서버를 확인해주세요.`;
+      } else if (error.response?.status === 404) {
+        errorMessage = `${provider} OAuth 엔드포인트를 찾을 수 없습니다.`;
+      } else if (error.code === 'ERR_NETWORK') {
+        errorMessage = '백엔드 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.';
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      }
+      
+      toast.error(errorMessage);
+    } finally {
+      setLoading(null);
+    }
   };
 
   const socialProviders = [
     {
       name: 'Google',
+      key: 'google',
       icon: (
         <svg className="w-5 h-5" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -24,44 +91,60 @@ const SocialLogin = ({ isSignup = false }: SocialLoginProps) => {
         </svg>
       ),
       bgColor: 'bg-white hover:bg-gray-50 border-gray-200',
-      textColor: 'text-gray-700'
+      textColor: 'text-gray-700',
+      available: true
     },
     {
       name: 'Naver',
+      key: 'naver',
       icon: (
         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
           <path d="M16.273 12.845 7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845Z"/>
         </svg>
       ),
       bgColor: 'bg-[#03C75A] hover:bg-[#02B350]',
-      textColor: 'text-white'
-    },
-    {
-      name: 'Kakao',
-      icon: (
-        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 3C6.749 3 2.5 6.824 2.5 11.5c0 2.962 1.919 5.573 4.834 7.118-.206-.902-.389-2.287.082-3.281.427-.894 2.755-11.647 2.755-11.647s-.703.118-1.164 2.981c-.46 2.864.895 4.174 1.789 4.174.894 0 2.25-1.31 1.789-4.174-.46-2.863-1.164-2.981-1.164-2.981s2.328 10.753 2.755 11.647c.471.994.288 2.38.082 3.281C19.581 17.073 21.5 14.462 21.5 11.5 21.5 6.824 17.251 3 12 3Z"/>
-        </svg>
-      ),
-      bgColor: 'bg-[#FEE500] hover:bg-[#FDD835]',
-      textColor: 'text-gray-900'
+      textColor: 'text-white',
+      available: true
     }
   ];
 
   return (
     <div className="mt-6 space-y-3">
+      {/* 개발 환경에서만 디버깅 버튼 표시 */}
+      {import.meta.env.DEV && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full text-xs text-gray-500 border border-gray-200"
+          onClick={() => oauthDebugger.fullDebug()}
+        >
+          🔧 OAuth Debug Mode
+        </Button>
+      )}
+      
       {socialProviders.map((provider) => (
         <Button
-          key={provider.name}
+          key={provider.key}
           variant="outline"
           size="lg"
-          className={`w-full ${provider.bgColor} ${provider.textColor} border`}
+          className={`w-full ${provider.bgColor} ${provider.textColor} border ${
+            !provider.available ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
           onClick={() => handleSocialLogin(provider.name)}
+          disabled={loading === provider.key || !provider.available}
         >
           <div className="flex items-center justify-center gap-3">
-            {provider.icon}
+            {loading === provider.key ? (
+              <div className="w-5 h-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            ) : (
+              provider.icon
+            )}
             <Typography variant="body" className="font-medium">
-              {provider.name}로 {isSignup ? '회원가입' : '로그인'}
+              {loading === provider.key
+                ? '연결 중...'
+                : `${provider.name}로 ${isSignup ? '회원가입' : '로그인'}`
+              }
+              {!provider.available && ' (준비중)'}
             </Typography>
           </div>
         </Button>
