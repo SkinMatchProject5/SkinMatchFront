@@ -128,7 +128,9 @@ class CameraService {
       params.append('token', token);
     }
     
-    return `${WS_BASE}/ws/camera/${sessionId}${params.toString() ? '?' + params.toString() : ''}`;
+    const wsUrl = `${WS_BASE}/ws/camera/${sessionId}${params.toString() ? '?' + params.toString() : ''}`;
+    console.log('Generated WebSocket URL:', wsUrl);
+    return wsUrl;
   }
 
   // 디바이스 타입 감지

@@ -75,16 +75,20 @@ export const useCamera = () => {
       wsRef.current.close();
     }
 
-    const ws = new WebSocket(cameraService.getWebSocketUrl(sessionId));
+    const wsUrl = cameraService.getWebSocketUrl(sessionId);
+    console.log('Connecting to WebSocket:', wsUrl);
+    
+    const ws = new WebSocket(wsUrl);
     
     ws.onopen = () => {
-      console.log('Camera WebSocket connected');
+      console.log('Camera WebSocket connected successfully');
       setIsConnected(true);
     };
 
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+        console.log('WebSocket message received:', data);
         
         switch (data.type) {
           case 'face_detection_result':
@@ -98,6 +102,7 @@ export const useCamera = () => {
             break;
 
           case 'countdown_started':
+            console.log('Countdown started:', data.duration);
             setCountdown({
               isActive: true,
               remaining: data.duration,
@@ -120,6 +125,7 @@ export const useCamera = () => {
             break;
 
           case 'capture_command':
+            console.log('Capture command received');
             capturePhoto();
             setCountdown(prev => ({
               ...prev,
@@ -131,20 +137,35 @@ export const useCamera = () => {
             console.error('WebSocket error:', data.message);
             setError(data.message);
             break;
+
+          case 'ping':
+            // Ping 응답
+            ws.send(JSON.stringify({ type: 'pong' }));
+            break;
         }
       } catch (err) {
         console.error('Failed to parse WebSocket message:', err);
       }
     };
 
-    ws.onclose = () => {
-      console.log('Camera WebSocket disconnected');
+    ws.onclose = (event) => {
+      console.log('Camera WebSocket disconnected:', event.code, event.reason);
       setIsConnected(false);
+      
+      // 비정상 종료시 재연결 시도 (5초 후)
+      if (event.code !== 1000 && sessionIdRef.current) {
+        console.log('Attempting to reconnect WebSocket in 5 seconds...');
+        setTimeout(() => {
+          if (sessionIdRef.current) {
+            connectWebSocket(sessionIdRef.current);
+          }
+        }, 5000);
+      }
     };
 
     ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      setError('WebSocket 연결 오류가 발생했습니다');
+      console.error('WebSocket connection error:', error);
+      setError('실시간 얼굴 감지 연결에 실패했습니다. 서버 상태를 확인해주세요.');
       setIsConnected(false);
     };
 
@@ -188,49 +209,101 @@ export const useCamera = () => {
         throw new Error('이 기기는 카메라를 지원하지 않습니다');
       }
 
+      console.log('Starting camera with device info:', device);
+
       // 플랫폼별 카메라 설정
       const constraints: MediaStreamConstraints = {
         video: device.isDesktop ? {
           // 웹: 전면 카메라 (얼굴 인식용)
           facingMode: 'user',
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
+          width: { ideal: 1280, min: 640 },
+          height: { ideal: 720, min: 480 }
         } : {
           // 모바일: 후면 카메라
           facingMode: 'environment',
-          width: { ideal: 1920 },
-          height: { ideal: 1080 }
+          width: { ideal: 1920, min: 1280 },
+          height: { ideal: 1080, min: 720 }
         },
         audio: false
       };
 
+      console.log('Requesting camera access with constraints:', constraints);
+
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      console.log('Camera stream obtained:', stream);
+      
       streamRef.current = stream;
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        await new Promise((resolve) => {
+        
+        // 비디오 로드 대기
+        await new Promise((resolve, reject) => {
           if (videoRef.current) {
-            videoRef.current.onloadedmetadata = resolve;
+            videoRef.current.onloadedmetadata = () => {
+              console.log('Video metadata loaded successfully');
+              resolve(undefined);
+            };
+            videoRef.current.onerror = (e) => {
+              console.error('Video loading error:', e);
+              reject(new Error('비디오 로드 실패'));
+            };
+            
+            // 타임아웃 설정 (5초)
+            setTimeout(() => {
+              reject(new Error('비디오 로드 타임아웃'));
+            }, 5000);
+          } else {
+            reject(new Error('Video element not found'));
           }
         });
+
+        // 비디오 재생 시작
+        try {
+          await videoRef.current.play();
+          console.log('Video playback started');
+        } catch (playError) {
+          console.error('Video play error:', playError);
+          // 자동 재생 실패는 사용자 상호작용 후 재시도 가능
+        }
       }
 
       setIsActive(true);
+      console.log('Camera activated successfully');
 
-      // 세션 ID 생성 및 WebSocket 연결
-      const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      sessionIdRef.current = sessionId;
-      connectWebSocket(sessionId);
+      // 세션 ID 생성 및 WebSocket 연결 (웹에서만)
+      if (device.isDesktop) {
+        const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        sessionIdRef.current = sessionId;
+        connectWebSocket(sessionId);
 
-      // 웹(데스크톱)에서만 실시간 얼굴 감지 시작
-      if (device.isDesktop && !detectionIntervalRef.current) {
-        detectionIntervalRef.current = setInterval(sendFrameForDetection, 100); // 10fps
+        // 실시간 얼굴 감지 시작
+        if (!detectionIntervalRef.current) {
+          // 약간의 지연 후 시작 (비디오 안정화 대기)
+          setTimeout(() => {
+            detectionIntervalRef.current = setInterval(sendFrameForDetection, 200); // 5fps
+          }, 1000);
+        }
       }
 
     } catch (err: any) {
-      setError(err.message || '카메라에 접근할 수 없습니다');
       console.error('Camera start error:', err);
+      
+      let errorMessage = '카메라에 접근할 수 없습니다';
+      
+      if (err.name === 'NotAllowedError') {
+        errorMessage = '카메라 권한이 거부되었습니다. 브라우저 설정에서 카메라 권한을 허용해주세요.';
+      } else if (err.name === 'NotFoundError') {
+        errorMessage = '카메라를 찾을 수 없습니다. 카메라가 연결되어 있는지 확인해주세요.';
+      } else if (err.name === 'NotReadableError') {
+        errorMessage = '카메라가 다른 프로그램에서 사용 중입니다.';
+      } else if (err.name === 'OverconstrainedError') {
+        errorMessage = '요청한 카메라 설정을 지원하지 않습니다.';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     }
   }, [detectDevice, connectWebSocket, sendFrameForDetection]);
 

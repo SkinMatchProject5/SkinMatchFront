@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +27,14 @@ const Camera = () => {
     retake,
     setImageFromFile
   } = useCamera();
+
+  // 디버깅용 - 컴포넌트 마운트 시 디바이스 정보 출력
+  useEffect(() => {
+    console.log('Camera component mounted');
+    console.log('Device info:', deviceInfo);
+    console.log('Is camera active:', isActive);
+    console.log('Error:', error);
+  }, [deviceInfo, isActive, error]);
   
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -130,21 +138,34 @@ const Camera = () => {
             <CardContent className="p-0">
               <div className="aspect-[4/3] bg-gradient-to-br from-primary-soft/10 to-primary-glow/10 relative flex items-center justify-center overflow-hidden">
                 {/* 실제 카메라 비디오 스트림 */}
-                {isActive && (
-                  <>
-                    <video
-                      ref={videoRef}
-                      autoPlay
-                      playsInline
-                      muted
-                      className="w-full h-full object-cover"
-                    />
-                    <canvas
-                      ref={canvasRef}
-                      className="hidden"
-                    />
-                  </>
-                )}
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className={`absolute inset-0 w-full h-full object-cover transform ${
+                    isActive ? 'block' : 'hidden'
+                  }`}
+                  style={{
+                    transform: deviceInfo?.isDesktop ? 'scaleX(-1)' : 'none' // 전면 카메라 미러링
+                  }}
+                  onError={(e) => {
+                    console.error('Video error:', e);
+                    setError && setError('비디오 스트림 오류가 발생했습니다');
+                  }}
+                  onLoadedMetadata={() => {
+                    console.log('Video metadata loaded');
+                    if (videoRef.current) {
+                      console.log('Video dimensions:', videoRef.current.videoWidth, 'x', videoRef.current.videoHeight);
+                    }
+                  }}
+                />
+                <canvas
+                  ref={canvasRef}
+                  className="hidden"
+                  width="1280"
+                  height="720"
+                />
                 
                 {/* 카메라가 비활성 상태일 때 */}
                 {!isActive && (
@@ -158,7 +179,7 @@ const Camera = () => {
                           카메라를 시작해주세요
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {deviceInfo?.isDesktop ? '얼굴 감지 모드로 자동 촬영' : '수동 촬영 모드'}
+                          {deviceInfo ? `${deviceInfo.isDesktop ? '얼굴 감지 모드로 자동 촬영' : '수동 촬영 모드'}` : '디바이스 감지 중...'}
                         </p>
                       </div>
                     </div>
@@ -260,7 +281,25 @@ const Camera = () => {
         {error && (
           <div className="mb-4 p-4 bg-red-100 border border-red-300 rounded-lg flex items-start">
             <AlertCircle className="w-5 h-5 text-red-500 mr-2 mt-0.5" />
-            <p className="text-red-700 text-sm">{error}</p>
+            <div>
+              <p className="text-red-700 text-sm font-medium">{error}</p>
+              <p className="text-red-600 text-xs mt-1">
+                문제가 지속되면 페이지를 새로고침하거나 브라우저 설정에서 카메라 권한을 확인해주세요.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* 디버깅 정보 (개발 모드에서만 표시) */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mb-4 p-3 bg-gray-100 border rounded-lg text-xs">
+            <p><strong>디버깅 정보:</strong></p>
+            <p>• 카메라 활성: {isActive ? '✅' : '❌'}</p>
+            <p>• 디바이스: {deviceInfo ? `${deviceInfo.isDesktop ? 'Desktop' : deviceInfo.isMobile ? 'Mobile' : 'Tablet'}` : '감지 중...'}</p>
+            <p>• WebSocket: {isConnected ? '✅ 연결됨' : '❌ 연결 안됨'}</p>
+            <p>• 얼굴 감지: {faceDetection ? `${faceDetection.face_count}개 (신뢰도: ${(faceDetection.confidence * 100).toFixed(1)}%)` : '대기 중'}</p>
+            <p>• 비디오 요소: {videoRef.current ? '✅' : '❌'}</p>
+            <p>• 스트림 상태: {videoRef.current?.srcObject ? '✅' : '❌'}</p>
           </div>
         )}
 
@@ -274,7 +313,10 @@ const Camera = () => {
               {!isActive ? (
                 <Button 
                   className="w-full h-12 text-lg btn-k-beauty animate-glow"
-                  onClick={() => startCamera()}
+                  onClick={() => {
+                    console.log('Camera start button clicked');
+                    startCamera();
+                  }}
                 >
                   <CameraIcon className="w-6 h-6 mr-2" />
                   카메라 시작
@@ -283,13 +325,28 @@ const Camera = () => {
                 // 모바일: 수동 촬영 버튼
                 <Button 
                   className="w-full h-12 text-lg btn-k-beauty animate-glow"
-                  onClick={manualCapture}
+                  onClick={() => {
+                    console.log('Manual capture button clicked');
+                    manualCapture();
+                  }}
                   disabled={countdown.isActive}
                 >
                   <CameraIcon className="w-6 h-6 mr-2" />
                   {countdown.isActive ? `촬영까지 ${countdown.remaining}초` : '촬영하기'}
                 </Button>
-              ) : null}
+              ) : (
+                // 웹에서 카메라 활성 시 중지 버튼 추가
+                <Button 
+                  variant="outline"
+                  className="w-full h-12 text-lg border-red-300 text-red-600 hover:bg-red-50"
+                  onClick={() => {
+                    console.log('Stop camera button clicked');
+                    stopCamera();
+                  }}
+                >
+                  카메라 중지
+                </Button>
+              )}
               
               {/* 파일 업로드는 모든 플랫폼에서 사용 가능 */}
               {!countdown.isActive && (
