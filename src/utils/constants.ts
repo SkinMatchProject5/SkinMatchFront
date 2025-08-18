@@ -27,6 +27,11 @@ export const API_ENDPOINTS = {
   },
   USERS: {
     PROFILE: '/users/profile'
+  },
+  AI: {
+    ANALYZE: '/api/v1/analyze',
+    SKIN_DIAGNOSIS: '/api/v1/diagnose/skin-lesion-image',
+    TEXT_ANALYSIS: '/api/v1/text/analyze'
   }
 } as const;
 

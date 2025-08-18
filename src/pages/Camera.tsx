@@ -386,13 +386,28 @@ const Camera = () => {
               )}
             </>
           ) : (
-            <Button 
-              className="w-full h-16 text-lg btn-k-beauty animate-glow"
-              onClick={() => navigate('/questionnaire')}
-            >
-              <MessageCircle className="w-5 h-5 mr-2" />
-              설문조사 시작하기
-            </Button>
+            <div className="space-y-3">
+              <Button 
+                className="w-full h-16 text-lg btn-k-beauty animate-glow"
+                onClick={() => navigate('/questionnaire', { state: { image: capturedImage } })}
+              >
+                <MessageCircle className="w-5 h-5 mr-2" />
+                설문조사 후 분석하기
+              </Button>
+              
+              <Button 
+                variant="outline"
+                className="w-full h-12 text-lg border-primary text-primary hover:bg-primary hover:text-white"
+                onClick={() => navigate('/analysis', { state: { image: capturedImage } })}
+              >
+                <CameraIcon className="w-5 h-5 mr-2" />
+                바로 분석하기
+              </Button>
+              
+              <p className="text-xs text-center text-muted-foreground">
+                설문조사를 통해 더 정확한 분석을 받을 수 있습니다
+              </p>
+            </div>
           )}
           
           {/* 재촬영 버튼 (촬영 완료 시에만 표시) */}

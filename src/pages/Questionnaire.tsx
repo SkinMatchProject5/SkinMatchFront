@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Bot, User, Send, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface Message {
   id: string;
@@ -25,6 +25,11 @@ interface Question {
 
 const Questionnaire = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // 이전 페이지에서 전달받은 이미지 데이터
+  const uploadedImage = location.state?.image;
+  
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentInput, setCurrentInput] = useState('');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -96,9 +101,15 @@ const Questionnaire = () => {
   };
 
   useEffect(() => {
+    // 이미지가 없으면 카메라 페이지로 리다이렉트
+    if (!uploadedImage) {
+      navigate('/camera');
+      return;
+    }
+    
     // 첫 번째 질문으로 시작
     simulateTyping(questions[0].question, 500);
-  }, []);
+  }, [uploadedImage, navigate]);
 
   const handleSendAnswer = (answer: string) => {
     if (!answer.trim()) return;
@@ -140,8 +151,22 @@ const Questionnaire = () => {
   };
 
   const handleStartAnalysis = () => {
-    // 분석 데이터와 함께 Analysis 페이지로 이동
-    navigate('/analysis', { state: { questionnaireData: answers } });
+    // 설문조사 답변을 텍스트로 변환
+    const additionalInfo = Object.entries(answers)
+      .map(([key, value]) => {
+        const question = questions.find(q => q.id === key);
+        return `${question?.question.replace(/[.?!]/g, '')}: ${value}`;
+      })
+      .join('\n');
+
+    // 이미지와 설문조사 데이터를 함께 분석 페이지로 전달
+    navigate('/analysis', { 
+      state: { 
+        image: uploadedImage,
+        additionalInfo: additionalInfo,
+        questionnaireData: answers 
+      } 
+    });
   };
 
   const currentQuestion = questions[currentQuestionIndex];
