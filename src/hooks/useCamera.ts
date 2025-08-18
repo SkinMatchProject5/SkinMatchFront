@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { cameraService } from '@/services/cameraService';
 
 interface CameraConfig {
@@ -31,6 +32,7 @@ interface CountdownState {
 }
 
 export const useCamera = () => {
+  const location = useLocation();
   const [isActive, setIsActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -71,8 +73,10 @@ export const useCamera = () => {
 
   // WebSocket 연결
   const connectWebSocket = useCallback((sessionId: string) => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
+    // 기존 연결이 있으면 먼저 정리
+    if (wsRef.current) {
       wsRef.current.close();
+      wsRef.current = null;
     }
 
     const wsUrl = cameraService.getWebSocketUrl(sessionId);
@@ -134,13 +138,32 @@ export const useCamera = () => {
             break;
 
           case 'error':
-            console.error('WebSocket error:', data.message);
-            setError(data.message);
+            // 일부 에러는 무시 (pong 관련 에러 등)
+            if (data.message && data.message.includes('pong')) {
+              console.warn('Ignoring pong-related error:', data.message);
+            } else {
+              console.error('WebSocket error:', data.message);
+              setError(data.message);
+            }
             break;
 
           case 'ping':
             // Ping 응답
+            console.log('Received ping, sending pong');
             ws.send(JSON.stringify({ type: 'pong' }));
+            break;
+            
+          case 'pong':
+            // Pong 응답 (서버에서 ping에 대한 응답)
+            console.log('Received pong from server');
+            break;
+
+          case 'connected':
+            console.log('WebSocket connection confirmed');
+            break;
+
+          default:
+            console.warn('Unknown WebSocket message type:', data.type);
             break;
         }
       } catch (err) {
@@ -152,11 +175,11 @@ export const useCamera = () => {
       console.log('Camera WebSocket disconnected:', event.code, event.reason);
       setIsConnected(false);
       
-      // 비정상 종료시 재연결 시도 (5초 후)
-      if (event.code !== 1000 && sessionIdRef.current) {
+      // 정상 종료가 아니고 카메라가 활성 상태일 때만 재연결 시도
+      if (event.code !== 1000 && event.code !== 1001 && sessionIdRef.current && isActive) {
         console.log('Attempting to reconnect WebSocket in 5 seconds...');
         setTimeout(() => {
-          if (sessionIdRef.current) {
+          if (sessionIdRef.current && isActive) {
             connectWebSocket(sessionIdRef.current);
           }
         }, 5000);
@@ -170,7 +193,7 @@ export const useCamera = () => {
     };
 
     wsRef.current = ws;
-  }, []);
+  }, [isActive]); // isActive 의존성 추가
 
   // 얼굴 감지 프레임 전송
   const sendFrameForDetection = useCallback(() => {
@@ -309,29 +332,52 @@ export const useCamera = () => {
 
   // 카메라 중지
   const stopCamera = useCallback(() => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
-    }
-
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
-    }
-
-    if (wsRef.current) {
-      wsRef.current.close();
-      wsRef.current = null;
-    }
-
+    console.log('Stopping camera...');
+    
+    // 세션 ID 정리 (재연결 방지)
+    sessionIdRef.current = null;
+    
+    // 얼굴 감지 인터벌 정리
     if (detectionIntervalRef.current) {
       clearInterval(detectionIntervalRef.current);
       detectionIntervalRef.current = null;
+      console.log('Face detection interval cleared');
     }
 
+    // WebSocket 연결 종료 (강제 종료)
+    if (wsRef.current) {
+      if (wsRef.current.readyState === WebSocket.OPEN || wsRef.current.readyState === WebSocket.CONNECTING) {
+        wsRef.current.close(1000, 'User stopped camera'); // 정상 종료 코드
+      }
+      wsRef.current = null;
+      console.log('WebSocket connection closed');
+    }
+
+    // 미디어 스트림 중지
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => {
+        track.stop();
+        console.log(`Track stopped: ${track.kind} - ${track.label}`);
+      });
+      streamRef.current = null;
+      console.log('Media stream stopped');
+    }
+
+    // 비디오 요소 정리
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+      videoRef.current.load(); // 비디오 요소 완전 리셋
+      console.log('Video element cleared');
+    }
+
+    // 상태 초기화
     setIsActive(false);
     setIsConnected(false);
     setFaceDetection(null);
     setCountdown({ isActive: false, remaining: 0, total: 3 });
+    setError(null);
+    
+    console.log('Camera stopped successfully');
   }, []);
 
   // 사진 촬영
@@ -394,9 +440,44 @@ export const useCamera = () => {
   // 컴포넌트 언마운트 시 정리
   useEffect(() => {
     return () => {
+      console.log('Camera hook cleanup - stopping camera and WebSocket');
       stopCamera();
     };
   }, [stopCamera]);
+
+  // 페이지 이동 감지 및 정리
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      console.log('Page unload - stopping camera');
+      stopCamera();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden && isActive) {
+        console.log('Page hidden - stopping camera');
+        stopCamera();
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isActive, stopCamera]);
+
+  // 라우트 변경 감지 - Camera 페이지를 벗어날 때 카메라 중지
+  useEffect(() => {
+    return () => {
+      // 페이지가 변경될 때 (카메라 페이지를 벗어날 때) 카메라 중지
+      if (location.pathname !== '/camera' && isActive) {
+        console.log('Route changed - stopping camera');
+        stopCamera();
+      }
+    };
+  }, [location.pathname, isActive, stopCamera]);
 
   return {
     // 상태

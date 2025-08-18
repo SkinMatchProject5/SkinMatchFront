@@ -35,6 +35,16 @@ const Camera = () => {
     console.log('Is camera active:', isActive);
     console.log('Error:', error);
   }, [deviceInfo, isActive, error]);
+
+  // 컴포넌트 언마운트 시 카메라 정지
+  useEffect(() => {
+    return () => {
+      console.log('Camera component unmounting - stopping camera');
+      if (isActive) {
+        stopCamera();
+      }
+    };
+  }, [isActive, stopCamera]);
   
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -259,10 +269,11 @@ const Camera = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 hover:bg-white"
                         onClick={retake}
                       >
-                        <RotateCcw className="w-4 h-4" />
+                        <RotateCcw className="w-4 h-4 mr-1" />
+                        재촬영
                       </Button>
                     </div>
                   </div>
@@ -381,6 +392,21 @@ const Camera = () => {
             >
               <MessageCircle className="w-5 h-5 mr-2" />
               설문조사 시작하기
+            </Button>
+          )}
+          
+          {/* 재촬영 버튼 (촬영 완료 시에만 표시) */}
+          {isComplete && (
+            <Button 
+              variant="outline"
+              className="w-full h-12 text-lg border-primary text-primary hover:bg-primary hover:text-white mt-3"
+              onClick={() => {
+                console.log('Retake button clicked');
+                retake();
+              }}
+            >
+              <RotateCcw className="w-5 h-5 mr-2" />
+              다시 촬영하기
             </Button>
           )}
         </div>
