@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Camera as CameraIcon, Upload, RotateCcw, Check, MessageCircle, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCamera } from '@/hooks/useCamera';
+import { logger } from '@/utils/logger';
 
 const Camera = () => {
   const navigate = useNavigate();
@@ -386,28 +387,38 @@ const Camera = () => {
               )}
             </>
           ) : (
-            <div className="space-y-3">
-              <Button 
-                className="w-full h-16 text-lg btn-k-beauty animate-glow"
-                onClick={() => navigate('/questionnaire', { state: { image: capturedImage } })}
-              >
-                <MessageCircle className="w-5 h-5 mr-2" />
-                설문조사 후 분석하기
-              </Button>
-              
-              <Button 
-                variant="outline"
-                className="w-full h-12 text-lg border-primary text-primary hover:bg-primary hover:text-white"
-                onClick={() => navigate('/analysis', { state: { image: capturedImage } })}
-              >
-                <CameraIcon className="w-5 h-5 mr-2" />
-                바로 분석하기
-              </Button>
-              
-              <p className="text-xs text-center text-muted-foreground">
-                설문조사를 통해 더 정확한 분석을 받을 수 있습니다
-              </p>
-            </div>
+            <Button 
+              className="w-full h-16 text-lg btn-k-beauty animate-glow"
+              onClick={() => {
+                console.log('설문조사 시작 버튼 클릭됨');
+                
+                // 이미지 데이터와 함께 설문조사로 이동
+                logger.info('설문조사 페이지로 이동', {
+                  hasImage: !!capturedImage,
+                  imageSize: capturedImage ? capturedImage.length : 0,
+                  timestamp: new Date().toISOString()
+                });
+                
+                if (capturedImage) {
+                  // 설문조사 페이지로 이미지 데이터와 함께 이동
+                  navigate('/questionnaire', {
+                    state: {
+                      imageUrl: capturedImage,
+                      timestamp: new Date().toISOString(),
+                      source: 'camera'
+                    }
+                  });
+                  
+                  logger.info('설문조사 페이지 네비게이션 완료');
+                } else {
+                  logger.error('전송할 이미지가 없음');
+                  console.error('No captured image to send');
+                }
+              }}
+            >
+              <MessageCircle className="w-5 h-5 mr-2" />
+              설문조사 시작하기
+            </Button>
           )}
           
           {/* 재촬영 버튼 (촬영 완료 시에만 표시) */}

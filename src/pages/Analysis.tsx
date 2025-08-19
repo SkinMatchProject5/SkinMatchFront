@@ -5,59 +5,145 @@ import { Badge } from '@/components/ui/badge';
 import { Camera, Sparkles, TrendingUp, AlertCircle, Info, Loader2 } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { aiService, AnalysisResult } from '@/services/aiService';
-import { toast } from 'sonner';
+import { logger } from '@/utils/logger';
+
+interface AnalysisResult {
+  predictedDisease: string;
+  confidence: number;
+  summary: string;
+  recommendation: string;
+  similarDiseases?: Array<{
+    name: string;
+    confidence: number;
+    description: string;
+  }>;
+}
 
 const Analysis = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  
   const [isLoading, setIsLoading] = useState(true);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  
-  // 이전 페이지에서 전달받은 이미지 데이터
-  const uploadedImage = location.state?.image || null;
-  const additionalInfo = location.state?.additionalInfo || '';
-  const questionnaireData = location.state?.questionnaireData || null;
+  const [uploadedImage, setUploadedImage] = useState<string>('/placeholder.svg');
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
-    if (!uploadedImage) {
-      // 이미지가 없으면 카메라 페이지로 리다이렉트
-      toast.error('분석할 이미지가 없습니다.');
-      navigate('/camera');
+    logger.info('분석 페이지 진입', {
+      hasState: !!location.state,
+      stateKeys: location.state ? Object.keys(location.state) : []
+    });
+
+    // location.state에서 이미지와 분석 결과 받기
+    if (location.state) {
+      const { imageUrl, analysisData, questionnaireData, additionalInfo } = location.state as any;
+      
+      if (imageUrl) {
+        setUploadedImage(imageUrl);
+        logger.info('분석 이미지 수신 완료', { 
+          imageUrl: imageUrl.substring(0, 50) + '...',
+          imageSize: imageUrl.length 
+        });
+      }
+
+      if (questionnaireData) {
+        logger.info('설문조사 데이터 수신 완료', {
+          answersCount: Object.keys(questionnaireData).length,
+          hasAdditionalInfo: !!additionalInfo
+        });
+      }
+
+      if (analysisData) {
+        setAnalysisResult(analysisData);
+        logger.info('분석 결과 수신 완료', {
+          disease: analysisData.predictedDisease,
+          confidence: analysisData.confidence
+        });
+        setIsLoading(false);
+      } else {
+        // 분석 결과가 없으면 분석 API 호출 (설문조사 데이터 포함)
+        performAnalysis(imageUrl, additionalInfo);
+      }
+    } else {
+      // state가 없으면 카메라 페이지로 리다이렉트
+      logger.warn('분석 페이지에 필요한 데이터가 없음 - 카메라 페이지로 리다이렉트');
+      navigate('/camera', { replace: true });
+    }
+  }, [location.state, navigate]);
+
+  const performAnalysis = async (imageUrl: string, additionalInfo?: string) => {
+    if (!imageUrl) {
+      setError('분석할 이미지가 없습니다.');
+      setIsLoading(false);
       return;
     }
 
-    // AI 분석 실행
-    performAnalysis();
-  }, [uploadedImage, navigate]);
-
-  const performAnalysis = async () => {
     try {
+      logger.info('AI 분석 시작', { 
+        imageUrl: imageUrl.substring(0, 50) + '...',
+        hasAdditionalInfo: !!additionalInfo,
+        additionalInfoLength: additionalInfo?.length || 0
+      });
       setIsLoading(true);
-      setError(null);
+      setError('');
 
-      // AI 백엔드 연결 상태 확인
-      const isHealthy = await aiService.healthCheck();
-      if (!isHealthy) {
-        throw new Error('AI 분석 서비스에 연결할 수 없습니다.');
-      }
+      // AI 분석 서비스 import
+      const { analysisService } = await import('@/services/analysisService');
+      
+      // 기본 추가 정보와 설문조사 데이터 결합
+      const combinedAdditionalInfo = additionalInfo 
+        ? `피부 병변 분석을 위한 이미지입니다.\n\n${additionalInfo}`
+        : '피부 병변 분석을 위한 이미지입니다.';
 
-      // 이미지 분석 실행
-      const result = await aiService.analyzeImage({
-        image: uploadedImage,
-        additional_info: additionalInfo,
-        questionnaire_data: questionnaireData
+      logger.info('설문조사 데이터 포함 AI 분석 요청', {
+        additionalInfoPreview: combinedAdditionalInfo.substring(0, 200) + '...',
+        totalLength: combinedAdditionalInfo.length
+      });
+      
+      // AI 분석 요청 (설문조사 데이터 포함)
+      const result = await analysisService.analyzeImageFromUrl({
+        imageUrl: imageUrl,
+        additionalInfo: combinedAdditionalInfo,
+        responseFormat: 'JSON'
+      });
+      
+      // 응답 데이터를 AnalysisResult 형식으로 변환
+      const formattedResult: AnalysisResult = {
+        predictedDisease: result.predicted_disease,
+        confidence: result.confidence,
+        summary: result.summary,
+        recommendation: result.recommendation,
+        similarDiseases: result.similar_diseases || []
+      };
+
+      setAnalysisResult(formattedResult);
+      logger.info('AI 분석 완료 (설문조사 데이터 포함)', {
+        disease: formattedResult.predictedDisease,
+        confidence: formattedResult.confidence,
+        processingTime: result.metadata?.processing_time_seconds,
+        usedQuestionnaireData: !!additionalInfo
       });
 
-      setAnalysisResult(result);
-      toast.success('분석이 완료되었습니다!');
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : '분석 중 오류가 발생했습니다.';
+    } catch (error: any) {
+      logger.error('AI 분석 실패', error);
+      
+      // 사용자 친화적인 오류 메시지
+      let errorMessage = '분석 중 오류가 발생했습니다.';
+      
+      if (error.response?.status === 404) {
+        errorMessage = 'AI 분석 서비스를 찾을 수 없습니다. 서비스가 실행 중인지 확인해주세요.';
+      } else if (error.response?.status === 422) {
+        errorMessage = '이미지 형식이나 요청 데이터에 문제가 있습니다. 다시 시도해주세요.';
+      } else if (error.response?.status === 500) {
+        errorMessage = 'AI 분석 서버에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+      } else if (error.code === 'ECONNREFUSED' || error.message.includes('Network Error')) {
+        errorMessage = 'AI 분석 서비스에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.';
+      } else if (error.response?.data?.detail) {
+        // 서버에서 온 에러 메시지가 문자열인지 확인
+        const detail = error.response.data.detail;
+        errorMessage = typeof detail === 'string' ? detail : '서버에서 오류가 발생했습니다.';
+      }
+      
       setError(errorMessage);
-      toast.error(errorMessage);
-      console.error('분석 오류:', err);
     } finally {
       setIsLoading(false);
     }
@@ -69,43 +155,54 @@ const Analysis = () => {
     return 'text-red-600 bg-red-50 border-red-200';
   };
 
-  const getImageUrl = () => {
-    if (uploadedImage instanceof File) {
-      return URL.createObjectURL(uploadedImage);
-    }
-    return uploadedImage || '/placeholder.svg';
-  };
-
-  // 로딩 상태
-  if (isLoading) {
+  if (error) {
     return (
       <div className="min-h-screen bg-gradient-glass p-4 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-16 h-16 mx-auto mb-4 animate-spin text-primary" />
-          <h2 className="text-2xl font-bold text-gradient-primary mb-2">AI 분석 중...</h2>
-          <p className="text-muted-foreground">잠시만 기다려주세요.</p>
-        </div>
+        <Card className="glass-card max-w-md mx-auto">
+          <CardContent className="p-6 text-center">
+            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold mb-2">분석 오류</h2>
+            <p className="text-muted-foreground mb-4">{error}</p>
+            <Button onClick={() => navigate('/camera')} className="w-full">
+              다시 촬영하기
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
-  // 에러 상태
-  if (error || !analysisResult) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-glass p-4 flex items-center justify-center">
-        <div className="text-center max-w-md">
-          <AlertCircle className="w-16 h-16 mx-auto mb-4 text-red-500" />
-          <h2 className="text-2xl font-bold text-red-600 mb-2">분석 실패</h2>
-          <p className="text-muted-foreground mb-6">{error || '알 수 없는 오류가 발생했습니다.'}</p>
-          <div className="space-y-2">
-            <Button onClick={performAnalysis} className="w-full">
-              다시 시도
+        <Card className="glass-card max-w-md mx-auto">
+          <CardContent className="p-6 text-center">
+            <Loader2 className="w-16 h-16 text-primary mx-auto mb-4 animate-spin" />
+            <h2 className="text-xl font-semibold mb-2">AI 분석 중...</h2>
+            <p className="text-muted-foreground">
+              피부 상태를 분석하고 있습니다. 잠시만 기다려주세요.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!analysisResult) {
+    return (
+      <div className="min-h-screen bg-gradient-glass p-4 flex items-center justify-center">
+        <Card className="glass-card max-w-md mx-auto">
+          <CardContent className="p-6 text-center">
+            <AlertCircle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold mb-2">분석 결과 없음</h2>
+            <p className="text-muted-foreground mb-4">
+              분석 결과를 불러올 수 없습니다.
+            </p>
+            <Button onClick={() => navigate('/camera')} className="w-full">
+              다시 촬영하기
             </Button>
-            <Button variant="outline" onClick={() => navigate('/camera')} className="w-full">
-              새 사진 촬영
-            </Button>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -121,11 +218,6 @@ const Analysis = () => {
           <p className="text-muted-foreground">
             AI가 분석한 환부의 상태입니다
           </p>
-          {questionnaireData && (
-            <Badge className="mt-2 bg-green-100 text-green-800 border-green-200">
-              설문조사 데이터 포함
-            </Badge>
-          )}
         </div>
 
         {/* 사용자 업로드 이미지와 예상 질환 */}
@@ -138,10 +230,9 @@ const Analysis = () => {
                 <div className="aspect-square bg-gradient-glow rounded-2xl p-3">
                   <div className="w-full h-full bg-white/50 rounded-xl flex items-center justify-center relative overflow-hidden">
                     <img 
-                      src={getImageUrl()} 
-                      alt="사용자 업로드 이미지" 
+                      src={uploadedImage} 
+                      alt="분석 대상 이미지" 
                       className="w-full h-full object-cover rounded-xl" 
-                      onError={() => setError('이미지를 불러올 수 없습니다.')}
                     />
                     <div className="absolute top-3 left-3">
                       <Badge className="bg-primary text-white">
@@ -164,7 +255,7 @@ const Analysis = () => {
                     </Badge>
                   </div>
                   <p className="text-2xl font-bold text-primary mb-2">
-                    {analysisResult.predicted_disease}
+                    {analysisResult.predictedDisease}
                   </p>
                   
                   {/* 신뢰도 바 */}
@@ -209,8 +300,8 @@ const Analysis = () => {
           </CardContent>
         </Card>
 
-        {/* 비슷한 질환 (슬라이드) */}
-        {analysisResult.similar_diseases && analysisResult.similar_diseases.length > 0 && (
+        {/* 비슷한 질환 (슬라이드) - 데이터가 있을 때만 표시 */}
+        {analysisResult.similarDiseases && analysisResult.similarDiseases.length > 0 && (
           <Card className="glass-card mb-8">
             <CardContent className="p-6">
               <div className="mb-4">
@@ -218,7 +309,7 @@ const Analysis = () => {
               </div>
               <Carousel opts={{ align: 'start', loop: true }}>
                 <CarouselContent className="-ml-2">
-                  {analysisResult.similar_diseases.map((item, index) => (
+                  {analysisResult.similarDiseases.map((item, index) => (
                     <CarouselItem key={index} className="pl-2 basis-full">
                       <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-gray-200 hover:border-primary/40 transition-all duration-200">
                         <div className="flex items-center justify-between mb-2">
@@ -274,25 +365,6 @@ const Analysis = () => {
           </Card>
         </div>
 
-        {/* 재분석 버튼 */}
-        <div className="mt-6 text-center">
-          <Button 
-            onClick={performAnalysis} 
-            variant="outline" 
-            disabled={isLoading}
-            className="min-w-[120px]"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                분석 중...
-              </>
-            ) : (
-              '다시 분석하기'
-            )}
-          </Button>
-        </div>
-
         {/* 면책조항 */}
         <div className="mt-8 p-4 bg-gray-50/80 backdrop-blur-sm rounded-xl border border-gray-200">
           <p className="text-xs text-gray-500 text-center leading-relaxed">
@@ -301,24 +373,6 @@ const Analysis = () => {
             본 서비스는 의료진단을 대체하지 않으며, 응급상황 시에는 즉시 병원에 내원하시기 바랍니다.
           </p>
         </div>
-
-        {/* 디버깅 정보 (개발 모드에서만 표시) */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="mt-4 p-3 bg-gray-100 border rounded-lg text-xs">
-            <p><strong>디버깅 정보:</strong></p>
-            <p>• 이미지: {uploadedImage ? '✅' : '❌'}</p>
-            <p>• 추가 정보: {additionalInfo ? '✅' : '❌'}</p>
-            <p>• 설문조사 데이터: {questionnaireData ? '✅' : '❌'}</p>
-            {questionnaireData && (
-              <details className="mt-2">
-                <summary className="cursor-pointer">설문조사 상세 데이터</summary>
-                <pre className="mt-1 text-xs bg-white p-2 rounded overflow-auto">
-                  {JSON.stringify(questionnaireData, null, 2)}
-                </pre>
-              </details>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );
