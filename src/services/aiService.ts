@@ -104,7 +104,20 @@ class AIService {
 
   // 백엔드 응답을 프론트엔드 형식으로 변환
   private convertBackendResponse(backendData: any): AnalysisResult {
-    // XML 파싱이 필요할 수 있음 (백엔드가 XML 형식으로 응답하는 경우)
+    console.log('백엔드 응답 데이터:', backendData); // 디버깅용
+    
+    // 백엔드가 이미 구조화된 JSON을 보내는 경우 (새 버전)
+    if (backendData.predicted_disease && backendData.confidence !== undefined) {
+      return {
+        predicted_disease: backendData.predicted_disease,
+        confidence: backendData.confidence,
+        summary: backendData.summary || '진단 소견이 제공되지 않았습니다.',
+        recommendation: backendData.recommendation || '전문의와 상담하시기 바랍니다.',
+        similar_diseases: backendData.similar_diseases || []
+      };
+    }
+    
+    // 백엔드가 XML 형식으로 응답하는 경우 (이전 버전 호환성)
     const result = backendData.result || '';
     
     // 간단한 XML 파싱 (정규식 사용)

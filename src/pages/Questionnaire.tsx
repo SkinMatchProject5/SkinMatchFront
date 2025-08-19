@@ -6,6 +6,9 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Bot, User, Send, ArrowRight } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { authService } from '@/services/authService';
+import { toast } from 'sonner';
 
 interface Message {
   id: string;
@@ -21,11 +24,13 @@ interface Question {
   options?: string[];
   type: 'text' | 'select' | 'number';
   required: boolean;
+  isProfileData?: boolean; // 프로필 업데이트 대상인지 표시
 }
 
 const Questionnaire = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, isAuthenticated } = useAuthContext();
   
   // 이전 페이지에서 전달받은 이미지 데이터
   const uploadedImage = location.state?.image;
@@ -37,19 +42,22 @@ const Questionnaire = () => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
+  // 간소화된 5단계 설문조사 (프로필 관련 정보 포함)
   const questions: Question[] = [
     {
       id: 'age',
       question: '안녕하세요! 피부 분석을 위해 몇 가지 질문을 드릴게요. 먼저 나이를 알려주세요.',
       type: 'number',
-      required: true
+      required: true,
+      isProfileData: true // 프로필에 저장될 정보
     },
     {
       id: 'gender',
       question: '성별을 선택해주세요.',
       options: ['남성', '여성', '기타'],
       type: 'select',
-      required: true
+      required: true,
+      isProfileData: true // 프로필에 저장될 정보
     },
     {
       id: 'skinType',
@@ -59,30 +67,17 @@ const Questionnaire = () => {
       required: true
     },
     {
-      id: 'skinConcerns',
-      question: '가장 고민되는 피부 문제가 있다면 무엇인가요?',
-      options: ['주름/탄력', '모공', '색소침착', '여드름', '건조함', '유분과다', '민감함', '특별한 고민 없음'],
-      type: 'select',
-      required: true
-    },
-    {
-      id: 'surgeryHistory',
-      question: '피부 관련 시술이나 수술 경험이 있으신가요?',
-      options: ['없음', '레이저 시술', '필러/보톡스', '성형수술', '기타'],
-      type: 'select',
-      required: true
-    },
-    {
       id: 'allergies',
       question: '화장품이나 피부 관련 알레르기가 있으신가요? (없으면 "없음"이라고 입력해주세요)',
       type: 'text',
-      required: true
+      required: true,
+      isProfileData: true // 프로필에 저장될 정보
     },
     {
-      id: 'skincare',
-      question: '현재 사용하고 있는 스킨케어 루틴이 있다면 간단히 알려주세요.',
+      id: 'symptoms',
+      question: '현재 가장 고민되는 피부 증상이나 변화가 있다면 자세히 설명해주세요.',
       type: 'text',
-      required: false
+      required: true
     }
   ];
 
@@ -111,6 +106,60 @@ const Questionnaire = () => {
     simulateTyping(questions[0].question, 500);
   }, [uploadedImage, navigate]);
 
+  // 프로필 업데이트 함수
+  const updateProfile = async (profileData: Record<string, string>) => {
+    // 로그인된 사용자만 프로필 업데이트
+    if (!isAuthenticated || !user) return;
+
+    try {
+      // 현재 프로필 정보 가져오기
+      const currentProfileRes = await authService.getCurrentUser();
+      const currentProfile = currentProfileRes.data || {};
+
+      // 설문조사 답변을 프로필 형식에 맞게 변환
+      const profileUpdate: any = { ...currentProfile };
+
+      if (profileData.age) {
+        // 나이를 출생년도로 변환
+        const currentYear = new Date().getFullYear();
+        const birthYear = currentYear - parseInt(profileData.age);
+        profileUpdate.birthYear = birthYear.toString();
+      }
+
+      if (profileData.gender) {
+        // 성별 매핑
+        const genderMap: Record<string, string> = {
+          '남성': 'male',
+          '여성': 'female',
+          '기타': 'other'
+        };
+        profileUpdate.gender = genderMap[profileData.gender] || 'other';
+      }
+
+      if (profileData.allergies) {
+        profileUpdate.allergies = profileData.allergies;
+      }
+
+      // 프로필 업데이트 실행
+      const updateRes = await authService.updateProfile({
+        name: profileUpdate.name || user.name,
+        nickname: profileUpdate.nickname || user.name,
+        gender: profileUpdate.gender,
+        birthYear: profileUpdate.birthYear,
+        nationality: profileUpdate.nationality || 'korean',
+        allergies: profileUpdate.allergies,
+        surgicalHistory: profileUpdate.surgicalHistory || '',
+      });
+
+      if (updateRes.success) {
+        console.log('프로필이 자동으로 업데이트되었습니다.');
+      }
+    } catch (error) {
+      console.error('프로필 업데이트 중 오류:', error);
+      // 프로필 업데이트 실패해도 분석은 계속 진행
+    }
+  };
+
   const handleSendAnswer = (answer: string) => {
     if (!answer.trim()) return;
 
@@ -138,9 +187,30 @@ const Questionnaire = () => {
         simulateTyping(questions[nextIndex].question, 800);
       }, 500);
     } else {
-      // 설문 완료
-      setTimeout(() => {
-        simulateTyping('설문조사가 완료되었습니다! 이제 AI 분석을 시작하겠습니다. 💫', 800);
+      // 설문 완료 - 프로필 업데이트 실행
+      setTimeout(async () => {
+        // 프로필 관련 답변들만 추출
+        const profileAnswers: Record<string, string> = {};
+        Object.entries(answers).forEach(([key, value]) => {
+          const question = questions.find(q => q.id === key);
+          if (question?.isProfileData) {
+            profileAnswers[key] = value;
+          }
+        });
+        
+        // 현재 답변도 포함
+        if (currentQuestion.isProfileData) {
+          profileAnswers[currentQuestion.id] = answer;
+        }
+
+        // 프로필 업데이트 (로그인된 경우만)
+        if (Object.keys(profileAnswers).length > 0 && isAuthenticated) {
+          await updateProfile(profileAnswers);
+          simulateTyping('설문조사가 완료되었습니다! 프로필 정보도 자동으로 업데이트되었어요. 이제 AI 분석을 시작하겠습니다. 💫', 800);
+        } else {
+          simulateTyping('설문조사가 완료되었습니다! 이제 AI 분석을 시작하겠습니다. 💫', 800);
+        }
+        
         setIsCompleted(true);
       }, 500);
     }
@@ -188,6 +258,11 @@ const Questionnaire = () => {
               {currentQuestionIndex + 1} / {questions.length}
             </Badge>
           </div>
+          {isAuthenticated && (
+            <p className="text-sm text-blue-600 mt-2">
+              💡 개인정보는 자동으로 프로필에 저장됩니다
+            </p>
+          )}
         </div>
 
         {/* 채팅 영역 */}
@@ -290,7 +365,7 @@ const Questionnaire = () => {
                         type={currentQuestion.type === 'number' ? 'number' : 'text'}
                         value={currentInput}
                         onChange={(e) => setCurrentInput(e.target.value)}
-                        placeholder="답변을 입력해주세요..."
+                        placeholder={currentQuestion.type === 'number' ? '나이를 입력해주세요' : '답변을 입력해주세요...'}
                         onKeyPress={(e) => {
                           if (e.key === 'Enter') {
                             handleSendAnswer(currentInput);
@@ -315,7 +390,12 @@ const Questionnaire = () => {
 
         {/* 진행 상황 */}
         <div className="text-center text-sm text-muted-foreground">
-          설문조사 완료 후 AI 분석이 시작됩니다
+          간소화된 5단계 설문조사 • 완료 후 AI 분석이 시작됩니다
+          {isAuthenticated && (
+            <div className="mt-1 text-blue-600">
+              ✨ 로그인 상태에서 개인정보가 자동 저장됩니다
+            </div>
+          )}
         </div>
       </div>
     </div>
