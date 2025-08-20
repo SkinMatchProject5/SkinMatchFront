@@ -80,7 +80,7 @@ const Profile = () => {
         const res = await authService.updateProfile({
           name: profileData.name,
           nickname: profileData.nickname,
-          profileImage: undefined,
+          profileImage: profileData.profileImage,
           gender: profileData.gender,
           birthYear: profileData.birthYear,
           nationality: profileData.nationality,
@@ -169,6 +169,11 @@ const Profile = () => {
             surgicalHistory: d.surgicalHistory || '',
             profileImage: null,
           });
+          
+          // 기존 프로필 이미지가 있으면 미리보기 설정
+          if (d.profileImageUrl) {
+            setProfileImagePreview(d.profileImageUrl);
+          }
         }
       } catch (e) {
         toast.error('프로필 정보를 불러오지 못했습니다.');

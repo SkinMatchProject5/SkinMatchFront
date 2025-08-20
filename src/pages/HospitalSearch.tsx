@@ -3,7 +3,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import HospitalCard from '@/components/features/hospital/HospitalCard';
-import HospitalMap from '@/components/features/hospital/HospitalMap';
 import { hospitalService, Hospital, getCurrentLocation } from '@/services/hospitalService';
 import { MapPin, SlidersHorizontal, List, Grid3X3, Search, X, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 
@@ -126,7 +125,6 @@ const HospitalSearch = () => {
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [bookmarkedHospitals, setBookmarkedHospitals] = useState<number[]>([]);
-  const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null);
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [loading, setLoading] = useState(true);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -242,25 +240,6 @@ const HospitalSearch = () => {
     window.open(naverMapUrl, '_blank');
   };
 
-  // 병원 선택 (지도에서 마커 클릭 시)
-  const handleHospitalSelect = (hospital: Hospital) => {
-    setSelectedHospital(hospital);
-    const element = document.getElementById(`hospital-${hospital.id}`);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  };
-
-  // 현재 위치로 지도 이동
-  const moveToCurrentLocation = async () => {
-    try {
-      const location = await getCurrentLocation();
-      setUserLocation(location);
-    } catch (error) {
-      console.error('현재 위치를 가져올 수 없습니다:', error);
-    }
-  };
-
   // 필터링된 병원 목록
   const filteredHospitals = hospitals.filter(hospital => {
     if (searchLocation) {
@@ -330,17 +309,6 @@ const HospitalSearch = () => {
                 {selectedFilters.length}개 필터 적용중
               </Badge>
             )}
-            {userLocation && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={moveToCurrentLocation}
-                className="text-xs"
-              >
-                <MapPin className="w-3 h-3 mr-1" />
-                현재 위치
-              </Button>
-            )}
           </div>
 
           <div className="flex items-center gap-2">
@@ -361,16 +329,7 @@ const HospitalSearch = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* 실제 지도 영역 */}
-          <div className="lg:sticky lg:top-32 h-[600px]">
-            <HospitalMap
-              hospitals={hospitalsWithBookmarks}
-              center={userLocation || { lat: 37.5665, lng: 126.9780 }}
-              onHospitalSelect={handleHospitalSelect}
-            />
-          </div>
-
+        <div className="space-y-4">
           {/* 병원 리스트 */}
           <div className="space-y-4">
             {resultCount === 0 ? (
@@ -389,16 +348,11 @@ const HospitalSearch = () => {
                 </CardContent>
               </Card>
             ) : (
-              <div className={`space-y-4 ${viewMode === 'grid' ? 'grid grid-cols-1 gap-4' : ''}`}>
+              <div className={`space-y-4 ${viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-4' : ''}`}>
                 {hospitalsWithBookmarks.map(hospital => (
                   <div
                     key={hospital.id}
                     id={`hospital-${hospital.id}`}
-                    className={`transition-all duration-300 ${
-                      selectedHospital?.id === hospital.id 
-                        ? 'ring-2 ring-primary ring-offset-2' 
-                        : ''
-                    }`}
                   >
                     <HospitalCard 
                       hospital={hospital} 

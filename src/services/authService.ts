@@ -258,19 +258,48 @@ export const authService = {
     async updateProfile(data: {
         name?: string;
         nickname?: string;
-        profileImage?: string;
+        profileImage?: File | null;
         gender?: string;
         birthYear?: string;
         nationality?: string;
         allergies?: string;
         surgicalHistory?: string;
     }) {
-        logger.info('프로필 업데이트 요청', { fields: Object.keys(data) });
+        logger.info('프로필 업데이트 요청', { 
+            fields: Object.keys(data),
+            hasProfileImage: !!data.profileImage 
+        });
 
         try {
-            const response = await apiClient.put('/users/profile', data);
-            logger.info('프로필 업데이트 성공');
-            return response.data;
+            // FormData 생성 (프로필 이미지가 있는 경우)
+            if (data.profileImage) {
+                const formData = new FormData();
+                
+                // 다른 필드들 추가
+                Object.entries(data).forEach(([key, value]) => {
+                    if (key !== 'profileImage' && value !== undefined && value !== null) {
+                        formData.append(key, value as string);
+                    }
+                });
+                
+                // 프로필 이미지 추가
+                formData.append('profileImage', data.profileImage);
+                
+                const response = await apiClient.put('/users/profile', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+                
+                logger.info('프로필 업데이트 성공 (with image)');
+                return response.data;
+            } else {
+                // 이미지가 없는 경우 JSON으로 전송 (POST 엔드포인트 사용)
+                const { profileImage, ...otherData } = data;
+                const response = await apiClient.post('/users/profile', otherData);
+                logger.info('프로필 업데이트 성공 (without image)');
+                return response.data;
+            }
         } catch (error: any) {
             logger.error('프로필 업데이트 실패', {
                 error: error.response?.data,
