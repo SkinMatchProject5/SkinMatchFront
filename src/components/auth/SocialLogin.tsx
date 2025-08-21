@@ -110,19 +110,7 @@ const SocialLogin = ({ isSignup = false }: SocialLoginProps) => {
 
   return (
     <div className="mt-6 space-y-3">
-      {/* 개발 환경에서만 디버깅 버튼 표시 */}
-      {import.meta.env.DEV && (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="w-full text-xs text-gray-500 border border-gray-200"
-          onClick={() => oauthDebugger.fullDebug()}
-        >
-          🔧 OAuth Debug Mode
-        </Button>
-      )}
-      
-{socialProviders.map((provider) => (
+      {socialProviders.map((provider) => (
   <Button
     key={provider.key}
     variant="outline"

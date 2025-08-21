@@ -406,14 +406,14 @@ const Analysis = () => {
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* 업로드된 사진 */}
-              <div className="space-y-4 flex flex-col justify-center">
+              <div className="space-y-4 flex flex-col">
                 <h2 className="text-xl font-semibold mb-3 mx-[13px] my-0">분석 이미지</h2>
-                <div className="aspect-square bg-gray-100 rounded-2xl p-3">
+                <div className=" bg-gray-100 rounded-2xl p-3 flex-grow">
                   <div className="w-full h-full bg-white rounded-xl flex items-center justify-center relative overflow-hidden border border-gray-200">
-                    <img 
-                      src={getImageUrl()} 
-                      alt="분석 이미지" 
-                      className="w-full h-full object-cover rounded-xl" 
+                    <img
+                      src={getImageUrl()}
+                      alt="분석 이미지"
+                      className="w-full h-full object-cover rounded-xl"
                       onError={(e) => {
                         // 이미지 로드 실패시 placeholder 표시
                         const target = e.target as HTMLImageElement;
@@ -704,17 +704,6 @@ const Analysis = () => {
               </div>
             </DialogContent>
           </Dialog>
-
-          {analysisStorage.hasResult() && (
-            <Button 
-              onClick={() => analysisStorage.clearResult()}
-              variant="outline"
-              size="sm"
-              className="text-black border-gray-300 hover:bg-gray-100"
-            >
-              결과 삭제
-            </Button>
-          )}
         </div>
 
         {/* 저장된 결과 안내 */}
