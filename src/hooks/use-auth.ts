@@ -24,17 +24,100 @@ interface AuthState {
 }
 
 export const useAuth = () => {
-    // 개발/테스트 모드: 항상 인증된 상태로 설정
-    const [authState, setAuthState] = useState<AuthState>({
-        user: {
-            id: 'test-user',
-            email: 'test@example.com',
-            name: '테스트 사용자',
-            nickname: '테스트',
-        },
-        isLoading: false,
-        isAuthenticated: true, // 항상 true로 설정
+    // localStorage에서 저장된 사용자 정보 불러오기
+    const getStoredUser = (): User | null => {
+        try {
+            const storedUser = localStorage.getItem('userInfo');
+            if (storedUser) {
+                return JSON.parse(storedUser);
+            }
+        } catch (error) {
+            console.error('저장된 사용자 정보 파싱 실패:', error);
+        }
+        return null;
+    };
+
+    const [authState, setAuthState] = useState<AuthState>(() => {
+        const storedUser = getStoredUser();
+        return {
+            user: storedUser || null,
+            isLoading: true, // 초기에는 로딩 상태
+            isAuthenticated: !!storedUser,
+        };
     });
+
+    // 초기 로딩 시 서버에서 사용자 정보 가져오기
+    useEffect(() => {
+        const initializeAuth = async () => {
+            try {
+                const token = localStorage.getItem('accessToken');
+                if (token && token !== 'undefined' && token !== 'null') {
+                    // 토큰이 있으면 서버에서 최신 사용자 정보 가져오기
+                    const response = await authService.getCurrentUser();
+                    if (response.success && response.data) {
+                        const userData: User = {
+                            id: response.data.id?.toString() || 'test-user',
+                            email: response.data.email || '',
+                            name: response.data.name || '',
+                            nickname: response.data.nickname || '',
+                            profileImage: response.data.profileImage || response.data.profileImageUrl,
+                            gender: response.data.gender,
+                            birthYear: response.data.birthYear,
+                            nationality: response.data.nationality,
+                            allergies: response.data.allergies,
+                            surgicalHistory: response.data.surgicalHistory,
+                            provider: response.data.provider,
+                            role: response.data.role,
+                        };
+                        
+                        setAuthState({
+                            user: userData,
+                            isLoading: false,
+                            isAuthenticated: true,
+                        });
+                        
+                        // localStorage에 최신 정보 저장
+                        localStorage.setItem('userInfo', JSON.stringify(userData));
+                        return;
+                    }
+                }
+                
+                // 토큰이 없거나 API 실패시 기본값
+                const defaultUser: User = {
+                    id: 'test-user',
+                    email: 'test@example.com',
+                    name: '테스트 사용자',
+                    nickname: '테스트',
+                };
+                
+                setAuthState({
+                    user: defaultUser,
+                    isLoading: false,
+                    isAuthenticated: true,
+                });
+                
+                localStorage.setItem('userInfo', JSON.stringify(defaultUser));
+                
+            } catch (error) {
+                console.error('Auth initialization failed:', error);
+                // 에러시 기본 사용자로 설정
+                const defaultUser: User = {
+                    id: 'test-user',
+                    email: 'test@example.com',
+                    name: '테스트 사용자',
+                    nickname: '테스트',
+                };
+                
+                setAuthState({
+                    user: defaultUser,
+                    isLoading: false,
+                    isAuthenticated: true,
+                });
+            }
+        };
+
+        initializeAuth();
+    }, []);
 
     // 초기 인증 상태 체크 (비활성화)
     // useEffect(() => {
@@ -137,6 +220,7 @@ export const useAuth = () => {
             localStorage.removeItem('userInfo');
             localStorage.removeItem('userId');
 
+            // 상태를 완전히 초기화
             setAuthState({
                 user: null,
                 isLoading: false,
@@ -149,6 +233,20 @@ export const useAuth = () => {
         checkAuthStatus();
     };
 
+    const updateUser = (updatedUser: Partial<User>): void => {
+        if (!authState.user) return;
+        
+        const newUser = { ...authState.user, ...updatedUser };
+        
+        setAuthState(prev => ({
+            ...prev,
+            user: newUser
+        }));
+        
+        // localStorage에도 업데이트된 정보 저장
+        localStorage.setItem('userInfo', JSON.stringify(newUser));
+    };
+
     return {
         user: authState.user,
         isLoading: authState.isLoading,
@@ -156,5 +254,6 @@ export const useAuth = () => {
         login,
         logout,
         refreshAuthState,
+        updateUser,
     };
 };

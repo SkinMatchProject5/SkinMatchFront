@@ -8,11 +8,12 @@ import { Typography } from '@/components/ui/theme-typography';
 import { Container, Section } from '@/components/ui/theme-container';
 import { Camera, LogOut, Save, User } from 'lucide-react';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { authService } from '@/services/authService';
 import { toast } from 'sonner';
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuthContext();
+  const { user, logout, isLoading, isAuthenticated, updateUser } = useAuthContext();
   const [profileData, setProfileData] = useState({
     nickname: '',
     name: '',
@@ -56,28 +57,143 @@ const Profile = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!validateForm()) return;
-    toast.success('프로필이 저장되었습니다. (개발 모드)');
+    
+    try {
+      console.log('프로필 저장 시작...', {
+        name: profileData.name,
+        nickname: profileData.nickname,
+        hasFile: !!profileData.profileImage
+      });
+      
+      // 업데이트할 사용자 정보 (빈 문자열 제거)
+      const updatedUserData: any = {};
+      
+      if (profileData.name?.trim()) updatedUserData.name = profileData.name.trim();
+      if (profileData.nickname?.trim()) updatedUserData.nickname = profileData.nickname.trim();
+      if (profileData.gender) updatedUserData.gender = profileData.gender;
+      if (profileData.birthYear) updatedUserData.birthYear = profileData.birthYear;
+      if (profileData.nationality) updatedUserData.nationality = profileData.nationality;
+      if (profileData.profileImage) updatedUserData.profileImage = profileData.profileImage;
+      
+      // 기본값들은 제외 (빈 문자열로 보내지 않음)
+      
+      console.log('API 호출 전...', {
+        ...updatedUserData,
+        profileImage: !!updatedUserData.profileImage ? 'File Object' : 'None'
+      });
+      
+      // 백엔드 API 호출
+      const response = await authService.updateProfile(updatedUserData);
+      
+      console.log('API 응답:', response);
+      
+      if (response.success) {
+        // AuthContext의 사용자 정보 업데이트
+        updateUser({
+          name: response.data.name,
+          nickname: response.data.nickname,
+          gender: response.data.gender,
+          birthYear: response.data.birthYear,
+          nationality: response.data.nationality,
+          profileImage: response.data.profileImage || response.data.profileImageUrl,
+        });
+        
+        // 현재 상태도 업데이트 (프로필 이미지 파일 초기화)
+        setProfileData(prev => ({ ...prev, profileImage: null }));
+        
+        // 새 이미지 URL로 미리보기 업데이트
+        if (response.data.profileImage || response.data.profileImageUrl) {
+          setProfileImagePreview(response.data.profileImage || response.data.profileImageUrl);
+        }
+        
+        toast.success('프로필이 성공적으로 저장되었습니다.');
+      } else {
+        console.error('API 응답 실패:', response);
+        toast.error('프로필 저장에 실패했습니다.');
+      }
+      
+    } catch (error: any) {
+      console.error('프로필 저장 실패:', error);
+      console.error('에러 상세:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        config: error.config
+      });
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || '프로필 저장에 실패했습니다.';
+      toast.error(errorMessage);
+    }
   };
 
   const handleLogout = async () => {
-    toast.success('로그아웃되었습니다. (개발 모드)');
-    navigate('/');
+    try {
+      console.log('로그아웃 시작...');
+      await logout();
+      console.log('로그아웃 완료');
+      toast.success('로그아웃되었습니다.');
+      
+      // 즉시 홈으로 이동 (replace: true로 히스토리 교체)
+      console.log('홈으로 이동...');
+      navigate('/', { replace: true });
+      
+    } catch (error) {
+      console.error('로그아웃 실패:', error);
+      toast.error('로그아웃에 실패했습니다.');
+      // 로그아웃 실패해도 홈으로 이동
+      navigate('/', { replace: true });
+    }
   };
 
   useEffect(() => {
-    // 개발/테스트 모드 더미 데이터
-    setProfileData({
-      nickname: '테스트 사용자',
-      name: '테스트 사용자',
-      gender: 'male',
-      birthYear: '1990',
-      email: 'test@example.com',
-      nationality: 'korean',
-      profileImage: null,
-    });
-  }, [user]);
+    // 인증되지 않은 사용자는 로그인 페이지로 리다이렉트
+    if (!isLoading && !isAuthenticated) {
+      navigate('/auth/login');
+      return;
+    }
+
+    // AuthContext에서 실제 사용자 데이터 사용
+    if (user) {
+      setProfileData({
+        nickname: user.nickname || '',
+        name: user.name || '',
+        gender: user.gender || 'male',
+        birthYear: user.birthYear || '1990',
+        email: user.email || '',
+        nationality: user.nationality || 'korean',
+        profileImage: null,
+      });
+      
+      // 프로필 이미지 URL이 있으면 미리보기 설정
+      if (user.profileImage) {
+        setProfileImagePreview(user.profileImage);
+      }
+    }
+  }, [user, isLoading, isAuthenticated, navigate]);
+
+  // 로딩 중이거나 사용자 정보가 없는 경우
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-black mx-auto mb-4"></div>
+          <Typography variant="body" className="text-gray-600">로딩 중...</Typography>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <Typography variant="h3" className="text-black mb-4">사용자 정보를 찾을 수 없습니다</Typography>
+          <Button onClick={() => navigate('/')}>홈으로 이동</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">

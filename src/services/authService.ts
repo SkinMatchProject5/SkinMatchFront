@@ -13,29 +13,26 @@ const apiClient = axios.create({
     withCredentials: true,
 });
 
-// 요청 인터셉터 - JWT 토큰 자동 추가 (개발/테스트 모드에서는 비활성화)
+// 요청 인터셉터 - JWT 토큰 자동 추가
 apiClient.interceptors.request.use(
     (config) => {
-        // 개발/테스트 모드: 토큰 없이도 요청 허용
-        // const token = localStorage.getItem('accessToken');
+        const token = localStorage.getItem('accessToken');
         
         // 고급 로깅 시스템 사용
         logger.apiRequest(
             config.method?.toUpperCase() || 'GET',
             `${config.baseURL}${config.url}`,
             {
-                hasToken: false, // 개발 모드에서는 토큰 없음으로 표시
+                hasToken: !!token,
                 headers: config.headers,
                 data: config.data
             }
         );
         
-        // 개발/테스트 모드에서는 토큰 추가하지 않음
-        /*
+        // 토큰이 있으면 헤더에 추가
         if (token && token !== 'undefined' && token !== 'null') {
             config.headers.Authorization = `Bearer ${token}`;
         }
-        */
         
         return config;
     },
@@ -225,37 +222,42 @@ export const authService = {
 
     // 현재 사용자 정보 조회
     async getCurrentUser() {
-        // 개발/테스트 모드: 더미 사용자 데이터 반환
-        return {
-            success: true,
-            data: {
-                id: 'test-user',
-                email: 'test@example.com',
-                name: '테스트 사용자',
-                nickname: '테스트',
-                role: 'USER'
-            }
-        };
-        
-        /*
-        // 원래 로직 (주석 처리)
         const token = localStorage.getItem('accessToken');
         if (!token || token === 'undefined' || token === 'null') {
-            throw new Error('No access token');
+            // 개발/테스트 모드: 더미 사용자 데이터 반환
+            return {
+                success: true,
+                data: {
+                    id: 'test-user',
+                    email: 'test@example.com',
+                    name: '테스트 사용자',
+                    nickname: '테스트',
+                    role: 'USER'
+                }
+            };
         }
         
         logger.debug('현재 사용자 정보 조회 요청');
         try {
-            const response = await apiClient.get('/auth/me');
+            const response = await apiClient.get('/users/profile');
             logger.info('사용자 정보 조회 성공', { 
                 userId: response.data?.data?.id 
             });
             return response.data;
         } catch (error: any) {
             logger.error('사용자 정보 조회 실패', error.response?.data);
-            throw error;
+            // API 실패시 테스트 데이터 반환
+            return {
+                success: true,
+                data: {
+                    id: 'test-user',
+                    email: 'test@example.com',
+                    name: '테스트 사용자',
+                    nickname: '테스트',
+                    role: 'USER'
+                }
+            };
         }
-        */
     },
 
     // 토큰 재발급
@@ -276,11 +278,11 @@ export const authService = {
         return response.data;
     },
 
-    // 프로필 업데이트
+    // 프로필 업데이트 (파일 업로드 지원)
     async updateProfile(data: {
         name?: string;
         nickname?: string;
-        profileImage?: File | null;
+        profileImage?: File | null; // File 객체로 변경
         gender?: string;
         birthYear?: string;
         nationality?: string;
@@ -293,39 +295,85 @@ export const authService = {
         });
 
         try {
-            // FormData 생성 (프로필 이미지가 있는 경우)
+            // FormData를 사용해서 파일 업로드
+            const formData = new FormData();
+            
+            // 다른 필드들 추가 (값이 있는 것만)
+            Object.entries(data).forEach(([key, value]) => {
+                if (key !== 'profileImage' && value !== undefined && value !== null && value !== '') {
+                    formData.append(key, value as string);
+                }
+            });
+            
+            // 프로필 이미지 파일 추가
             if (data.profileImage) {
-                const formData = new FormData();
-                
-                // 다른 필드들 추가
-                Object.entries(data).forEach(([key, value]) => {
-                    if (key !== 'profileImage' && value !== undefined && value !== null) {
-                        formData.append(key, value as string);
-                    }
-                });
-                
-                // 프로필 이미지 추가
                 formData.append('profileImage', data.profileImage);
-                
-                const response = await apiClient.put('/users/profile', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
-                
-                logger.info('프로필 업데이트 성공 (with image)');
-                return response.data;
-            } else {
-                // 이미지가 없는 경우 JSON으로 전송 (POST 엔드포인트 사용)
-                const { profileImage, ...otherData } = data;
-                const response = await apiClient.post('/users/profile', otherData);
-                logger.info('프로필 업데이트 성공 (without image)');
-                return response.data;
             }
+
+            // FormData를 사용할 때는 Content-Type을 설정하지 않음 (브라우저가 자동으로 설정)
+            const response = await apiClient.put('/users/profile', formData);
+            
+            logger.info('프로필 업데이트 성공', {
+                userId: response.data?.data?.id
+            });
+            return response.data;
         } catch (error: any) {
             logger.error('프로필 업데이트 실패', {
                 error: error.response?.data,
-                config: error.config
+                status: error.response?.status
+            });
+            throw error;
+        }
+    },
+
+    // JSON만으로 프로필 업데이트 (파일 업로드 없음)
+    async updateProfileJson(data: {
+        name?: string;
+        nickname?: string;
+        profileImage?: string; // URL string
+        gender?: string;
+        birthYear?: string;
+        nationality?: string;
+        allergies?: string;
+        surgicalHistory?: string;
+    }) {
+        logger.info('프로필 업데이트 요청 (JSON)', { 
+            fields: Object.keys(data)
+        });
+
+        try {
+            const response = await apiClient.post('/users/profile', data, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            
+            logger.info('프로필 업데이트 성공 (JSON)', {
+                userId: response.data?.data?.id
+            });
+            return response.data;
+        } catch (error: any) {
+            logger.error('프로필 업데이트 실패 (JSON)', {
+                error: error.response?.data,
+                status: error.response?.status
+            });
+            throw error;
+        }
+    },
+
+    // 현재 사용자 프로필 조회
+    async getUserProfile() {
+        logger.info('사용자 프로필 조회 요청');
+        try {
+            const response = await apiClient.get('/users/profile');
+            logger.info('사용자 프로필 조회 성공', { 
+                userId: response.data?.data?.id 
+            });
+            return response.data;
+        } catch (error: any) {
+            logger.error('사용자 프로필 조회 실패', {
+                error: error.response?.data,
+                status: error.response?.status
             });
             throw error;
         }

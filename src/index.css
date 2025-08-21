@@ -157,6 +157,16 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  /* Global scrollbar hiding */
+  *::-webkit-scrollbar {
+    display: none;
+  }
+  
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
   /* Enhanced body and html for scroll snap */
   html,
   body {
@@ -164,6 +174,15 @@ All colors MUST be HSL.
     margin: 0;
     scroll-behavior: smooth;
     @apply bg-background text-foreground font-inter;
+    
+    /* Hide scrollbars globally */
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  body::-webkit-scrollbar,
+  html::-webkit-scrollbar {
+    display: none;  /* Safari and Chrome */
   }
 }
 
