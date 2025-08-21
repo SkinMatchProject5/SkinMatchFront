@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Camera, Sparkles, TrendingUp, AlertCircle, Info, Loader2, RefreshCw, Clock, MapPin, Phone, Globe, MessageCircle, Send, X, ArrowLeft } from 'lucide-react';
 import { aiService, AnalysisResult } from '@/services/aiService';
+import { chatbotService } from '@/services/chatbotService';
 import { analysisStorage } from '@/utils/analysisStorage';
 import { toast } from 'sonner';
 
@@ -26,6 +27,7 @@ const Analysis = () => {
   
   // 챗봇 상태
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatSessionId, setChatSessionId] = useState<string | null>(null);
   const [chatMessages, setChatMessages] = useState<Array<{id: string, text: string, isUser: boolean, timestamp: Date}>>([
     {
       id: '1',
@@ -221,38 +223,109 @@ const Analysis = () => {
   };
 
   // 챗봇 메시지 전송
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (!newMessage.trim()) return;
-    
-    const userMessage = {
-      id: Date.now().toString(),
-      text: newMessage,
-      isUser: true,
-      timestamp: new Date()
-    };
-    
+
+    const text = newMessage;
+    const userMessage = { id: Date.now().toString(), text, isUser: true, timestamp: new Date() };
     setChatMessages(prev => [...prev, userMessage]);
     setNewMessage('');
-    
-    // 간단한 자동 응답 (실제로는 AI API 연결)
-    setTimeout(() => {
-      const responses = [
-        "분석 결과에 대해 더 자세히 설명드리겠습니다.",
-        "해당 피부 질환에 대한 추가 정보를 제공해드릴 수 있습니다.",
-        "추천 병원에 대한 상세 정보가 필요하시면 말씀해 주세요.",
-        "피부 관리 방법에 대해 안내해드릴 수 있습니다."
-      ];
-      
-      const botMessage = {
-        id: (Date.now() + 1).toString(),
-        text: responses[Math.floor(Math.random() * responses.length)],
-        isUser: false,
-        timestamp: new Date()
-      };
-      
+
+    try {
+      // 세션이 없으면 즉시 생성하면서 첫 질문까지 처리
+      if (!chatSessionId) {
+        const analysisPayload = (() => {
+          if (analysisResult) {
+            return {
+              diagnosis: analysisResult.predicted_disease,
+              recommendations: analysisResult.recommendation,
+              summary: analysisResult.summary,
+              similar_diseases: analysisResult.similar_diseases?.map(s => s.name),
+              refined_text: refinedText || undefined,
+            };
+          }
+          const stored = analysisStorage.getResult();
+          if (stored) {
+            return {
+              diagnosis: stored.diagnosis,
+              recommendations: stored.recommendations,
+              summary: stored.summary,
+              similar_diseases: (stored.similar_conditions || '').split(',').map((s: string) => s.trim()).filter(Boolean),
+              refined_text: refinedText || undefined,
+            };
+          }
+          return null;
+        })();
+
+        if (analysisPayload) {
+          const res = await chatbotService.startConsult(analysisPayload, text);
+          setChatSessionId(res.session_id);
+          const botMessage = { id: (Date.now() + 1).toString(), text: res.reply || '상담을 시작했습니다. 질문을 이어서 해주세요.', isUser: false, timestamp: new Date() };
+          setChatMessages(prev => [...prev, botMessage]);
+          return;
+        } else {
+          throw new Error('상담을 시작할 분석 컨텍스트가 없습니다.');
+        }
+      }
+
+      // 기존 세션이 있으면 일반 메시지 전송
+      const { reply } = await chatbotService.sendMessage(chatSessionId, text);
+      const botMessage = { id: (Date.now() + 1).toString(), text: reply, isUser: false, timestamp: new Date() };
       setChatMessages(prev => [...prev, botMessage]);
-    }, 1000);
+    } catch (e: any) {
+      const botMessage = { id: (Date.now() + 1).toString(), text: '상담 서비스 연결에 실패했습니다. 잠시 후 다시 시도해주세요.', isUser: false, timestamp: new Date() };
+      setChatMessages(prev => [...prev, botMessage]);
+      console.error('Chat error:', e);
+    }
   };
+
+  // AI 상담 창을 열 때 챗봇 세션 생성(한 번만)
+  useEffect(() => {
+    const bootstrapConsult = async () => {
+      if (!isChatOpen || chatSessionId) return;
+      try {
+        const healthy = await chatbotService.healthCheck();
+        if (!healthy) {
+          console.warn('Chatbot service is not healthy');
+          return;
+        }
+
+        // 분석 결과 기반 컨텍스트 구성
+        const analysis = (() => {
+          if (analysisResult) {
+            return {
+              diagnosis: analysisResult.predicted_disease,
+              recommendations: analysisResult.recommendation,
+              summary: analysisResult.summary,
+              similar_diseases: analysisResult.similar_diseases?.map(s => s.name),
+              refined_text: refinedText || undefined,
+            };
+          }
+          const stored = analysisStorage.getResult();
+          if (stored) {
+            return {
+              diagnosis: stored.diagnosis,
+              recommendations: stored.recommendations,
+              summary: stored.summary,
+              similar_diseases: (stored.similar_conditions || '').split(',').map((s: string) => s.trim()).filter(Boolean),
+              refined_text: refinedText || undefined,
+            };
+          }
+          return null;
+        })();
+
+        if (!analysis) return;
+        const res = await chatbotService.startConsult(analysis);
+        setChatSessionId(res.session_id);
+        if (res.reply) {
+          setChatMessages(prev => [...prev, { id: (Date.now() + 1).toString(), text: res.reply!, isUser: false, timestamp: new Date() }]);
+        }
+      } catch (e) {
+        console.error('Failed to start consult:', e);
+      }
+    };
+    bootstrapConsult();
+  }, [isChatOpen, analysisResult, refinedText]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
