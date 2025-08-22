@@ -16,7 +16,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
+    loginId: '', // 이메일 또는 아이디
     password: ''
   });
   const [errors, setErrors] = useState<{[key: string]: string}>({});
@@ -31,8 +31,8 @@ const Login = () => {
 
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {};
-    if (!formData.email.trim()) {
-      newErrors.email = '이메일을 입력해주세요';
+    if (!formData.loginId.trim()) {
+      newErrors.loginId = '아이디 또는 이메일을 입력해주세요';
     }
     if (!formData.password) {
       newErrors.password = '비밀번호를 입력해주세요';
@@ -46,14 +46,17 @@ const Login = () => {
     if (validateForm()) {
       setIsLoading(true);
       try {
-        const response = await authService.login(formData);
+        const response = await authService.login({
+          loginId: formData.loginId,
+          password: formData.password
+        });
         if (response.success) {
           const { accessToken, refreshToken, user } = response.data;
           localStorage.setItem('accessToken', accessToken);
           localStorage.setItem('refreshToken', refreshToken);
           localStorage.setItem('userId', user.id.toString());
           localStorage.setItem('userInfo', JSON.stringify(user));
-          authLogin(user, accessToken, refreshToken);
+          await authLogin(user, accessToken, refreshToken);
           toast.success(`${user.name}님, 환영합니다!`);
           navigate('/');
         } else {
@@ -83,21 +86,21 @@ const Login = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-4">
-                {/* Email */}
+                {/* 아이디 또는 이메일 */}
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-black">이메일</Label>
+                  <Label htmlFor="loginId" className="text-black">아이디 또는 이메일</Label>
                   <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
+                    id="loginId"
+                    name="loginId"
+                    type="text"
+                    value={formData.loginId}
                     onChange={handleInputChange}
-                    placeholder="이메일을 입력하세요"
-                    className={`bg-white text-black border ${errors.email ? 'border-red-500' : 'border-black'}`}
+                    placeholder="아이디 또는 이메일을 입력하세요"
+                    className={`bg-white text-black border ${errors.loginId ? 'border-red-500' : 'border-black'}`}
                   />
-                  {errors.email && (
+                  {errors.loginId && (
                     <p className="text-sm text-red-500">
-                      {errors.email}
+                      {errors.loginId}
                     </p>
                   )}
                 </div>

@@ -34,6 +34,11 @@ apiClient.interceptors.request.use(
             config.headers.Authorization = `Bearer ${token}`;
         }
         
+        // FormData인 경우 Content-Type을 제거 (브라우저가 자동으로 multipart/form-data 설정)
+        if (config.data instanceof FormData) {
+            delete config.headers['Content-Type'];
+        }
+        
         return config;
     },
     (error) => {
@@ -106,7 +111,7 @@ export interface SignupRequest {
 }
 
 export interface LoginRequest {
-    email: string;
+    loginId: string;  // 아이디 또는 이메일
     password: string;
 }
 
@@ -142,7 +147,18 @@ export const authService = {
     async signup(data: SignupRequest) {
         logger.info('회원가입 요청 시작', { email: data.email });
         try {
-            const response = await apiClient.post('/auth/signup', data);
+            // 백엔드가 요구하는 추가 필드들 포함
+            const signupData = {
+                ...data,
+                name: data.username, // username을 name으로도 사용
+                role: 'USER', // 기본 역할
+                active: true, // 계정 활성화 상태
+                is_online: false, // 초기 온라인 상태
+                analysis_count: 0, // 초기 분석 횟수
+                provider: 'LOCAL' // 로컬 회원가입
+            };
+            
+            const response = await apiClient.post('/auth/signup', signupData);
             logger.info('회원가입 성공', { userId: response.data?.data?.id });
             return response.data;
         } catch (error: any) {
@@ -156,18 +172,18 @@ export const authService = {
 
     // 일반 로그인
     async login(data: LoginRequest) {
-        logger.info('로그인 요청 시작', { email: data.email });
+        logger.info('로그인 요청 시작', { loginId: data.loginId });
         try {
             const response = await apiClient.post('/auth/login', data);
             logger.info('로그인 성공', { 
                 userId: response.data?.data?.user?.id,
-                email: data.email 
+                loginId: data.loginId 
             });
             return response.data;
         } catch (error: any) {
             logger.error('로그인 실패', {
                 error: error.response?.data,
-                email: data.email
+                loginId: data.loginId
             });
             throw error;
         }
@@ -271,7 +287,8 @@ export const authService = {
     }) {
         logger.info('프로필 업데이트 요청', { 
             fields: Object.keys(data),
-            hasProfileImage: !!data.profileImage 
+            hasProfileImage: !!data.profileImage,
+            imageSize: data.profileImage ? `${(data.profileImage.size / 1024).toFixed(1)}KB` : 'N/A'
         });
 
         try {
@@ -280,27 +297,36 @@ export const authService = {
             
             // 다른 필드들 추가 (값이 있는 것만)
             Object.entries(data).forEach(([key, value]) => {
-                if (key !== 'profileImage' && value !== undefined && value !== null && value !== '') {
+                if (key !== 'profileImage' && value !== undefined && value !== null) {
+                    // 빈 문자열도 전송 (닉네임의 경우 빈 값이 유의미함)
                     formData.append(key, value as string);
+                    logger.debug(`FormData에 추가: ${key} = ${value}`);
                 }
             });
             
             // 프로필 이미지 파일 추가
             if (data.profileImage) {
                 formData.append('profileImage', data.profileImage);
+                logger.info('프로필 이미지 파일 추가됨', {
+                    fileName: data.profileImage.name,
+                    fileSize: data.profileImage.size,
+                    fileType: data.profileImage.type
+                });
             }
 
-            // FormData를 사용할 때는 Content-Type을 설정하지 않음 (브라우저가 자동으로 설정)
+            // FormData를 사용할 때는 Content-Type을 브라우저가 자동 설정하게 함
             const response = await apiClient.put('/users/profile', formData);
             
             logger.info('프로필 업데이트 성공', {
-                userId: response.data?.data?.id
+                userId: response.data?.data?.id,
+                updatedFields: Object.keys(data)
             });
             return response.data;
         } catch (error: any) {
             logger.error('프로필 업데이트 실패', {
                 error: error.response?.data,
-                status: error.response?.status
+                status: error.response?.status,
+                message: error.message
             });
             throw error;
         }

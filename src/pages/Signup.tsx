@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,19 +16,115 @@ const Signup = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
-    email: '',
+    nickname: '', // 닉네임 추가
+    emailLocal: '', // 이메일 로컬 부분 (@ 앞)
+    emailDomain: 'gmail.com', // 이메일 도메인 부분
+    customDomain: '', // 직접 입력 도메인
     password: '',
     confirmPassword: '',
-    address: ''
+    postcode: '',      // 우편번호
+    roadAddress: '',   // 도로명주소
+    jibunAddress: '',  // 지번주소
+    detailAddress: '', // 상세주소
+    extraAddress: ''   // 참고항목
   });
   const [errors, setErrors] = useState<{[key: string]: string}>({});
 
+  // 다음 우편번호 API 스크립트 로드
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+    script.async = true;
+    document.head.appendChild(script);
+    
+    return () => {
+      // 컴포넌트 언마운트 시 스크립트 제거
+      const existingScript = document.querySelector('script[src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"]');
+      if (existingScript) {
+        document.head.removeChild(existingScript);
+      }
+    };
+  }, []);
+
+  // 주소 검색 함수
+  const handleAddressSearch = () => {
+    new (window as any).daum.Postcode({
+      oncomplete: function(data: any) {
+        let roadAddr = data.roadAddress;
+        let extraRoadAddr = '';
+
+        if(data.bname !== '' && /[동|로|가]$/g.test(data.bname)){
+          extraRoadAddr += data.bname;
+        }
+        if(data.buildingName !== '' && data.apartment === 'Y'){
+          extraRoadAddr += (extraRoadAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+        }
+        if(extraRoadAddr !== ''){
+          extraRoadAddr = ' (' + extraRoadAddr + ')';
+        }
+
+        setFormData(prev => ({
+          ...prev,
+          postcode: data.zonecode,
+          roadAddress: roadAddr,
+          jibunAddress: data.jibunAddress,
+          extraAddress: extraRoadAddr
+        }));
+        
+        // 상세주소 입력 필드로 포커스
+        setTimeout(() => {
+          document.getElementById('detailAddress')?.focus();
+        }, 100);
+      }
+    }).open();
+  };
+
+  // 전체 주소 조합
+  const getFullAddress = () => {
+    const parts = [
+      formData.roadAddress,
+      formData.detailAddress,
+      formData.extraAddress
+    ].filter(part => part.trim());
+    
+    return parts.join(' ');
+  };
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+    if (errors[name] || errors.email || errors.address) {
+      setErrors(prev => ({ ...prev, [name]: '', email: '', address: '' }));
     }
+  };
+
+  const handleDomainChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setFormData(prev => ({ 
+      ...prev, 
+      emailDomain: value,
+      customDomain: value === 'custom' ? '' : prev.customDomain // custom 선택 시 기존 값 유지
+    }));
+    if (errors.email) {
+      setErrors(prev => ({ ...prev, email: '' }));
+    }
+  };
+
+  const handleCustomDomainChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({ ...prev, customDomain: e.target.value }));
+    if (errors.email) {
+      setErrors(prev => ({ ...prev, email: '' }));
+    }
+  };
+
+  // 전체 이메일 조합 (수정)
+  const getFullEmail = () => {
+    if (!formData.emailLocal) return '';
+    
+    const domain = formData.emailDomain === 'custom' 
+      ? formData.customDomain 
+      : formData.emailDomain;
+      
+    return domain ? `${formData.emailLocal}@${domain}` : '';
   };
 
   const validateEmail = (email: string) => {
@@ -51,9 +147,10 @@ const Signup = () => {
       newErrors.username = '아이디는 3자 이상이어야 합니다';
     }
     
-    if (!formData.email.trim()) {
+    const fullEmail = getFullEmail();
+    if (!formData.emailLocal.trim()) {
       newErrors.email = '이메일을 입력해주세요';
-    } else if (!validateEmail(formData.email)) {
+    } else if (!validateEmail(fullEmail)) {
       newErrors.email = '올바른 이메일 형식이 아닙니다';
     }
     
@@ -69,9 +166,10 @@ const Signup = () => {
       newErrors.confirmPassword = '비밀번호가 일치하지 않습니다';
     }
     
-    if (!formData.address.trim()) {
-      newErrors.address = '주소를 입력해주세요';
+    if (!formData.roadAddress.trim()) {
+      newErrors.address = '주소를 검색해주세요';
     }
+    // 상세주소는 선택사항이므로 검증에서 제외
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -83,7 +181,17 @@ const Signup = () => {
       setIsLoading(true);
       
       try {
-        const response = await authService.signup(formData);
+        // 전송할 데이터 구성
+        const signupData = {
+          username: formData.username,
+          nickname: formData.nickname.trim() || formData.username, // 닉네임이 없으면 username 사용
+          email: getFullEmail(),
+          password: formData.password,
+          confirmPassword: formData.confirmPassword,
+          address: getFullAddress() // 전체 주소 조합해서 전송
+        };
+        
+        const response = await authService.signup(signupData);
         if (response.success) {
           toast.success('회원가입이 완료되었습니다!');
           navigate('/login');
@@ -93,15 +201,20 @@ const Signup = () => {
       } catch (error: any) {
         console.error('회원가입 실패:', error);
         
-        const errorMessage = error.response?.data?.error || 
-                            error.response?.data?.message || 
-                            '회원가입에 실패했습니다.';
+        let errorMessage = error.response?.data?.error || 
+                          error.response?.data?.message || 
+                          '회원가입에 실패했습니다.';
         
-        toast.error(errorMessage);
-        
-        if (errorMessage.includes('이미 사용중인 이메일')) {
+        // 사용자 친화적인 에러 메시지 변환
+        if (errorMessage.includes('Duplicate entry') && errorMessage.includes('username')) {
+          errorMessage = '이미 사용중인 아이디입니다. 다른 아이디를 입력해주세요.';
+          setErrors(prev => ({ ...prev, username: '이미 사용중인 아이디입니다.' }));
+        } else if (errorMessage.includes('이미 사용중인 이메일') || errorMessage.includes('email')) {
+          errorMessage = '이미 사용중인 이메일입니다. 다른 이메일을 입력해주세요.';
           setErrors(prev => ({ ...prev, email: '이미 사용중인 이메일입니다.' }));
         }
+        
+        toast.error(errorMessage);
       } finally {
         setIsLoading(false);
       }
@@ -155,20 +268,73 @@ const Signup = () => {
                   )}
                 </div>
 
+                {/* 닉네임 (선택사항) */}
+                <div className="space-y-2">
+                  <Label htmlFor="nickname" className="text-black">
+                    닉네임 <span className="text-gray-500 text-sm">(선택사항)</span>
+                  </Label>
+                  <Input
+                    id="nickname"
+                    name="nickname"
+                    type="text"
+                    value={formData.nickname}
+                    onChange={handleInputChange}
+                    placeholder="닉네임을 입력하세요 (비워두면 아이디를 사용)"
+                    className="bg-white text-black border border-black"
+                  />
+                  <p className="text-xs text-gray-500">
+                    닉네임을 입력하지 않으면 아이디가 닉네임으로 사용됩니다.
+                  </p>
+                </div>
+
                 {/* 이메일 */}
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-black">이메일</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="이메일을 입력하세요"
-                    className={`bg-white text-black border ${errors.email ? 'border-black' : 'border-black'}`}
-                  />
+                  <Label className="text-black">이메일</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      name="emailLocal"
+                      type="text"
+                      value={formData.emailLocal}
+                      onChange={handleInputChange}
+                      placeholder="이메일 아이디"
+                      className={`bg-white text-black border ${errors.email ? 'border-red-500' : 'border-black'} flex-1`}
+                    />
+                    <span className="flex items-center text-black">@</span>
+                    <select
+                      value={formData.emailDomain}
+                      onChange={handleDomainChange}
+                      className="bg-white text-black border border-black rounded-md px-3 py-2 min-w-[140px] focus:outline-none focus:ring-2 focus:ring-black"
+                    >
+                      <option value="gmail.com">gmail.com</option>
+                      <option value="naver.com">naver.com</option>
+                      <option value="daum.net">daum.net</option>
+                      <option value="kakao.com">kakao.com</option>
+                      <option value="yahoo.com">yahoo.com</option>
+                      <option value="hotmail.com">hotmail.com</option>
+                      <option value="outlook.com">outlook.com</option>
+                      <option value="custom">직접 입력</option>
+                    </select>
+                  </div>
+                  
+                  {/* 직접 입력 필드 */}
+                  {formData.emailDomain === 'custom' && (
+                    <Input
+                      name="customDomain"
+                      type="text"
+                      value={formData.customDomain}
+                      onChange={handleCustomDomainChange}
+                      placeholder="도메인을 입력하세요 (예: company.com)"
+                      className="bg-white text-black border border-black"
+                    />
+                  )}
+                  
+                  {formData.emailLocal && (
+                    <p className="text-xs text-gray-600">
+                      전체 이메일: {getFullEmail()}
+                    </p>
+                  )}
                   {errors.email && (
-                    <p className="text-sm text-black">{errors.email}</p>
+                    <p className="text-sm text-red-600">{errors.email}</p>
                   )}
                 </div>
 
@@ -255,18 +421,69 @@ const Signup = () => {
 
                 {/* 주소 */}
                 <div className="space-y-2">
-                  <Label htmlFor="address" className="text-black">주소</Label>
+                  <Label className="text-black">주소</Label>
+                  
+                  {/* 우편번호 + 검색 버튼 */}
+                  <div className="flex gap-2">
+                    <Input
+                      name="postcode"
+                      type="text"
+                      value={formData.postcode}
+                      placeholder="우편번호"
+                      className="bg-white text-black border border-black flex-1"
+                      readOnly
+                    />
+                    <Button
+                      type="button"
+                      onClick={handleAddressSearch}
+                      className="bg-white border-2 border-black text-black hover:bg-black hover:text-white px-4 py-2 rounded-md whitespace-nowrap"
+                    >
+                      주소검색
+                    </Button>
+                  </div>
+                  
+                  {/* 도로명주소 */}
                   <Input
-                    id="address"
-                    name="address"
+                    name="roadAddress"
                     type="text"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    placeholder="주소를 입력하세요"
-                    className={`bg-white text-black border ${errors.address ? 'border-black' : 'border-black'}`}
+                    value={formData.roadAddress}
+                    placeholder="도로명주소"
+                    className="bg-white text-black border border-black"
+                    readOnly
                   />
+                  
+                  {/* 지번주소 */}
+                  {formData.jibunAddress && (
+                    <Input
+                      name="jibunAddress"
+                      type="text"
+                      value={formData.jibunAddress}
+                      placeholder="지번주소"
+                      className="bg-white text-black border border-gray-300"
+                      readOnly
+                    />
+                  )}
+                  
+                  {/* 상세주소 (선택사항) */}
+                  <Input
+                    id="detailAddress"
+                    name="detailAddress"
+                    type="text"
+                    value={formData.detailAddress}
+                    onChange={handleInputChange}
+                    placeholder="상세주소를 입력하세요 (선택사항)"
+                    className={`bg-white text-black border ${errors.address ? 'border-red-500' : 'border-black'}`}
+                  />
+                  
+                  {/* 전체 주소 미리보기 */}
+                  {formData.roadAddress && (
+                    <p className="text-xs text-gray-600">
+                      전체 주소: {getFullAddress()}
+                    </p>
+                  )}
+                  
                   {errors.address && (
-                    <p className="text-sm text-black">{errors.address}</p>
+                    <p className="text-sm text-red-600">{errors.address}</p>
                   )}
                 </div>
               </div>

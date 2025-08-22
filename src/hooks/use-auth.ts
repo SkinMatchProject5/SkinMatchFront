@@ -177,16 +177,59 @@ export const useAuth = () => {
         */
     };
 
-    const login = (user: User, accessToken: string, refreshToken: string) => {
+    const login = async (user: User, accessToken: string, refreshToken: string) => {
+        // 토큰을 먼저 저장
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('refreshToken', refreshToken);
         localStorage.setItem('userInfo', JSON.stringify(user));
 
+        // 임시로 로그인된 상태 설정
         setAuthState({
             user,
             isLoading: false,
             isAuthenticated: true,
         });
+
+        try {
+            // 로그인 후 서버에서 최신 사용자 정보 가져오기
+            console.log('로그인 후 최신 사용자 정보 조회 시작...');
+            const response = await authService.getCurrentUser();
+            
+            if (response.success && response.data) {
+                console.log('서버에서 받은 최신 사용자 정보:', response.data);
+                
+                const latestUserData: User = {
+                    id: response.data.id?.toString() || '',
+                    email: response.data.email || '',
+                    name: response.data.name || '',
+                    nickname: response.data.nickname || '',
+                    profileImage: response.data.profileImage || response.data.profileImageUrl,
+                    gender: response.data.gender,
+                    birthYear: response.data.birthYear,
+                    nationality: response.data.nationality,
+                    allergies: response.data.allergies,
+                    surgicalHistory: response.data.surgicalHistory,
+                    provider: response.data.provider,
+                    role: response.data.role,
+                };
+                
+                console.log('최신 닉네임:', latestUserData.nickname);
+                
+                // 최신 정보로 상태 업데이트
+                setAuthState({
+                    user: latestUserData,
+                    isLoading: false,
+                    isAuthenticated: true,
+                });
+                
+                // localStorage에 최신 정보 저장
+                localStorage.setItem('userInfo', JSON.stringify(latestUserData));
+                console.log('최신 사용자 정보로 업데이트 완료');
+            }
+        } catch (error) {
+            console.error('최신 사용자 정보 조회 실패:', error);
+            // 실패해도 기존 로그인 상태 유지
+        }
     };
 
     const logout = async (): Promise<void> => {
