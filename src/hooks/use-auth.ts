@@ -56,7 +56,7 @@ export const useAuth = () => {
                     const response = await authService.getCurrentUser();
                     if (response.success && response.data) {
                         const userData: User = {
-                            id: response.data.id?.toString() || 'test-user',
+                            id: response.data.id?.toString() || '',
                             email: response.data.email || '',
                             name: response.data.name || '',
                             nickname: response.data.nickname || '',
@@ -82,36 +82,20 @@ export const useAuth = () => {
                     }
                 }
                 
-                // 토큰이 없거나 API 실패시 기본값
-                const defaultUser: User = {
-                    id: 'test-user',
-                    email: 'test@example.com',
-                    name: '테스트 사용자',
-                    nickname: '테스트',
-                };
-                
+                // 토큰이 없거나 API 실패시 로그아웃 상태
                 setAuthState({
-                    user: defaultUser,
+                    user: null,
                     isLoading: false,
-                    isAuthenticated: true,
+                    isAuthenticated: false,
                 });
-                
-                localStorage.setItem('userInfo', JSON.stringify(defaultUser));
                 
             } catch (error) {
                 console.error('Auth initialization failed:', error);
-                // 에러시 기본 사용자로 설정
-                const defaultUser: User = {
-                    id: 'test-user',
-                    email: 'test@example.com',
-                    name: '테스트 사용자',
-                    nickname: '테스트',
-                };
-                
+                // 에러시 로그아웃 상태
                 setAuthState({
-                    user: defaultUser,
+                    user: null,
                     isLoading: false,
-                    isAuthenticated: true,
+                    isAuthenticated: false,
                 });
             }
         };

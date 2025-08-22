@@ -13,7 +13,7 @@ import Analysis from "./pages/Analysis";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
-import Admin from "./pages/Admin";
+import Admin from "./pages/Admin/index.tsx";
 import AuthCallback from "./pages/AuthCallback";
 import NotFound from "./pages/NotFound";
 

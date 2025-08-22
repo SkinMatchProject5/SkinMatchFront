@@ -1,14 +1,26 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 
 const Header = () => {
   const { isAuthenticated, logout } = useAuthContext();
   const location = useLocation();
+  const navigate = useNavigate();
   
   const isDarkPage = ['/camera', '/analysis', '/profile', '/login', '/signup'].includes(location.pathname);
   const textColor = isDarkPage ? 'text-black' : 'text-white/80';
   const hoverColor = isDarkPage ? 'hover:text-black/80' : 'hover:text-white';
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/', { replace: true });
+    } catch (error) {
+      console.error('로그아웃 실패:', error);
+      // 로그아웃 실패해도 홈으로 이동
+      navigate('/', { replace: true });
+    }
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
@@ -28,7 +40,7 @@ const Header = () => {
           </Link>
           {isAuthenticated ? (
             <button 
-              onClick={logout} 
+              onClick={handleLogout} 
               className={`text-center ${hoverColor} transition-colors`}
             >
               Logout

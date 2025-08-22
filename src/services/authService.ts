@@ -224,17 +224,7 @@ export const authService = {
     async getCurrentUser() {
         const token = localStorage.getItem('accessToken');
         if (!token || token === 'undefined' || token === 'null') {
-            // 개발/테스트 모드: 더미 사용자 데이터 반환
-            return {
-                success: true,
-                data: {
-                    id: 'test-user',
-                    email: 'test@example.com',
-                    name: '테스트 사용자',
-                    nickname: '테스트',
-                    role: 'USER'
-                }
-            };
+            throw new Error('인증 토큰이 없습니다.');
         }
         
         logger.debug('현재 사용자 정보 조회 요청');
@@ -246,17 +236,7 @@ export const authService = {
             return response.data;
         } catch (error: any) {
             logger.error('사용자 정보 조회 실패', error.response?.data);
-            // API 실패시 테스트 데이터 반환
-            return {
-                success: true,
-                data: {
-                    id: 'test-user',
-                    email: 'test@example.com',
-                    name: '테스트 사용자',
-                    nickname: '테스트',
-                    role: 'USER'
-                }
-            };
+            throw error;
         }
     },
 

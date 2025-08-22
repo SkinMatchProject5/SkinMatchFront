@@ -62,8 +62,8 @@ const Analysis = () => {
     }
 
     if (!uploadedImage) {
-      // 이미지가 없으면 더미 데이터 표시
-      setAnalysisResult(getDummyAnalysisResult());
+      // 이미지가 없으면 빈 상태 표시
+      setAnalysisResult(null);
       setIsLoading(false);
       return;
     }
@@ -72,32 +72,7 @@ const Analysis = () => {
     await performAnalysis();
   };
 
-  // 더미 분석 결과 데이터
-  const getDummyAnalysisResult = (): AnalysisResult => {
-    return {
-      predicted_disease: "아토피성 피부염",
-      confidence: 87,
-      summary: "촬영된 이미지에서 전형적인 아토피성 피부염의 특징이 관찰됩니다. 피부 표면이 거칠고 건조하며, 염증성 병변과 함께 경계가 불분명한 홍반이 확인됩니다. 만성적인 소양감으로 인한 긁힌 자국도 보입니다.",
-      recommendation: "보습제를 하루 2-3회 충분히 발라주시고, 긁지 않도록 주의하세요. 증상이 지속되거나 악화될 경우 피부과 전문의 상담을 받으시기 바랍니다. 스테로이드 외용제 사용 시 의사의 처방에 따라 사용하세요.",
-      similar_diseases: [
-        {
-          name: "접촉성 피부염",
-          confidence: 72,
-          description: "특정 물질에 대한 알레르기 반응으로 인한 피부염으로, 아토피와 유사한 증상을 보일 수 있습니다."
-        },
-        {
-          name: "지루성 피부염",
-          confidence: 65,
-          description: "주로 피지 분비가 많은 부위에 발생하는 만성 염증성 피부 질환입니다."
-        },
-        {
-          name: "건선",
-          confidence: 58,
-          description: "은백색 인설을 동반한 홍반성 구진이나 판이 특징적인 만성 염증성 피부 질환입니다."
-        }
-      ]
-    };
-  };
+
 
   // 더미 병원 추천 데이터
   const getDummyHospitals = () => {
@@ -212,8 +187,8 @@ const Analysis = () => {
       return uploadedImage;
     }
     
-    // 더미 데이터용 기본 이미지
-    return '/icon_14.png';
+    // 기본 플레이스홀더
+    return '/placeholder.svg';
   };
 
   // 새로운 분석 시작
@@ -350,17 +325,34 @@ const Analysis = () => {
   // 에러 상태 또는 결과 없음
   if (error) {
     return (
-      <div className="min-h-screen bg-white p-4 flex items-center justify-center">
+      <div className="min-h-screen bg-white p-4 pt-20 flex items-center justify-center">
         <div className="text-center max-w-md">
-          <AlertCircle className="w-16 h-16 mx-auto mb-4 text-red-500" />
-          <h2 className="text-2xl font-bold text-red-600 mb-2">분석 실패</h2>
-          <p className="text-muted-foreground mb-6">{error}</p>
-          <div className="space-y-2">
-            <Button onClick={performAnalysis} className="w-full" disabled={!uploadedImage}>
-              다시 시도
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <AlertCircle className="w-8 h-8 text-black" />
+          </div>
+          <h2 className="text-2xl font-bold text-black mb-4">분석에 실패했습니다</h2>
+          <p className="text-gray-600 mb-6 leading-relaxed">{error}</p>
+          <div className="space-y-3">
+            <Button 
+              onClick={performAnalysis} 
+              disabled={!uploadedImage}
+              className="w-full h-12 text-lg bg-black text-white font-sans border-2 border-transparent hover:bg-white hover:text-black hover:border-black
+              relative flex items-center justify-center gap-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden
+              before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] before:skew-x-12 hover:before:translate-x-[100%] before:transition-transform before:duration-700
+              disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-black disabled:hover:text-white"
+            >
+              <RefreshCw className="w-5 h-5 mr-2 relative z-10" />
+              <span className="relative z-10">다시 시도</span>
             </Button>
-            <Button variant="outline" onClick={startNewAnalysis} className="w-full">
-              새 사진 촬영
+            <Button 
+              onClick={startNewAnalysis}
+              variant="outline"
+              className="w-full h-12 text-lg font-sans bg-white border-2 border-black text-black relative flex items-center justify-center gap-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden
+              hover:bg-black hover:text-white hover:border-black
+              before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] before:skew-x-12 hover:before:translate-x-[100%] before:transition-transform before:duration-700"
+            >
+              <Camera className="w-5 h-5 mr-2 relative z-10" />
+              <span className="relative z-10">새 사진 촬영</span>
             </Button>
           </div>
         </div>
@@ -371,11 +363,11 @@ const Analysis = () => {
   // 분석 결과가 없는 경우 (빈 상태)
   if (!analysisResult) {
     return (
-      <div className="min-h-screen bg-white p-4">
-        <div className="max-w-4xl mx-auto">
+      <div className="min-h-screen bg-white p-4 pt-20">
+        <div className="max-w-2xl mx-auto">
           {/* 헤더 */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-black mb-2">
+            <h1 className="text-3xl font-bold text-black mb-4">
               피부 분석 결과
             </h1>
             <p className="text-gray-600">
@@ -384,70 +376,28 @@ const Analysis = () => {
           </div>
 
           {/* 빈 상태 카드 */}
-          <Card className="bg-white border border-gray-200 mb-8">
-            <CardContent className="p-8 text-center">
-              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Camera className="w-12 h-12 text-black" />
-              </div>
-              <h2 className="text-2xl font-bold text-black mb-4">분석 결과가 없습니다</h2>
-              <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                피부 상태를 분석하려면 먼저 사진을 촬영해주세요. 
-                AI가 즉시 분석하여 결과를 제공합니다.
-              </p>
-              <div className="space-y-3">
-                <Button 
-                  onClick={startNewAnalysis}
-                  className="w-full max-w-sm mx-auto flex items-center gap-2"
-                  size="lg"
-                >
-                  <Camera className="w-5 h-5" />
-                  사진 촬영하기
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* 기능 소개 카드들 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <Card className="bg-white border border-gray-200">
-              <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <Sparkles className="w-6 h-6 text-black" />
-                </div>
-                <h3 className="font-semibold mb-2">AI 분석</h3>
-                <p className="text-sm text-gray-600">
-                  고도화된 AI 모델로 정확한 피부 상태 분석
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white border border-gray-200">
-              <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <TrendingUp className="w-6 h-6 text-black" />
-                </div>
-                <h3 className="font-semibold mb-2">신뢰성 점수</h3>
-                <p className="text-sm text-gray-600">
-                  분석 결과의 신뢰도를 백분율로 제공
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white border border-gray-200">
-              <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <Info className="w-6 h-6 text-black" />
-                </div>
-                <h3 className="font-semibold mb-2">전문가 추천</h3>
-                <p className="text-sm text-gray-600">
-                  근처 병원 찾기 및 전문의 상담 연결
-                </p>
-              </CardContent>
-            </Card>
+          <div className="bg-white border border-gray-200 rounded-xl p-8 text-center mb-8">
+            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Camera className="w-12 h-12 text-black" />
+            </div>
+            <h2 className="text-2xl font-bold text-black mb-4">분석 결과가 없습니다</h2>
+            <p className="text-gray-600 mb-6 max-w-md mx-auto leading-relaxed">
+              피부 상태를 분석하려면 먼저 사진을 촬영해주세요. 
+              AI가 즉시 분석하여 결과를 제공합니다.
+            </p>
+            <Button 
+              onClick={startNewAnalysis}
+              className="w-full max-w-sm mx-auto h-12 text-lg bg-black text-white font-sans border-2 border-transparent hover:bg-white hover:text-black hover:border-black
+              relative flex items-center justify-center gap-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden
+              before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] before:skew-x-12 hover:before:translate-x-[100%] before:transition-transform before:duration-700"
+            >
+              <Camera className="w-5 h-5 mr-2 relative z-10" />
+              <span className="relative z-10">사진 촬영하기</span>
+            </Button>
           </div>
 
           {/* 면책조항 */}
-          <div className="p-4 bg-gray-50/80 backdrop-blur-sm rounded-xl border border-gray-200">
+          <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
             <p className="text-xs text-gray-500 text-center leading-relaxed">
               ※ 본 결과는 AI의 예측값으로 참고용입니다. 정확한 진단은 반드시 전문의의 상담을 받으시기 바랍니다.
               <br />
@@ -789,15 +739,7 @@ const Analysis = () => {
           </div>
         )}
 
-        {/* 더미 데이터 안내 */}
-        {!uploadedImage && !isFromStorage && (
-          <div className="mt-4 p-3 bg-gray-100 rounded-xl border border-gray-300">
-            <p className="text-sm text-gray-700 text-center flex items-center justify-center gap-2">
-              <Sparkles className="w-4 h-4" />
-              궁금한 점이 있으신 분들은 위의 'AI 상담' 버튼을 눌러 이용해주세요.
-            </p>
-          </div>
-        )}
+        {/* 더미 데이터 안내 제거 */}
 
         {/* 정제 결과는 진단 소견 카드 내에서 조건부 표시됩니다 */}
       </div>

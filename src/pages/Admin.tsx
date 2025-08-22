@@ -19,32 +19,7 @@ interface User {
 
 const Admin = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: '1',
-      username: 'user1',
-      email: 'user1@example.com',
-      name: '김철수',
-      joinDate: '2024-01-15',
-      status: 'active'
-    },
-    {
-      id: '2',
-      username: 'user2',
-      email: 'user2@example.com',
-      name: '이영희',
-      joinDate: '2024-02-20',
-      status: 'active'
-    },
-    {
-      id: '3',
-      username: 'user3',
-      email: 'user3@example.com',
-      name: '박민수',
-      joinDate: '2024-03-10',
-      status: 'inactive'
-    }
-  ]);
+  const [users, setUsers] = useState<User[]>([]);
 
   const filteredUsers = users.filter(user => 
     user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
