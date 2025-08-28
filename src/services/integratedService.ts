@@ -94,7 +94,7 @@ class IntegratedService {
           console.log(`✅ 자연어 쿼리 병원 검색 완료: ${hospitalSearchResult.hospitals.length}개 병원`);
           
         } catch (fallbackError) {
-          console.warn('자연어 쿼리 검색도 실패:', fallbackError);
+          console.warn('자연어 쿼리 검색도 실패, 기본 검색으로 시도:', fallbackError);
           searchStrategy = 'fallback';
           
           // 기본 피부과 검색
