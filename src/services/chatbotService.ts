@@ -1,4 +1,4 @@
-const CHATBOT_API_BASE_URL = import.meta.env.VITE_CHATBOT_API_BASE_URL || 'http://localhost:8010';
+const CHATBOT_API_BASE_URL = import.meta.env.VITE_CHATBOT_API_BASE_URL || 'http://localhost:8003';
 
 export interface ConsultStartResponse {
   session_id: string;
