@@ -242,7 +242,7 @@ const Signup = () => {
     <div className="min-h-screen bg-white flex items-center justify-center px-4 py-8 pt-24">
       <div className="w-full max-w-md">
 
-        <Card className="bg-white border border-black">
+        <Card className="liquid-glass">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl text-black">회원가입</CardTitle>
             <p className="text-black">새 계정을 만들어 서비스를 시작하세요</p>

@@ -23,6 +23,11 @@ const buttonVariants = cva(
         medical: "bg-gradient-to-r from-primary to-primary-glow text-primary-foreground hover:shadow-lg hover:scale-105 transform",
         soft: "bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20",
         glass: "bg-glass/50 backdrop-blur-sm text-glass-foreground hover:bg-glass/70 border border-border/50",
+        liquid: "relative rounded-full bg-white/20 text-foreground border border-white/30 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:bg-white/30 active:bg-white/40 active:scale-[0.99] before:absolute before:inset-0 before:pointer-events-none before:opacity-70 before:[background:radial-gradient(circle_at_10%_10%,rgba(255,255,255,0.45),transparent_40%),_radial-gradient(circle_at_90%_20%,rgba(255,255,255,0.3),transparent_35%),_linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0))]",
+        // iOS-inspired variants
+        ios: "rounded-full bg-white text-black border border-gray-300 shadow-sm hover:bg-gray-50 active:bg-gray-100 hover:shadow-md active:shadow-sm",
+        iosTint: "rounded-full bg-black text-white shadow-sm hover:bg-black/90 active:bg-black/80",
+        iosOutline: "rounded-full bg-transparent text-black border border-gray-300 hover:bg-gray-50 active:bg-gray-100",
       },
       size: {
         default: "h-10 px-6 py-2",

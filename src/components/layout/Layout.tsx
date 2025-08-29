@@ -8,7 +8,7 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   return (
-    <div className="min-h-screen bg-gradient-glass flex flex-col">
+    <div className="min-h-screen theme-veluga bg-gradient-glass flex flex-col">
       <Header />
       <main className="flex-1">
         {children}

@@ -4,11 +4,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Typography } from '@/components/ui/theme-typography';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import MarkdownMessage from '@/components/chat/MarkdownMessage';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Camera, Sparkles, TrendingUp, AlertCircle, Info, Loader2, RefreshCw, Clock, MapPin, Phone, Globe, MessageCircle, Send, X, ArrowLeft } from 'lucide-react';
+import { Camera, TrendingUp, AlertCircle, Info, Loader2, RefreshCw, Clock, MapPin, Phone, Globe, MessageCircle, Send, X, ArrowLeft } from 'lucide-react';
 import { aiService, AnalysisResult } from '@/services/aiService';
 import { hospitalService, type Hospital } from '@/services/hospitalService';
 import { chatbotService } from '@/services/chatbotService';
@@ -419,7 +419,7 @@ const Analysis = () => {
   // 로딩 상태
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white p-4 flex items-center justify-center">
+      <div className="min-h-screen p-4 flex items-center justify-center bg-[hsl(280_60%_92%)]">
         <div className="text-center">
           <Loader2 className="w-16 h-16 mx-auto mb-4 animate-spin text-black" />
           <h2 className="text-2xl font-bold text-black mb-2">AI 분석 중...</h2>
@@ -443,20 +443,18 @@ const Analysis = () => {
             <Button 
               onClick={performAnalysis} 
               disabled={!uploadedImage}
-              className="w-full h-12 text-lg bg-black text-white font-sans border-2 border-transparent hover:bg-white hover:text-black hover:border-black
-              relative flex items-center justify-center gap-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden
-              before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] before:skew-x-12 hover:before:translate-x-[100%] before:transition-transform before:duration-700
-              disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-black disabled:hover:text-white"
+              variant="iosTint"
+              size="lg"
+              className="w-full h-12 text-lg"
             >
               <RefreshCw className="w-5 h-5 mr-2 relative z-10" />
               <span className="relative z-10">다시 시도</span>
             </Button>
             <Button 
               onClick={startNewAnalysis}
-              variant="outline"
-              className="w-full h-12 text-lg font-sans bg-white border-2 border-black text-black relative flex items-center justify-center gap-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden
-              hover:bg-black hover:text-white hover:border-black
-              before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] before:skew-x-12 hover:before:translate-x-[100%] before:transition-transform before:duration-700"
+              variant="ios"
+              size="lg"
+              className="w-full h-12 text-lg"
             >
               <Camera className="w-5 h-5 mr-2 relative z-10" />
               <span className="relative z-10">새 사진 촬영</span>
@@ -470,7 +468,7 @@ const Analysis = () => {
   
 
   return (
-    <div className="min-h-screen bg-white p-4 pt-20">
+    <div className="min-h-screen p-4 pt-20 bg-[hsl(280_60%_92%)]">
       <div className="max-w-4xl mx-auto">
         {/* 헤더 */}
         <div className="mb-8">
@@ -485,18 +483,18 @@ const Analysis = () => {
         </div>
 
         {/* 사용자 업로드 이미지와 예상 질환 */}
-        <Card className="bg-white border border-gray-200 mb-6 overflow-hidden">
+        <Card className="mb-6 overflow-hidden">
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* 업로드된 사진 */}
               <div className="space-y-4 flex flex-col">
                 <h2 className="text-xl font-semibold mb-3 mx-[13px] my-0">분석 이미지</h2>
-                <div className=" bg-gray-100 rounded-2xl p-3 flex-grow">
-                  <div className="w-full h-full bg-white rounded-xl flex items-center justify-center relative overflow-hidden border border-gray-200">
+                <div className="liquid-glass rounded-2xl overflow-hidden flex-grow">
+                  <div className="w-full h-full flex items-center justify-center relative overflow-hidden">
                     <img
                       src={getImageUrl()}
                       alt="분석 이미지"
-                      className="w-full h-full object-cover rounded-xl"
+                      className="w-full h-full object-cover"
                       onError={(e) => {
                         // 이미지 로드 실패시 placeholder 표시
                         const target = e.target as HTMLImageElement;
@@ -517,6 +515,7 @@ const Analysis = () => {
                         {uploadedImage ? '환부 촬영' : '샘플 이미지'}
                       </Badge>
                     </div>
+                    {/* chips removed per request */}
                   </div>
                 </div>
               </div>
@@ -525,7 +524,7 @@ const Analysis = () => {
               <div className="space-y-4">
                 <h2 className="text-xl font-semibold mb-3">분석 결과</h2>
                 
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <div className="liquid-glass rounded-xl p-4">
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-semibold text-lg">예상 질환</h3>
                     <Badge className="bg-gray-100 text-black border-gray-300 hover:bg-gray-200 transition-colors duration-200">
@@ -552,7 +551,7 @@ const Analysis = () => {
 
 
                   {(adjustedResults?.main ?? analysisResult.confidence) < 70 && (
-                    <div className="flex items-center gap-2 text-gray-700 text-sm p-3 bg-gray-100 rounded-lg border border-gray-300">
+                    <div className="flex items-center gap-2 text-gray-700 text-sm p-3 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30">
                       <AlertCircle className="w-4 h-4" />
                       <span>정확한 진단을 위해 전문의 상담을 권장합니다</span>
                     </div>
@@ -560,7 +559,7 @@ const Analysis = () => {
                 </div>
 
                 {/* 진단 소견 */}
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <div className="liquid-glass rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-3">
                     <Info className="w-4 h-4 text-black" />
                     <h3 className="font-semibold text-lg">진단 소견</h3>
@@ -568,7 +567,7 @@ const Analysis = () => {
                   <p className="text-gray-700 leading-relaxed mb-4 text-sm">
                     {analysisResult.summary}
                   </p>
-                  <div className="bg-gray-100 rounded-lg p-3">
+                  <div className="rounded-lg p-3 bg-white/20 backdrop-blur-sm border border-white/30">
                     {refinedText ? (
                       <>
                         <p className="text-xs font-semibold text-gray-700 mb-1">의사에게는 이렇게 말하세요!</p>
@@ -588,7 +587,7 @@ const Analysis = () => {
 
       {/* 유사질환 박스 */}
 {analysisResult.similar_diseases && analysisResult.similar_diseases.length > 0 && (
-  <Card className="bg-white border border-gray-200 mb-8">
+  <Card className="mb-8">
     <CardContent className="p-6">
       <div className="mb-4">
         <h2 className="text-xl font-semibold">유사질환</h2>
@@ -603,7 +602,7 @@ const Analysis = () => {
           return (
             <div
               key={index}
-              className="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-all duration-200"
+              className="liquid-glass rounded-xl p-4 transition-all duration-200"
             >
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-medium text-gray-800">{item.name}</h3>
@@ -654,14 +653,14 @@ const Analysis = () => {
 
 
         {/* 병원 추천 */}
-        <Card className="bg-white border border-gray-200 mb-8">
+        <Card className="mb-8">
           <CardContent className="p-6">
             <div className="mb-4">
               <h2 className="text-xl font-semibold">추천 병원</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {hospitals.map((hospital, index) => (
-                <div key={index} className="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-all duration-200">
+                <div key={index} className="liquid-glass rounded-xl p-4 transition-all duration-200">
                   {/* 병원명과 배지 - 세로로 배치하여 공간 확보 */}
                   <div className="mb-3">
                     <div className="flex items-start justify-between mb-2">
@@ -704,7 +703,7 @@ const Analysis = () => {
                   </div>
                   
                   {/* 전문 분야 박스 */}
-                  <div className="bg-gray-100 rounded-lg p-3">
+                  <div className="rounded-lg p-3 bg-white/20 backdrop-blur-sm border border-white/30">
                     <p className="text-xs text-gray-500 mb-1">전문 분야</p>
                     <p className="text-sm font-medium text-gray-700 leading-relaxed break-words">
                       {Array.isArray(hospital.specialties) ? hospital.specialties.join(', ') : ''}
@@ -722,27 +721,28 @@ const Analysis = () => {
           <Button 
             onClick={startNewAnalysis}
             size="lg"
-            className="w-40 relative flex items-center justify-center gap-2 bg-transparent border-2 border-black text-black hover:bg-black hover:text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] before:skew-x-12 hover:before:translate-x-[100%] before:transition-transform before:duration-700"
+            variant="ios"
+            className="w-40"
           >
             <Camera className="w-5 h-5 relative z-10" />
             <span className="relative z-10">새 사진 분석</span>
           </Button>
 
-          {/* 챗봇 버튼 */}
-          <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
-            <DialogTrigger asChild>
-              <Button 
-                size="lg"
-                className="w-40 relative flex items-center justify-center gap-2 bg-black border-2 border-black text-white hover:bg-white hover:text-black font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] before:skew-x-12 hover:before:translate-x-[100%] before:transition-transform before:duration-700"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-gray-100/10 to-gray-200/10"></div>
-                <MessageCircle className="w-5 h-5 relative z-10" />
-                <span className="relative z-10">AI 상담</span>
-              </Button>
-            </DialogTrigger>
+          {/* 챗봇 버튼 (수동 오픈) */}
+          <Dialog open={isChatOpen} onOpenChange={(v) => { if (!v) setIsChatOpen(false); }}>
+            <Button 
+              size="lg"
+              variant="iosTint"
+              className="w-40 relative overflow-hidden"
+              onClick={() => setIsChatOpen(true)}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-gray-100/10 to-gray-200/10"></div>
+              <MessageCircle className="w-5 h-5 relative z-10" />
+              <span className="relative z-10">AI 상담</span>
+            </Button>
             
-            <DialogContent className="max-w-md h-[90vh] flex flex-col p-0">
-              <DialogHeader className="p-4 border-b border-black">
+            <DialogContent className="max-w-lg h-[90vh] flex flex-col p-0 liquid-glass">
+              <DialogHeader className="p-4 border-b border-white/40 backdrop-blur-sm">
                 <DialogTitle className="flex items-center gap-2">
                   <MessageCircle className="w-5 h-5 text-black" />
                   피부 분석 상담 챗봇
@@ -758,10 +758,10 @@ const Analysis = () => {
                       className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
                     >
                       <div
-                        className={`max-w-[80%] p-3 rounded-lg ${
+                        className={`max-w-[80%] px-4 py-3 rounded-2xl ${
                           message.isUser
-                            ? 'bg-black text-white'
-                            : 'bg-gray-100 text-gray-800'
+                            ? 'bg-gradient-to-r from-[hsl(222_89%_60%)] to-[hsl(259_94%_61%)] text-white shadow-md'
+                            : 'bg-white text-gray-900 border border-black/10 shadow-md'
                         }`}
                       >
                         {message.isUser ? (
@@ -783,7 +783,7 @@ const Analysis = () => {
                   {/* AI 타이핑 인디케이터 (카톡 스타일, 텍스트 제거) */}
                   {isBotTyping && (
                     <div className="flex justify-start">
-                      <div className="max-w-[60%] px-3 py-2 rounded-lg bg-gray-100 text-gray-800 border border-gray-200">
+                      <div className="px-3 py-2 rounded-2xl bg-white text-gray-800 border border-black/10 shadow-md">
                         <div className="flex items-center gap-1">
                           <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style={{animationDelay: '0ms'}} />
                           <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style={{animationDelay: '120ms'}} />
@@ -797,23 +797,22 @@ const Analysis = () => {
               </ScrollArea>
               
               {/* 메시지 입력 영역 */}
-              <div className="p-4 border-t border-black">
-                <div className="flex gap-2">
+              <div className="p-4 border-t border-white/40 backdrop-blur-sm">
+                <div className="flex gap-2 items-center">
                   <Input
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder={isBotTyping ? 'AI가 답변을 생성하고 있어요...' : '궁금한 점을 물어보세요...'}
-                    className="flex-1 border-black hover:border-black focus:border-black focus:outline-none focus:ring-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 ring-0"
+                    className="flex-1 bg-white/80 backdrop-blur-sm border border-black rounded-full h-11 px-4 text-sm focus:outline-none focus:ring-0 focus-visible:ring-0 focus:ring-offset-0 focus-visible:ring-offset-0"
                   />
-                  <Button 
+                  <button
                     onClick={sendMessage}
                     disabled={!newMessage.trim() || isBotTyping}
-                    size="icon"
-                    className="shrink-0 bg-black hover:bg-gray-800 text-white"
+                    className={`h-11 w-11 rounded-full flex items-center justify-center text-white shadow-md transition ${(!newMessage.trim() || isBotTyping) ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-95'} bg-gradient-to-r from-[hsl(222_89%_60%)] to-[hsl(259_94%_61%)]`}
                   >
                     <Send className="w-4 h-4" />
-                  </Button>
+                  </button>
                 </div>
               </div>
             </DialogContent>

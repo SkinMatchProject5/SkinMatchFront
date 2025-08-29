@@ -266,7 +266,7 @@ const Questionnaire = () => {
         </div>
 
         {/* 채팅 영역 */}
-        <Card className="glass-card mb-4" style={{ height: '60vh' }}>
+        <Card className="liquid-glass mb-4" style={{ height: '60vh' }}>
           <CardContent className="p-0 h-full flex flex-col">
             {/* 메시지 영역 */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">

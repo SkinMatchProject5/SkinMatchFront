@@ -77,7 +77,7 @@ const Login = () => {
     <div className="min-h-screen bg-white flex items-center justify-center px-4">
       <div className="w-full max-w-md">
 
-        <Card className="bg-white border border-black text-black">
+        <Card className="liquid-glass text-black">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl text-black">로그인</CardTitle>
             <p className="text-gray-600">계정에 로그인하여 서비스를 이용하세요</p>

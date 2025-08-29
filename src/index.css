@@ -83,6 +83,48 @@ All colors MUST be HSL.
     --sidebar-ring: 355 89% 65%;
   }
 
+  /* Veluga-inspired cool theme */
+  .theme-veluga {
+    --background: 0 0% 99%;
+    --foreground: 222 15% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 15% 15%;
+
+    /* Cool blue/indigo primary */
+    --primary: 222 89% 60%; /* blue */
+    --primary-foreground: 0 0% 100%;
+    --primary-soft: 222 100% 96%;
+    --primary-glow: 259 94% 61%; /* indigo */
+
+    --secondary: 222 20% 95%;
+    --secondary-foreground: 222 15% 20%;
+
+    --muted: 222 20% 96%;
+    --muted-foreground: 222 10% 40%;
+
+    --accent: 259 94% 61%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 222 25% 88%;
+    --input: 222 25% 94%;
+    --ring: 222 89% 60%;
+
+    /* Glassmorphism (cool tone) */
+    --glass-bg: hsla(222, 85%, 98%, 0.7);
+    --glass-border: hsla(222, 25%, 88%, 0.5);
+    --glass-shadow: 0 8px 32px hsla(222, 89%, 60%, 0.12);
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(222 89% 60%), hsl(259 94% 61%));
+    --gradient-secondary: linear-gradient(135deg, hsl(222 20% 95%), hsl(222 25% 90%));
+    --gradient-glass: linear-gradient(180deg, hsl(222 85% 98%), hsl(0 0% 100%));
+    --gradient-hero: linear-gradient(135deg, hsl(222 85% 98%), hsl(222 20% 95%), hsl(259 94% 61%));
+  }
+
   .dark {
     --background: 0 0% 8%;
     --foreground: 0 0% 95%;
@@ -465,6 +507,35 @@ All colors MUST be HSL.
     transition: all 0.3s ease-in-out;
   }
 
+  /* Liquid Glass container */
+  .liquid-glass {
+    position: relative;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+
+  .liquid-glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.7;
+    background:
+      radial-gradient(circle at 10% 10%, rgba(255,255,255,0.45), transparent 40%),
+      radial-gradient(circle at 90% 20%, rgba(255,255,255,0.3), transparent 35%),
+      linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0));
+  }
+
+  /* Remove moving highlight animation for liquid glass */
+  .liquid-glass::after {
+    content: none;
+  }
+
   /* 커스텀 그라데이션 */
   .gradient-primary {
     background: var(--gradient-primary);
@@ -488,6 +559,27 @@ All colors MUST be HSL.
   
   .gradient-hero {
     background: var(--gradient-hero);
+  }
+
+  /* iCloud-like theme */
+  .theme-icloud {
+    --background: 210 20% 98%;
+    --foreground: 222 15% 15%;
+    --primary: 210 90% 55%;
+    --primary-foreground: 0 0% 100%;
+    --muted: 210 25% 96%;
+    --border: 210 20% 90%;
+    --ring: 210 90% 55%;
+  }
+
+  .icloud-card {
+    @apply bg-white border border-black/5 shadow-sm rounded-2xl;
+  }
+
+  /* Disable glass overlays where needed */
+  .no-glass::before,
+  .no-glass::after {
+    content: none !important;
   }
 
   /* 플로우 셰이프 */
