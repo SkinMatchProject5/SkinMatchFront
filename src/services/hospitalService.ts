@@ -47,20 +47,7 @@ export interface HospitalSearchResponse {
 }
 
 // 병원 백엔드 결과(있는 그대로)
-export interface BackendHospitalResult {
-  parent?: {
-    name?: string;
-    region?: string;
-    contacts?: { tel?: string; addr?: string; url?: string };
-    specialties?: string[];
-  };
-  child?: {
-    title?: string;
-    embedding_text?: string;
-  };
-  scores?: Record<string, number>;
-  parent_id?: string;
-}
+// (구) 백엔드 원본 결과 타입은 제거되었습니다.
 
 // 지오코딩 서비스 (주소 -> 좌표 변환) - 네이버 지오코딩 API 사용
 export const geocodeAddress = async (address: string): Promise<{ lat: number; lng: number } | null> => {
@@ -142,28 +129,37 @@ const HOSPITAL_BACKEND_URL = import.meta.env.VITE_HOSPITAL_BACKEND_URL || 'http:
 // 병원 백엔드 API 클라이언트
 const hospitalApiClient = {
   async post(endpoint: string, data: any) {
-    const response = await fetch(`${HOSPITAL_BACKEND_URL}${endpoint}`, {
+    const doFetch = (ep: string) => fetch(`${HOSPITAL_BACKEND_URL}${ep}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'no-store'
       },
-      body: JSON.stringify(data),
-      cache: 'no-store'
+      body: JSON.stringify(data)
     });
-    
-    if (!response.ok) {
-      throw new Error(`Hospital API 오류: ${response.statusText}`);
+
+    // 1차 시도: 주 경로로 호출
+    let response = await doFetch(endpoint);
+
+    // 호환용 폴백: 로컬 백엔드가 루트 경로(`/search-ft-xml`)만 제공하는 경우
+    if (response.status === 404 && endpoint === '/api/v1/search/search-ft-xml') {
+      try {
+        const fallbackEp = '/search-ft-xml';
+        response = await doFetch(fallbackEp);
+      } catch (_) {
+        // 그대로 아래 공통 에러 처리로 진행
+      }
     }
-    
+
+    if (!response.ok) {
+      const text = await response.text().catch(() => '');
+      throw new Error(`Hospital API 오류: ${response.status} ${response.statusText} ${text}`.trim());
+    }
+
     return response.json();
   },
   
   async get(endpoint: string) {
-    const response = await fetch(`${HOSPITAL_BACKEND_URL}${endpoint}`, {
-      cache: 'no-store',
-      headers: { 'Cache-Control': 'no-store' }
-    });
+    const response = await fetch(`${HOSPITAL_BACKEND_URL}${endpoint}`);
     
     if (!response.ok) {
       throw new Error(`Hospital API 오류: ${response.statusText}`);
@@ -190,24 +186,46 @@ const convertToFTXML = (diagnosis: string, description?: string, similarDiseases
 // Hospital-Location-Backend 검색 결과를 프론트엔드 형태로 변환
 const convertHospitalResults = (backendResults: any[]): Hospital[] => {
   return backendResults.map((result: any, index: number) => {
-    const parent = result.parent || {};
-    const child = result.child || {};
-    const contacts = parent.contacts || {};
+    // Shape A: parent/child/contacts (older backend)
+    if (result && (result.parent || result.child)) {
+      const parent = result.parent || {};
+      const child = result.child || {};
+      const contacts = parent.contacts || {};
+      return {
+        id: index + 1,
+        name: parent.name || '병원명 없음',
+        rating: 0,
+        distance: '',
+        specialties: Array.isArray(parent.specialties) ? parent.specialties : [],
+        address: contacts.addr || parent.address || '',
+        phone: contacts.tel || contacts.phone || '',
+        description: child.embedding_text || child.title || '',
+        availableToday: false,
+        openHours: '',
+        reviewCount: 0,
+        isBookmarked: false,
+        website: contacts.url || '',
+        parkingAvailable: false,
+        reservationAvailable: false,
+        insuranceAccepted: false,
+      };
+    }
 
+    // Shape B: flattened fields (newer backend)
     return {
       id: index + 1,
-      name: parent.name || '병원명 없음',
+      name: result?.name || '병원명 없음',
       rating: 0,
-      distance: '',
-      specialties: Array.isArray(parent.specialties) ? parent.specialties : [],
-      address: contacts.addr || parent.address || '',
-      phone: contacts.tel || contacts.phone || '',
-      description: child.embedding_text || child.title || '',
+      distance: result?.distance || '',
+      specialties: Array.isArray(result?.specialties) ? result.specialties : [],
+      address: result?.addr || result?.address || '',
+      phone: result?.tell || result?.tel || result?.phone || '',
+      description: result?.description || '',
       availableToday: false,
       openHours: '',
       reviewCount: 0,
       isBookmarked: false,
-      website: contacts.url || '',
+      website: result?.url || result?.website || '',
       parkingAvailable: false,
       reservationAvailable: false,
       insuranceAccepted: false,
@@ -233,7 +251,7 @@ export const hospitalService = {
         final_k: 2
       };
       
-      const response = await hospitalApiClient.post('/search-ft-xml', searchData);
+      const response = await hospitalApiClient.post('/api/v1/search/search-ft-xml', searchData);
       
       const hospitals = convertHospitalResults(response.results || []);
       
@@ -271,12 +289,12 @@ export const hospitalService = {
         rerank_mode: 'ce',
         top_k: 24,
         group_size: 10,
-        final_k: 2
+        final_k: finalK
       };
       
       console.log('🚀 Hospital-Location-Backend 전송 데이터:', searchData);
       
-      const response = await hospitalApiClient.post('/search-ft-xml', searchData);
+      const response = await hospitalApiClient.post('/api/v1/search/search-ft-xml', searchData);
       
       console.log('📥 Hospital-Location-Backend 응답:', response);
       
@@ -295,24 +313,7 @@ export const hospitalService = {
     }
   },
 
-  // 원본 결과 그대로 반환 (results 배열)
-  async searchHospitalsRawByDiagnosis(
-    diagnosis: string,
-    description?: string,
-    similarDiseases: string[] = [],
-    finalK: number = 2
-  ): Promise<{ results: BackendHospitalResult[]; meta?: any }> {
-    const xmlData = convertToFTXML(diagnosis, description, similarDiseases);
-    const searchData = {
-      xml: xmlData,
-      rerank_mode: 'ce',
-      top_k: 24,
-      group_size: 10,
-      final_k: finalK,
-    };
-    const response = await hospitalApiClient.post('/search-ft-xml', searchData);
-    return { results: response.results || [], meta: response.meta };
-  },
+  // (구) 원본 결과 반환 메서드는 제거되었습니다.
 
   // 자연어 쿼리 기반 병원 검색
   async searchHospitalsByQuery(query: string, k: number = 5): Promise<HospitalSearchResponse> {

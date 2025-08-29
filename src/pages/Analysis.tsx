@@ -175,6 +175,83 @@ const Analysis = () => {
     };
   };
 
+  // 상위 3개 질환에 대해 softmax temperature 적용 (격차 기반 자동 t 조절)
+  const applySoftmaxToTop3 = (mainConfidence: number, similarDiseases: any[], temperature?: number) => {
+    // 상위 3개의 confidence 값들을 모음 (인덱스 정합성을 위해 필터링하지 않음)
+    const raw = [
+      mainConfidence,
+      ...(similarDiseases?.slice(0, 2).map(d => d.confidence) || [])
+    ];
+
+    // 모두 유효하지 않으면 원본 반환
+    if (raw.length === 0) return { main: mainConfidence, similar: similarDiseases };
+
+    // 스케일 자동 감지: 0~1 스케일 또는 0~100 스케일
+    const maxRaw = Math.max(...raw.map(v => (Number.isFinite(v) ? v : 0)));
+    const isFractionScale = maxRaw <= 1.5; // 1.0 근방이면 fraction으로 판단
+    const toProb = (c: number) => {
+      const v = Number.isFinite(c) ? c : 0;
+      const p = isFractionScale ? v : v / 100;
+      return Math.min(1, Math.max(0, p));
+    };
+
+    // 메인-2위 격차를 기반으로 temperature 자동 선택 (낮을수록 예리, 높을수록 완화)
+    const p0 = toProb(raw[0] ?? 0);
+    const p1 = toProb(raw[1] ?? 0); // 유사질환 중 최상위(있다면)
+    const gap = Math.max(0, p0 - p1);
+    const autoTemperature = (() => {
+      if (p0 >= 0.90 && gap >= 0.50) return 0.6;
+      if (p0 >= 0.85 && gap >= 0.35) return 0.7;
+      if (p0 >= 0.80 && gap >= 0.25) return 0.85;
+      if (p0 >= 0.70 && gap >= 0.15) return 1.0;
+      if (gap >= 0.10) return 1.2;
+      return 1.4;
+    })();
+    const usedTemperature = Math.min(1.6, Math.max(0.5, temperature ?? autoTemperature));
+
+    // 각 confidence를 0~1로 정규화 후 temperature 적용
+    const logits = raw.map(c => Math.log(Math.max(toProb(c), 0.001))); // p -> log(p), 최소값 보장
+    const adjustedLogits = logits.map(logit => logit / usedTemperature); // temperature 적용
+    
+    // softmax 계산
+    const maxLogit = Math.max(...adjustedLogits);
+    const expValues = adjustedLogits.map(logit => Math.exp(logit - maxLogit));
+    const sumExp = expValues.reduce((sum, val) => sum + val, 0);
+    let softmaxValues = expValues.map(val => val / (sumExp || 1));
+
+    // 메인 가중치 살짝 부여하여 체감 신뢰도 상향
+    const mainBoost = 1.1; // "조금 더 높게"를 위한 완만한 가중치
+    const boosted = softmaxValues.map((v, idx) => (idx === 0 ? v * mainBoost : v));
+    const boostedSum = boosted.reduce((a, b) => a + b, 0) || 1;
+    softmaxValues = boosted.map(v => v / boostedSum);
+
+    // 100% 기준으로 변환 (반올림)
+    const adjustedConfidences = softmaxValues.map(val => Math.round(val * 100));
+    // 합이 100이 아니면 마지막 항목을 조정해 합계 보정
+    const total = adjustedConfidences.reduce((a, b) => a + b, 0);
+    if (total !== 100 && adjustedConfidences.length > 0) {
+      const diff = 100 - total;
+      adjustedConfidences[adjustedConfidences.length - 1] = Math.max(
+        0,
+        adjustedConfidences[adjustedConfidences.length - 1] + diff
+      );
+    }
+    
+    return {
+      main: adjustedConfidences[0] ?? mainConfidence,
+      similar: (similarDiseases?.slice(0, 2) || []).map((disease, idx) => ({
+        ...disease,
+        confidence: adjustedConfidences[idx + 1] ?? disease.confidence
+      }))
+    };
+  };
+
+  // 분석 결과가 있을 때 softmax temperature 적용한 값들 계산
+  const adjustedResults = analysisResult ? applySoftmaxToTop3(
+    analysisResult.confidence, 
+    analysisResult.similar_diseases || []
+  ) : null;
+
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 80) return 'text-green-600 bg-green-50 border-green-200 hover:bg-green-100 transition-colors duration-200';
     if (confidence >= 60) return 'text-yellow-600 bg-yellow-50 border-yellow-200 hover:bg-yellow-100 transition-colors duration-200';
@@ -452,7 +529,7 @@ const Analysis = () => {
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-semibold text-lg">예상 질환</h3>
                     <Badge className="bg-gray-100 text-black border-gray-300 hover:bg-gray-200 transition-colors duration-200">
-                      {analysisResult.confidence}% 일치
+                      {adjustedResults?.main ?? analysisResult.confidence}% 일치
                     </Badge>
                   </div>
                   <p className="text-2xl font-bold text-black mb-2">
@@ -463,18 +540,18 @@ const Analysis = () => {
 <div className="mb-4">
   <div className="flex justify-between items-center mb-2">
     <span className="text-sm text-gray-600">신뢰도</span>
-    <span className="font-semibold">{analysisResult.confidence}%</span>
+    <span className="font-semibold">{adjustedResults?.main ?? analysisResult.confidence}%</span>
   </div>
   <div className="w-full bg-gray-200 rounded-full h-2">
     <div 
       className="bg-blue-500 h-2 rounded-full transition-all duration-500" 
-      style={{ width: `${analysisResult.confidence}%` }}
+      style={{ width: `${adjustedResults?.main ?? analysisResult.confidence}%` }}
     ></div>
   </div>
 </div>
 
 
-                  {analysisResult.confidence < 70 && (
+                  {(adjustedResults?.main ?? analysisResult.confidence) < 70 && (
                     <div className="flex items-center gap-2 text-gray-700 text-sm p-3 bg-gray-100 rounded-lg border border-gray-300">
                       <AlertCircle className="w-4 h-4" />
                       <span>정확한 진단을 위해 전문의 상담을 권장합니다</span>
@@ -517,10 +594,11 @@ const Analysis = () => {
         <h2 className="text-xl font-semibold">유사질환</h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {analysisResult.similar_diseases.slice(0, 2).map((item, index) => {
+        {(adjustedResults?.similar || analysisResult.similar_diseases || []).slice(0, 2).map((item, index) => {
+          const adjustedConfidence = item.confidence;
           const circleRadius = 18; // 그래프 크기
           const circleCircumference = 2 * Math.PI * circleRadius;
-          const progress = (item.confidence / 100) * circleCircumference;
+          const progress = (adjustedConfidence / 100) * circleCircumference;
 
           return (
             <div
@@ -559,7 +637,7 @@ const Analysis = () => {
                       />
                     </svg>
                     <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-gray-800">
-                      {item.confidence}%
+                      {adjustedConfidence}%
                     </span>
                   </div>
                 </div>
@@ -584,42 +662,53 @@ const Analysis = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {hospitals.map((hospital, index) => (
                 <div key={index} className="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-all duration-200">
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="font-semibold text-gray-800 text-lg">{hospital.name}</h3>
-                    <Badge variant="outline" className="text-xs bg-gray-100 text-black border-gray-300">
-                      전문병원
-                    </Badge>
+                  {/* 병원명과 배지 - 세로로 배치하여 공간 확보 */}
+                  <div className="mb-3">
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-semibold text-gray-800 text-lg leading-tight pr-2 flex-1">
+                        {hospital.name}
+                      </h3>
+                      <Badge variant="outline" className="text-xs bg-gray-100 text-black border-gray-300 whitespace-nowrap flex-shrink-0">
+                        전문병원
+                      </Badge>
+                    </div>
                   </div>
                   
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-start gap-2">
-                      <MapPin className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm text-gray-600">{hospital.address}</span>
+                  {/* 병원 정보들 - 각 라인별로 충분한 공간 확보 */}
+                  <div className="space-y-3 mb-4">
+                    <div className="flex items-start gap-3">
+                      <MapPin className="w-4 h-4 text-gray-500 mt-1 flex-shrink-0" />
+                      <span className="text-sm text-gray-600 leading-relaxed break-words flex-1">
+                        {hospital.address}
+                      </span>
                     </div>
                     
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       <Phone className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                      <a href={`tel:${hospital.phone}`} className="text-sm text-black hover:underline">
+                      <a href={`tel:${hospital.phone}`} className="text-sm text-black hover:underline break-all">
                         {hospital.phone}
                       </a>
                     </div>
                     
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       <Globe className="w-4 h-4 text-gray-500 flex-shrink-0" />
                       <a 
                         href={hospital.website || '#'} 
                         target="_blank" 
                         rel="noopener noreferrer" 
-                        className="text-sm text-black hover:underline"
+                        className="text-sm text-black hover:underline truncate"
                       >
                         병원 웹사이트
                       </a>
                     </div>
                   </div>
                   
+                  {/* 전문 분야 박스 */}
                   <div className="bg-gray-100 rounded-lg p-3">
                     <p className="text-xs text-gray-500 mb-1">전문 분야</p>
-                    <p className="text-sm font-medium text-gray-700">{Array.isArray(hospital.specialties) ? hospital.specialties.join(', ') : ''}</p>
+                    <p className="text-sm font-medium text-gray-700 leading-relaxed break-words">
+                      {Array.isArray(hospital.specialties) ? hospital.specialties.join(', ') : ''}
+                    </p>
                   </div>
                 </div>
               ))}

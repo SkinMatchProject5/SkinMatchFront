@@ -9,6 +9,13 @@ interface MarkdownMessageProps {
 // - Supports: headings, paragraphs, links, bold/italic/strike, inline code, code fences, lists, blockquotes, line breaks
 // - Uses Tailwind Typography (prose) for pleasant defaults
 export const MarkdownMessage: React.FC<MarkdownMessageProps> = ({ content }) => {
+  // Remove zero-width and bidi control characters to avoid invisible/overlay tricks
+  const stripInvisible = (str: string) =>
+    str
+      // zero-width spaces and joiners
+      .replace(/[\u200B-\u200D\u2060\uFEFF]/g, '')
+      // bidi control chars (LRM/RLM/LRE/RLE/PDF/LRO/RLO) and isolates
+      .replace(/[\u202A-\u202E\u2066-\u2069]/g, '');
   const escapeHtml = (str: string) =>
     str
       .replace(/&/g, '&amp;')
@@ -21,7 +28,7 @@ export const MarkdownMessage: React.FC<MarkdownMessageProps> = ({ content }) => 
     if (!md) return '';
 
     // Normalize newlines
-    let text = md.replace(/\r\n?/g, '\n');
+    let text = stripInvisible(md).replace(/\r\n?/g, '\n');
     // Escape HTML first
     text = escapeHtml(text);
 
@@ -56,10 +63,17 @@ export const MarkdownMessage: React.FC<MarkdownMessageProps> = ({ content }) => 
     const pushParagraph = (line: string) => {
       // Inline formatting within paragraph
       let l = line;
-      // Links (black styled)
-      l = l.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href=\"$2\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline decoration-gray-300 text-black hover:text-gray-700\">$1</a>');
-      // Inline code
-      l = l.replace(/`([^`]+)`/g, '<code class=\"bg-gray-100 text-gray-900 px-1 py-0.5 rounded\">$1</code>');
+      // Special: bracketed source with trailing URL, e.g. [출처: 제목 - https://...]
+      // Convert only the URL part to a hyperlink while keeping brackets/content
+      l = l.replace(/\[(.*?-\s*)(https?:\/\/[^\s\]]+)\]/g, (_m, prefix, url) => {
+        const a = `<a href=\"${url}\" target=\"_blank\" rel=\"noopener noreferrer nofollow\" class=\"underline decoration-gray-300 text-black hover:text-gray-700 break-all\">${url}</a>`;
+        return `[${prefix}${a}]`;
+      });
+
+      // Links (black styled, force wrapping for long tokens) — support http(s) and file://
+      l = l.replace(/\[([^\]]+)\]\(((?:https?:|file:)\/\/[^\s)]+)\)/g, '<a href=\"$2\" target=\"_blank\" rel=\"noopener noreferrer nofollow\" class=\"underline decoration-gray-300 text-black hover:text-gray-700 break-all\">$1</a>');
+      // Inline code (allow breaking for long paths/tokens)
+      l = l.replace(/`([^`]+)`/g, '<code class=\"bg-gray-100 text-gray-900 px-1 py-0.5 rounded break-all\">$1</code>');
       // Bold
       l = l.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
       // Strike
@@ -155,12 +169,12 @@ export const MarkdownMessage: React.FC<MarkdownMessageProps> = ({ content }) => 
 
   return (
     <div
-      className="prose prose-sm max-w-none leading-relaxed
+      className="prose prose-sm max-w-none leading-relaxed break-words
                  prose-headings:mt-1 prose-headings:mb-1 prose-headings:font-medium
                  prose-h1:text-base prose-h2:text-base prose-h3:text-sm
                  prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5
-                 prose-a:text-black hover:prose-a:text-gray-700 prose-a:underline prose-a:decoration-gray-300
-                 prose-code:text-[0.95em] prose-code:bg-gray-200 prose-code:text-gray-900 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
+                 prose-a:text-black hover:prose-a:text-gray-700 prose-a:underline prose-a:decoration-gray-300 prose-a:break-all
+                 prose-code:text-[0.95em] prose-code:bg-gray-200 prose-code:text-gray-900 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:break-all
                  prose-pre:my-2"
       dangerouslySetInnerHTML={{ __html: html }}
     />

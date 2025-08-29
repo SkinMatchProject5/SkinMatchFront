@@ -125,7 +125,7 @@ All colors MUST be HSL.
   /* Home page bright scoped theme */
   .theme-home-bright {
     --background: 0 0% 100%; /* pure white */
-    --foreground: 0 0% 15%; /* dark gray for clarity */
+    --foreground: 0 0% 15%; /* dark gray for better readability */
 
     --card: 0 0% 100%;
     --card-foreground: 0 0% 15%;

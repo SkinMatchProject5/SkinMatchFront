@@ -157,6 +157,15 @@ const Login = () => {
 
             {/* Social Login */}
             <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-black"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-white text-black">또는</span>
+                </div>
+              </div>
+              
               <SocialLogin />
             </div>
 
