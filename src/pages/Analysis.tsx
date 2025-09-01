@@ -200,9 +200,15 @@ const Analysis = () => {
     const p1 = toProb(raw[1] ?? 0); // 유사질환 중 최상위(있다면)
     const gap = Math.max(0, p0 - p1);
     const autoTemperature = (() => {
-      if (p0 >= 0.90 && gap >= 0.50) return 0.6;
-      if (p0 >= 0.85 && gap >= 0.35) return 0.7;
-      if (p0 >= 0.80 && gap >= 0.25) return 0.85;
+      if (p0 >= 0.90 && gap >= 0.50) return 0.55;
+      if (p0 >= 0.85 && gap >= 0.35) return 0.6;
+      if (p0 >= 0.80 && gap >= 0.25) return 0.7;
+
+      // ✅ 이 부분을 추가합니다.
+      // 1위 신뢰도가 50% 이상이고 2위와 격차가 어느 정도 있을 때,
+      // 온도를 0.9로 설정하여 확률을 완만하게 증폭시킵니다.
+      if (p0 >= 0.50 && gap >= 0.10) return 0.7;
+
       if (p0 >= 0.70 && gap >= 0.15) return 1.0;
       if (gap >= 0.10) return 1.2;
       return 1.4;
