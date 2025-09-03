@@ -22,12 +22,9 @@ const buttonVariants = cva(
         // Medical/professional variants
         medical: "bg-gradient-to-r from-primary to-primary-glow text-primary-foreground hover:shadow-lg hover:scale-105 transform",
         soft: "bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20",
-        glass: "bg-glass/50 backdrop-blur-sm text-glass-foreground hover:bg-glass/70 border border-border/50",
-        liquid: "relative rounded-full bg-white/20 text-foreground border border-white/30 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:bg-white/30 active:bg-white/40 active:scale-[0.99] before:absolute before:inset-0 before:pointer-events-none before:opacity-70 before:[background:radial-gradient(circle_at_10%_10%,rgba(255,255,255,0.45),transparent_40%),_radial-gradient(circle_at_90%_20%,rgba(255,255,255,0.3),transparent_35%),_linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0))]",
-        // iOS-inspired variants
-        ios: "rounded-full bg-white text-black border border-gray-300 shadow-sm hover:bg-gray-50 active:bg-gray-100 hover:shadow-md active:shadow-sm",
-        iosTint: "rounded-full bg-black text-white shadow-sm hover:bg-black/90 active:bg-black/80",
-        iosOutline: "rounded-full bg-transparent text-black border border-gray-300 hover:bg-gray-50 active:bg-gray-100",
+        glass: "btn-glass relative text-foreground hover:text-foreground border-0",
+        // Liquid glass variant (stronger visual so it’s clearly applied)
+        liquid: "relative overflow-hidden rounded-2xl bg-white/50 text-black border-2 border-white/70 backdrop-blur-[30px] shadow-[0_15px_50px_rgba(0,0,0,0.2)] hover:bg-white/60 hover:border-white/80 hover:shadow-[0_20px_60px_rgba(0,0,0,0.25)] hover:-translate-y-1 hover:scale-105 active:bg-white/45 active:scale-[0.98] transition-all duration-400 before:absolute before:inset-0 before:pointer-events-none before:bg-gradient-to-br before:from-white/40 before:via-white/20 before:to-transparent before:opacity-80",
       },
       size: {
         default: "h-10 px-6 py-2",
@@ -35,7 +32,7 @@ const buttonVariants = cva(
         lg: "h-12 rounded-lg px-8 text-base",
         xl: "h-14 rounded-lg px-10 text-lg",
         icon: "h-10 w-10",
-      },
+      }
     },
     defaultVariants: {
       variant: "default",

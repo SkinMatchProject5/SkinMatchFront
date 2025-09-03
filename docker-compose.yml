@@ -1,0 +1,9 @@
+version: "3.9"
+services:
+  skinmatchfront:
+    build: .
+    image: skinmatch/front:latest
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+

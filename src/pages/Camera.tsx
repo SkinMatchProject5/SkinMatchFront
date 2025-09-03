@@ -135,8 +135,11 @@ const Camera = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 pt-20 bg-[hsl(280_60%_92%)]">
+    <div className="min-h-screen p-6 pt-20 bg-[#f0efea] relative">
+      {/* 배경 이미지는 제거하고 보랏빛 그라데이션만 사용 */}
 
+      {/* 메인 콘텐츠 */}
+      <div className="relative z-10">
     <div className="max-w-2xl mx-auto">
         {/* 헤더 */}
         <div className="mb-10">
@@ -159,13 +162,27 @@ const Camera = () => {
 
         {!isComplete ? (
           /* 촬영 화면 */
-          <div className="mb-8 overflow-hidden">
+          <div className="mb-8 overflow-visible">
             <div
-              className={`aspect-[4/3] relative flex items-center justify-center overflow-hidden rounded-2xl liquid-glass ${isDragOver ? 'ring-2 ring-black' : ''}`}
+              className={`aspect-[4/3] relative flex items-center justify-center overflow-hidden rounded-2xl bg-[#f6f5f1] solid-card glow-purple glow-drop glow-pulse drag-drop-area transition-all duration-300 ${
+                isDragOver 
+                  ? 'drag-over' 
+                  : ''
+              }`}
               onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
-              onDragLeave={(e) => { e.preventDefault(); setIsDragOver(false); }}
+              onDragLeave={(e) => { 
+                e.preventDefault(); 
+                // 드래그가 완전히 영역을 벗어났을 때만 상태 변경
+                if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                  setIsDragOver(false); 
+                }
+              }}
               onDrop={handleDrop}
             >
+              {/* 드래그 오버 상태일 때 전체 배경 오버레이 */}
+              {isDragOver && (
+                <div className="absolute inset-0 bg-gradient-to-br from-black/10 via-black/5 to-transparent rounded-2xl border-2 border-dashed border-black/40 animate-pulse" />
+              )}
               {/* 실제 카메라 비디오 스트림 */}
               <video 
                 ref={videoRef} 
@@ -192,11 +209,15 @@ const Camera = () => {
               {/* 카메라가 비활성 상태일 때 */}
               {!isActive && (
                 <div className="absolute inset-0 grid place-items-center">
-                  <div className="flex flex-col items-center gap-3 text-center">
-                    <div className={`w-16 h-16 rounded-full border-2 ${isDragOver ? 'border-black bg-black/5' : 'border-white/30 bg-white/30'} backdrop-blur-sm flex items-center justify-center`}>
-                      <Upload className={`w-7 h-7 ${isDragOver ? 'text-black' : 'text-gray-500'}`} />
+                  <div className="flex flex-col items-center gap-3 text-center p-4">
+                    {/* Icon only — no box */}
+                    <Upload className={`w-12 h-12 ${isDragOver ? 'text-black' : 'text-gray-600'}`} />
+                    <div className={`${isDragOver ? 'text-black font-semibold' : 'text-black'}`}>
+                      <p className="text-lg font-medium font-sans mb-1">
+                        {isDragOver ? '이미지를 놓아주세요' : '이미지 끌어다 놓기'}
+                      </p>
+                      <p className="text-sm text-gray-600 font-sans">또는 아래 버튼을 클릭하세요</p>
                     </div>
-                    <p className="text-black font-medium font-sans">이미지 끌어다 놓기</p>
                   </div>
                 </div>
               )}
@@ -258,7 +279,7 @@ const Camera = () => {
               <h2 className="text-xl font-bold text-center mb-6 text-black font-sans">촬영 완료</h2>
               <div className="flex justify-center mb-6">
                 <div className="relative group max-w-xs">
-                  <div className="aspect-square liquid-glass rounded-2xl overflow-hidden">
+                  <div className="aspect-square bg-[#f6f5f1] solid-card glow-purple glow-pulse rounded-2xl overflow-hidden">
                     <div className="w-full h-full flex items-center justify-center relative overflow-hidden">
                       <img src={capturedImage} alt="촬영된 이미지" className="w-full h-full object-cover rounded-xl" />
                       <div className="absolute top-3 left-3">
@@ -312,42 +333,42 @@ const Camera = () => {
             <>
               {!isActive ? (
                 <Button 
-                  variant="iosTint"
+                  variant="liquid"
                   size="lg"
-                  className="w-full h-12 text-lg"
+                  className="w-full h-12 text-lg font-semibold"
                   onClick={() => {
     console.log('Camera start button clicked');
     startCamera();
   }}
 >
-  카메라 시작
+  <span className="relative z-10">카메라 시작</span>
 </Button>
               ) : !deviceInfo?.isDesktop ? (
                 // 모바일: 수동 촬영 버튼
                 <Button 
-                  variant="iosTint"
+                  variant="liquid"
                   size="lg"
-                  className="w-full h-12 text-lg"
+                  className="w-full h-12 text-lg font-semibold"
                   onClick={() => {
                     console.log('Manual capture button clicked');
                     manualCapture();
                   }} 
                   disabled={countdown.isActive}
                 >
-                  {countdown.isActive ? `촬영까지 ${countdown.remaining}초` : '촬영하기'}
+                  <span className="relative z-10">{countdown.isActive ? `촬영까지 ${countdown.remaining}초` : '촬영하기'}</span>
                 </Button>
               ) : (
                 // 웹에서 카메라 활성 시 중지 버튼 추가
                 <Button 
-                  variant="iosOutline"
+                  variant="liquid"
                   size="lg"
-                  className="w-full h-12 text-lg" 
+                  className="w-full h-12 text-lg font-semibold" 
                   onClick={() => {
                     console.log('Stop camera button clicked');
                     stopCamera();
                   }}
                 >
-                  카메라 중지
+                  <span className="relative z-10">카메라 중지</span>
                 </Button>
               )}
               
@@ -359,11 +380,11 @@ const Camera = () => {
                   <Button 
                     variant="liquid"
                     size="lg"
-                    className="w-full h-12 text-lg"
+                    className="w-full h-12 text-lg font-semibold"
                     onClick={() => document.getElementById('file-input')?.click()}
                   >
-                    <Upload className="w-5 h-5" />
-                    <span className="text-lg">갤러리에서 선택</span>
+                    <Upload className="w-5 h-5 relative z-10" />
+                    <span className="text-lg relative z-10">갤러리에서 선택</span>
                   </Button>
 
 
@@ -375,7 +396,7 @@ const Camera = () => {
           ) : (
             <div className="space-y-3">
               {/* 증상 입력 필드: 분석 버튼 위에 배치 */}
-              <div className="p-4 liquid-glass rounded-xl">
+              <div className="p-4 bg-[#f6f5f1] solid-card glow-purple glow-drop glow-pulse rounded-xl">
                 <label className="block text-sm font-medium text-black mb-2">증상 설명</label>
                 <textarea
                   value={symptomText}
@@ -387,9 +408,9 @@ const Camera = () => {
               </div>
 
              <Button 
-               variant="iosTint"
+               variant="liquid"
                size="lg"
-               className="w-full h-12 text-lg"
+               className="w-full h-12 text-lg font-semibold"
                onClick={() => navigate('/analysis', {
     state: {
       image: capturedImage,
@@ -408,20 +429,20 @@ const Camera = () => {
             <Button 
               variant="liquid"
               size="lg"
-              className="w-full h-12 text-lg mt-3"
+              className="w-full h-12 text-lg font-semibold mt-3"
               onClick={() => {
                 console.log('Retake button clicked');
                 retake();
               }}
 >
-  <RotateCcw className="w-5 h-5 mr-2" />
-  <span>다시 촬영하기</span>
+  <RotateCcw className="w-5 h-5 mr-2 relative z-10" />
+  <span className="relative z-10">다시 촬영하기</span>
 </Button>
           )}
         </div>
         
         {/* 촬영 가이드 */}
-        <div className="mt-8 p-4 liquid-glass rounded-xl">
+        <div className="mt-8 p-4 bg-[#f6f5f1] solid-card rounded-xl">
           <h3 className="font-medium text-black mb-2 font-sans">촬영 가이드</h3>
           <ul className="text-sm text-gray-600 space-y-1 font-sans">
             <li>• 충분한 조명이 있는 곳에서 촬영해주세요</li>
@@ -431,6 +452,7 @@ const Camera = () => {
             {!deviceInfo?.isDesktop && <li>• 후면 카메라로 고화질 촬영이 진행됩니다</li>}
           </ul>
         </div>
+      </div>
       </div>
     </div>
   );
